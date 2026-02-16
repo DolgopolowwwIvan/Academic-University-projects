@@ -1,0 +1,88 @@
+# Результаты сборки
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+
+# Файлы Visual Studio
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+
+# Проекты для тестов
+TestResults/
+*.TestResults/
+
+# Файлы базы данных
+*.mdf
+*.ldf
+
+# Backup files
+*.bak
+*.tmp
+
+# Logs
+*.log
+logs/
+
+# NuGet packages
+packages/
+*.nupkg
+
+# Проекты машинного обучения (ML.NET)
+*.zip
+*.mlmodel
+
+# Директории для временных файлов
+ipch/
+*.ipch
+
+# Файлы, созданные VS Code
+.vscode/
+
+# JetBrains Rider
+.idea/
+
+# Файлы пользовательских настроек
+*.dotSettings.user
+
+# Результаты покрытия кода
+coverage/
+*.coverage
+*.coveragexml
+
+# Файлы развертывания
+publish/
+*.publish.xml
+
+# Файлы, создаваемые инструментами
+*.pyc
+node_modules/
+jspm_packages/
+
+# Файлы конфигурации, содержащие секреты
+appsettings.Secrets.json
+secrets.json
+
+# Файлы, создаваемые пользователем
+*.pfx
+*.p12
+*.key
+
+# Файлы кэша
+*.cache
+*.dbmdl
+*.sdf
+
+# Проекты для Fakes
+FakesAssemblies/
