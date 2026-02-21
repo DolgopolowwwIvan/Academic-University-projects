@@ -10,48 +10,46 @@ namespace Converter_p1_p2.Tests
 {
     public class Conver_10_pTests
     {
-        [Fact]
-        public void DoMethodTest()
+
+        [Theory]
+        [InlineData(-17.875, 16, 3, "-11.E")]      
+        [InlineData(165.875, 16, 3, "A5.E")]     
+        [InlineData(10.625, 2, 6, "1010.101")]     
+        public void DoMethodTest(double number, int baseNum, int precision, string expected)
         {
-            string result = "-11.E";
-
-            string testCase = Conver_10_p.Do(-17.875,16,3);
-
-            Assert.Equal(result, testCase);
-
+            string actual = Conver_10_p.Do(number, baseNum, precision);
+            Assert.Equal(expected, actual);
         }
 
-        [Fact]
-        public void IntToCharMethodTest()
+        [Theory]
+        [InlineData(0, '0')]    
+        [InlineData(9, '9')]     
+        [InlineData(14, 'E')]    
+        public void IntToCharMethodTest(int digit, char expected)
         {
-            char result = 'E';
-
-            char testCase = Conver_10_p.int_to_Char(14);
-
-            Assert.Equal(result, testCase);
-
+            char actual = Conver_10_p.int_to_Char(digit);
+            Assert.Equal(expected, actual);
         }
 
-        [Fact]
-        public void IntToPMethodTest()
+        [Theory]
+        [InlineData(161, 16, "A1")]    
+        [InlineData(10, 2, "1010")]     
+        [InlineData(63, 8, "77")]      
+        public void IntToPMethodTest(int integer, int baseNum, string expected)
         {
-            string result = "A1";
-
-            string testCase = Conver_10_p.int_to_P(161, 16);
-
-            Assert.Equal(result, testCase);
-
+            string actual = Conver_10_p.int_to_P(integer, baseNum);
+            Assert.Equal(expected, actual);
         }
 
-        [Fact]
-        public void FltToPMethodTest()
+        [Theory]
+        [InlineData(0.9375, 2, 4, "1111")]    
+        [InlineData(0.875, 16, 3, "E")]      
+        [InlineData(0.75, 8, 3, "6")]        
+        public void FltToPMethodTest(double fraction, int baseNum, int precision, string expected)
         {
-            string result = "1111";
-
-            string testCase = Conver_10_p.flt_to_P(0.9375, 2, 4);
-
-            Assert.Equal(result, testCase);
-
+            string actual = Conver_10_p.flt_to_P(fraction, baseNum, precision);
+            Assert.Equal(expected, actual);
         }
+
     }
 }
