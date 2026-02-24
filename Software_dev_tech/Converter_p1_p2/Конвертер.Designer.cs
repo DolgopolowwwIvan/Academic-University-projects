@@ -57,8 +57,12 @@
             resultUpDown = new NumericUpDown();
             baseNumSys = new Label();
             resultNumSys = new Label();
+            trackBar1 = new TrackBar();
+            trackBar2 = new TrackBar();
             ((System.ComponentModel.ISupportInitialize)baseUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)resultUpDown).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar2).BeginInit();
             SuspendLayout();
             // 
             // exitBtn
@@ -327,7 +331,7 @@
             // baseNumSys
             // 
             baseNumSys.AutoSize = true;
-            baseNumSys.Location = new Point(76, 103);
+            baseNumSys.Location = new Point(12, 97);
             baseNumSys.Name = "baseNumSys";
             baseNumSys.Size = new Size(195, 15);
             baseNumSys.TabIndex = 32;
@@ -337,17 +341,43 @@
             // resultNumSys
             // 
             resultNumSys.AutoSize = true;
-            resultNumSys.Location = new Point(111, 230);
+            resultNumSys.Location = new Point(12, 224);
             resultNumSys.Name = "resultNumSys";
             resultNumSys.Size = new Size(161, 15);
             resultNumSys.TabIndex = 33;
             resultNumSys.Text = "Основание с. сч. результата";
+            // 
+            // trackBar1
+            // 
+            trackBar1.Location = new Point(11, 124);
+            trackBar1.Maximum = 16;
+            trackBar1.Minimum = 2;
+            trackBar1.Name = "trackBar1";
+            trackBar1.Size = new Size(318, 45);
+            trackBar1.TabIndex = 34;
+            trackBar1.Value = 2;
+            this.trackBar1.Value = 10; 
+            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll); 
+            // 
+            // trackBar2
+            // 
+            trackBar2.Location = new Point(11, 251);
+            trackBar2.Maximum = 16;
+            trackBar2.Minimum = 2;
+            trackBar2.Name = "trackBar2";
+            trackBar2.Size = new Size(318, 45);
+            trackBar2.TabIndex = 35;
+            trackBar2.Value = 2;
+            this.trackBar2.Value = 16;
+            this.trackBar2.Scroll += new System.EventHandler(this.trackBar2_Scroll);
             // 
             // Конвертер
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(341, 509);
+            Controls.Add(trackBar2);
+            Controls.Add(trackBar1);
             Controls.Add(resultNumSys);
             Controls.Add(baseNumSys);
             Controls.Add(resultUpDown);
@@ -378,10 +408,12 @@
             Controls.Add(historyBtn);
             Controls.Add(exitBtn);
             Name = "Конвертер";
-            Text = "Form1";
+            Text = "Конвертер";
             Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)baseUpDown).EndInit();
             ((System.ComponentModel.ISupportInitialize)resultUpDown).EndInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar2).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -417,5 +449,7 @@
         private NumericUpDown resultUpDown;
         private Label baseNumSys;
         private Label resultNumSys;
+        private TrackBar trackBar1;
+        private TrackBar trackBar2;
     }
 }
