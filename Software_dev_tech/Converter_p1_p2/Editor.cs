@@ -8,27 +8,17 @@ using System;
 
 namespace Converter_p1_p2
 {
-    /// <summary>
-    /// Редактор действительных чисел в системе счисления с основанием p (2..16)
-    /// </summary>
+
     public class Editor
     {
-        // Поле для хранения редактируемого числа
-        private string number = "";
+        private string number = ""; // Поле для хранения редактируемого числа
 
-        // Разделитель целой и дробной частей
-        private const string delim = ".";
+        private const string delim = "."; // Разделитель целой и дробной частей
 
-        // Ноль
         private const string zero = "0";
 
-        // Основание системы счисления
-        private int p;
+        private int p; // Основание системы счисления
 
-        /// <summary>
-        /// Конструктор
-        /// </summary>
-        /// <param name="p">Основание системы счисления (2..16)</param>
         public Editor(int p)
         {
             if (p < 2 || p > 16)
@@ -37,19 +27,11 @@ namespace Converter_p1_p2
             this.p = p;
         }
 
-        /// <summary>
-        /// Свойство для чтения редактируемого числа
-        /// </summary>
         public string Number
         {
             get { return number; }
         }
 
-        /// <summary>
-        /// Добавить цифру
-        /// </summary>
-        /// <param name="n">Цифра от 0 до p-1</param>
-        /// <returns>Текущее значение числа</returns>
         public string AddDigit(int n)
         {
             if (n < 0 || n >= p)
@@ -59,21 +41,11 @@ namespace Converter_p1_p2
             number += digit;
             return number;
         }
-
-        /// <summary>
-        /// Добавить ноль
-        /// </summary>
-        /// <returns>Текущее значение числа</returns>
         public string AddZero()
         {
             number += zero;
             return number;
         }
-
-        /// <summary>
-        /// Добавить разделитель
-        /// </summary>
-        /// <returns>Текущее значение числа</returns>
         public string AddDelim()
         {
             // Проверяем, есть ли уже разделитель
@@ -88,10 +60,7 @@ namespace Converter_p1_p2
             return number;
         }
 
-        /// <summary>
-        /// Удалить символ справа (забой)
-        /// </summary>
-        /// <returns>Текущее значение числа</returns>
+        // Удалить символ справа 
         public string Bs()
         {
             if (number.Length > 0)
@@ -104,21 +73,13 @@ namespace Converter_p1_p2
             }
             return number;
         }
-
-        /// <summary>
-        /// Очистить редактируемое число
-        /// </summary>
-        /// <returns>Текущее значение числа</returns>
         public string Clear()
         {
             number = "";
             return number;
         }
 
-        /// <summary>
-        /// Получить точность представления (количество знаков после разделителя)
-        /// </summary>
-        /// <returns>Количество знаков после запятой</returns>
+        /// Получить количество знаков после разделителя
         public int Acc()
         {
             int dotIndex = number.IndexOf(delim);
@@ -127,12 +88,6 @@ namespace Converter_p1_p2
 
             return number.Length - dotIndex - 1;
         }
-
-        /// <summary>
-        /// Выполнить команду редактирования
-        /// </summary>
-        /// <param name="j">Номер команды</param>
-        /// <returns>Текущее значение числа</returns>
         public string DoEdit(int j)
         {
             switch (j)
