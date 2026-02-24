@@ -7,9 +7,7 @@ using System;
 
 namespace Converter_p1_p2
 {
-    /// <summary>
-    /// Состояния конвертера
-    /// </summary>
+    
     public enum State
     {
         Редактирование,
@@ -40,7 +38,7 @@ namespace Converter_p1_p2
         /// </summary>
         public Control_()
         {
-            // Инициализация полей начальными значениями
+            
             pin = DEFAULT_PIN;
             pout = DEFAULT_POUT;
             accuracy = DEFAULT_ACCURACY;
@@ -49,41 +47,26 @@ namespace Converter_p1_p2
             his = new History();
         }
 
-        /// <summary>
-        /// Конструктор с параметрами
-        /// </summary>
-        /// <param name="pin">Основание исходной системы счисления</param>
-        /// <param name="pout">Основание результирующей системы счисления</param>
-        /// <param name="accuracy">Точность</param>
         public Control_(int pin, int pout, int accuracy)
         {
-            this.pin = pin;
-            this.pout = pout;
-            this.accuracy = accuracy;
+            this.pin = pin; // Основание исходной системы счисления
+            this.pout = pout; // Основание результирующей системы счисления
+            this.accuracy = accuracy; // Точность
             this.st = State.Редактирование;
             this.ed = new Editor(pin);
             this.his = new History();
         }
 
-        /// <summary>
-        /// Свойство для доступа к редактору
-        /// </summary>
         public Editor Ed
         {
             get { return ed; }
         }
 
-        /// <summary>
-        /// Свойство для доступа к истории
-        /// </summary>
         public History His
         {
             get { return his; }
         }
 
-        /// <summary>
-        /// Свойство для чтения и записи основания исходной системы счисления (p1)
-        /// </summary>
         public int Pin
         {
             get { return pin; }
@@ -98,9 +81,6 @@ namespace Converter_p1_p2
             }
         }
 
-        /// <summary>
-        /// Свойство для чтения и записи основания результирующей системы счисления (p2)
-        /// </summary>
         public int Pout
         {
             get { return pout; }
@@ -112,39 +92,29 @@ namespace Converter_p1_p2
             }
         }
 
-        /// <summary>
-        /// Свойство для чтения и записи точности
-        /// </summary>
         public int Accuracy
         {
             get { return accuracy; }
             set { accuracy = value; }
         }
 
-        /// <summary>
-        /// Свойство для чтения и записи состояния конвертера
-        /// </summary>
         public State St
         {
             get { return st; }
             set { st = value; }
         }
 
-        /// <summary>
-        /// Получить текущее число из редактора
-        /// </summary>
+        // Получить текущее число из редактора
         public string CurrentNumber
         {
             get { return ed.Number; }
         }
 
-        /// <summary>
-        /// Вычисление точности представления результата
-        /// </summary>
-        /// <returns>Количество знаков после запятой в результате</returns>
+ 
+        // Вычисление точности представления результата
         private int CalculateAccuracy()
         {
-            // Формула из примера: округление ed.Acc() * log(Pin) / log(Pout) + 0.5
+            // Формула: ed.Acc() * log(Pin) / log(Pout) + 0.5
             if (ed.Acc() == 0)
                 return 0;
 
@@ -152,14 +122,8 @@ namespace Converter_p1_p2
             return (int)Math.Round(result);
         }
 
-        /// <summary>
-        /// Выполнить команду конвертера
-        /// </summary>
-        /// <param name="j">Номер команды</param>
-        /// <returns>Строка результата (отредактированное число или результат преобразования)</returns>
         public string DoCmnd(int j)
         {
-            // Команда преобразования (номер 20 в данном примере, но можно настроить)
             if (j == 20)
             {
                 try
@@ -181,10 +145,8 @@ namespace Converter_p1_p2
                     // Преобразуем из 10-чной в p2
                     string result = Conver_10_p.Do(decimalValue, pout, resultAccuracy);
 
-                    // Меняем состояние на "Преобразовано"
                     st = State.Преобразовано;
 
-                    // Добавляем запись в историю
                     his.AddRecord(pin, pout, ed.Number, result);
 
                     return result;
@@ -194,7 +156,7 @@ namespace Converter_p1_p2
                     return $"Ошибка преобразования: {ex.Message}";
                 }
             }
-            // Команда смены состояния (если нужно принудительно вернуться в режим редактирования)
+            // Команда смены состояния
             else if (j == 21)
             {
                 st = State.Редактирование;
@@ -224,7 +186,6 @@ namespace Converter_p1_p2
                     return "История пуста";
                 }
             }
-            // Все остальные команды - команды редактирования
             else
             {
                 // При любой команде редактирования состояние меняется на "Редактирование"
@@ -237,37 +198,25 @@ namespace Converter_p1_p2
             }
         }
 
-        /// <summary>
-        /// Переключение основания исходной системы счисления
-        /// </summary>
-        /// <param name="newPin">Новое основание</param>
+        // Переключение основания исходной системы счисления
         public void ChangePin(int newPin)
         {
             Pin = newPin;
         }
 
-        /// <summary>
-        /// Переключение основания результирующей системы счисления
-        /// </summary>
-        /// <param name="newPout">Новое основание</param>
+        // Переключение основания результирующей системы счисления
         public void ChangePout(int newPout)
         {
             Pout = newPout;
         }
 
-        /// <summary>
-        /// Сброс конвертера в начальное состояние
-        /// </summary>
         public void Reset()
         {
             ed.Clear();
             st = State.Редактирование;
         }
 
-        /// <summary>
-        /// Получение информации о текущем состоянии
-        /// </summary>
-        /// <returns>Строка с информацией</returns>
+        // Получение информации о текущем состоянии
         public string GetStatus()
         {
             return $"Состояние: {st}, p1={pin}, p2={pout}, точность={accuracy}, текущее число: '{ed.Number}'";
