@@ -51,7 +51,14 @@
             execBtn = new Button();
             theeBtn = new Button();
             sevenBtn = new Button();
-            button1 = new Button();
+            baseTextBox = new TextBox();
+            resultTextBox = new TextBox();
+            baseUpDown = new NumericUpDown();
+            resultUpDown = new NumericUpDown();
+            baseNumSys = new Label();
+            resultNumSys = new Label();
+            ((System.ComponentModel.ISupportInitialize)baseUpDown).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)resultUpDown).BeginInit();
             SuspendLayout();
             // 
             // exitBtn
@@ -72,6 +79,7 @@
             historyBtn.TabIndex = 1;
             historyBtn.Text = "История";
             historyBtn.UseVisualStyleBackColor = true;
+            historyBtn.Click += historyBtn_Click;
             // 
             // infoBtn
             // 
@@ -81,6 +89,7 @@
             infoBtn.TabIndex = 2;
             infoBtn.Text = "Справка";
             infoBtn.UseVisualStyleBackColor = true;
+            infoBtn.Click += infoBtn_Click;
             // 
             // zeroBtn
             // 
@@ -91,6 +100,7 @@
             zeroBtn.TabIndex = 3;
             zeroBtn.Text = "0";
             zeroBtn.UseVisualStyleBackColor = false;
+            zeroBtn.Click += zeroBtn_Click;
             // 
             // fiveBtn
             // 
@@ -100,6 +110,7 @@
             fiveBtn.TabIndex = 4;
             fiveBtn.Text = "5";
             fiveBtn.UseVisualStyleBackColor = true;
+            fiveBtn.Click += fiveBtn_Click;
             // 
             // oneBtn
             // 
@@ -109,6 +120,7 @@
             oneBtn.TabIndex = 5;
             oneBtn.Text = "1";
             oneBtn.UseVisualStyleBackColor = true;
+            oneBtn.Click += oneBtn_Click;
             // 
             // dotBtn
             // 
@@ -118,6 +130,7 @@
             dotBtn.TabIndex = 6;
             dotBtn.Text = ".";
             dotBtn.UseVisualStyleBackColor = true;
+            dotBtn.Click += dotBtn_Click;
             // 
             // cBtn
             // 
@@ -127,6 +140,7 @@
             cBtn.TabIndex = 7;
             cBtn.Text = "C";
             cBtn.UseVisualStyleBackColor = true;
+            cBtn.Click += cBtn_Click;
             // 
             // eightBtn
             // 
@@ -136,6 +150,7 @@
             eightBtn.TabIndex = 8;
             eightBtn.Text = "8";
             eightBtn.UseVisualStyleBackColor = true;
+            eightBtn.Click += eightBtn_Click;
             // 
             // fourBtn
             // 
@@ -145,6 +160,7 @@
             fourBtn.TabIndex = 9;
             fourBtn.Text = "4";
             fourBtn.UseVisualStyleBackColor = true;
+            fourBtn.Click += fourBtn_Click;
             // 
             // bsBtn
             // 
@@ -164,6 +180,7 @@
             dBtn.TabIndex = 12;
             dBtn.Text = "D";
             dBtn.UseVisualStyleBackColor = true;
+            dBtn.Click += dBtn_Click;
             // 
             // nineBtn
             // 
@@ -173,6 +190,7 @@
             nineBtn.TabIndex = 13;
             nineBtn.Text = "9";
             nineBtn.UseVisualStyleBackColor = true;
+            nineBtn.Click += nineBtn_Click;
             // 
             // abtn
             // 
@@ -192,6 +210,7 @@
             eBtn.TabIndex = 20;
             eBtn.Text = "E";
             eBtn.UseVisualStyleBackColor = true;
+            eBtn.Click += eBtn_Click;
             // 
             // ceBtn
             // 
@@ -201,6 +220,7 @@
             ceBtn.TabIndex = 19;
             ceBtn.Text = "CE";
             ceBtn.UseVisualStyleBackColor = true;
+            ceBtn.Click += ceBtn_Click;
             // 
             // twoBtn
             // 
@@ -210,6 +230,7 @@
             twoBtn.TabIndex = 18;
             twoBtn.Text = "2";
             twoBtn.UseVisualStyleBackColor = true;
+            twoBtn.Click += twoBtn_Click;
             // 
             // sixBtn
             // 
@@ -229,6 +250,7 @@
             bBtn.TabIndex = 26;
             bBtn.Text = "B";
             bBtn.UseVisualStyleBackColor = true;
+            bBtn.Click += bBtn_Click;
             // 
             // FBtn
             // 
@@ -238,6 +260,7 @@
             FBtn.TabIndex = 25;
             FBtn.Text = "F";
             FBtn.UseVisualStyleBackColor = true;
+            FBtn.Click += FBtn_Click;
             // 
             // execBtn
             // 
@@ -267,22 +290,70 @@
             sevenBtn.TabIndex = 22;
             sevenBtn.Text = "7";
             sevenBtn.UseVisualStyleBackColor = true;
+            sevenBtn.Click += sevenBtn_Click;
             // 
-            // button1
+            // baseTextBox
             // 
-            button1.Location = new Point(264, 149);
-            button1.Name = "button1";
-            button1.Size = new Size(75, 23);
-            button1.TabIndex = 27;
-            button1.Text = "button1";
-            button1.UseVisualStyleBackColor = true;
+            baseTextBox.Location = new Point(12, 66);
+            baseTextBox.Name = "baseTextBox";
+            baseTextBox.Size = new Size(318, 23);
+            baseTextBox.TabIndex = 27;
+            baseTextBox.TextChanged += baseTextBox_TextChanged;
+            // 
+            // resultTextBox
+            // 
+            resultTextBox.Location = new Point(11, 193);
+            resultTextBox.Name = "resultTextBox";
+            resultTextBox.Size = new Size(318, 23);
+            resultTextBox.TabIndex = 28;
+            resultTextBox.TextChanged += resultTextBox_TextChanged;
+            // 
+            // baseUpDown
+            // 
+            baseUpDown.Location = new Point(277, 95);
+            baseUpDown.Name = "baseUpDown";
+            baseUpDown.Size = new Size(52, 23);
+            baseUpDown.TabIndex = 29;
+            baseUpDown.ValueChanged += baseUpDown_ValueChanged;
+            // 
+            // resultUpDown
+            // 
+            resultUpDown.Location = new Point(278, 222);
+            resultUpDown.Name = "resultUpDown";
+            resultUpDown.Size = new Size(52, 23);
+            resultUpDown.TabIndex = 31;
+            resultUpDown.ValueChanged += resultUpDown_ValueChanged;
+            // 
+            // baseNumSys
+            // 
+            baseNumSys.AutoSize = true;
+            baseNumSys.Location = new Point(76, 103);
+            baseNumSys.Name = "baseNumSys";
+            baseNumSys.Size = new Size(195, 15);
+            baseNumSys.TabIndex = 32;
+            baseNumSys.Text = "Основание с. сч. исходного числа";
+            baseNumSys.Click += label1_Click_1;
+            // 
+            // resultNumSys
+            // 
+            resultNumSys.AutoSize = true;
+            resultNumSys.Location = new Point(111, 230);
+            resultNumSys.Name = "resultNumSys";
+            resultNumSys.Size = new Size(161, 15);
+            resultNumSys.TabIndex = 33;
+            resultNumSys.Text = "Основание с. сч. результата";
             // 
             // Конвертер
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(341, 421);
-            Controls.Add(button1);
+            ClientSize = new Size(341, 509);
+            Controls.Add(resultNumSys);
+            Controls.Add(baseNumSys);
+            Controls.Add(resultUpDown);
+            Controls.Add(baseUpDown);
+            Controls.Add(resultTextBox);
+            Controls.Add(baseTextBox);
             Controls.Add(bBtn);
             Controls.Add(FBtn);
             Controls.Add(execBtn);
@@ -309,7 +380,10 @@
             Name = "Конвертер";
             Text = "Form1";
             Load += Form1_Load;
+            ((System.ComponentModel.ISupportInitialize)baseUpDown).EndInit();
+            ((System.ComponentModel.ISupportInitialize)resultUpDown).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -337,6 +411,11 @@
         private Button execBtn;
         private Button theeBtn;
         private Button sevenBtn;
-        private Button button1;
+        private TextBox baseTextBox;
+        private TextBox resultTextBox;
+        private NumericUpDown baseUpDown;
+        private NumericUpDown resultUpDown;
+        private Label baseNumSys;
+        private Label resultNumSys;
     }
 }
