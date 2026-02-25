@@ -9,7 +9,7 @@ namespace Converter_p1_p2
         static void Main()
         {
             ApplicationConfiguration.Initialize();
-            Application.Run(new Конвертер());
+            Application.Run(new пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ());
         }
     }
 }
