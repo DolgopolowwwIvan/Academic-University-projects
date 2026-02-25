@@ -7,17 +7,13 @@ using System;
 
 namespace Converter_p1_p2
 {
-    
+
     public enum State
     {
         Редактирование,
         Преобразовано
     }
 
-    /// <summary>
-    /// Класс управления для конвертера p1_р2
-    /// Координирует действия между интерфейсом, редактором, конвертерами и историей
-    /// </summary>
     public class Control_
     {
         // Константы по умолчанию
@@ -25,20 +21,15 @@ namespace Converter_p1_p2
         private const int DEFAULT_POUT = 16;
         private const int DEFAULT_ACCURACY = 10;
 
-        // Поля
         private Editor ed;              // Редактор
         private History his;             // История
         private int pin;                 // Основание исходной системы счисления
         private int pout;                // Основание результирующей системы счисления
         private State st;                 // Состояние конвертера
-        private int accuracy;             // Точность (число разрядов дробной части)
-
-        /// <summary>
-        /// Конструктор по умолчанию
-        /// </summary>
+        private int accuracy;             // Точность 
         public Control_()
         {
-            
+
             pin = DEFAULT_PIN;
             pout = DEFAULT_POUT;
             accuracy = DEFAULT_ACCURACY;
@@ -110,7 +101,7 @@ namespace Converter_p1_p2
             get { return ed.Number; }
         }
 
- 
+
         // Вычисление точности представления результата
         private int CalculateAccuracy()
         {

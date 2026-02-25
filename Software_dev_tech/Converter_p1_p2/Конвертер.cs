@@ -5,7 +5,7 @@ namespace Converter_p1_p2
 {
     public partial class Конвертер : Form
     {
-        // Объект класса Управление
+     
         private Control_ ctl = new Control_();
 
         public Конвертер()
@@ -22,13 +22,11 @@ namespace Converter_p1_p2
             baseTextBox.ReadOnly = true;
             baseTextBox.BackColor = System.Drawing.SystemColors.Window;
 
-            // ПОДКЛЮЧЕНИЕ ОБРАБОТЧИКОВ
             this.trackBar1.Scroll += trackBar1_Scroll;
             this.trackBar2.Scroll += trackBar2_Scroll;
             this.baseUpDown.ValueChanged += baseUpDown_ValueChanged;
             this.resultUpDown.ValueChanged += resultUpDown_ValueChanged;
 
-            // Установка начальных значений (гарантированно в пределах 2-16)
             trackBar1.Value = 10;
             trackBar2.Value = 16;
             baseUpDown.Value = 10;
@@ -56,25 +54,19 @@ namespace Converter_p1_p2
                     baseTextBox.Text = "0";
                 }
 
-                // Основание с.сч. исходного числа р1
                 trackBar1.Value = ctl.Pin;
                 baseUpDown.Value = ctl.Pin;
 
-                // Основание с.сч. результата р2
                 trackBar2.Value = ctl.Pout;
                 resultUpDown.Value = ctl.Pout;
 
-                // Подписи
                 baseNumSys.Text = "Основание с. сч. исходного числа " + trackBar1.Value;
                 resultNumSys.Text = "Основание с. сч. результата " + trackBar2.Value;
 
-                // Результат
                 resultTextBox.Text = "0";
 
-                // Установка Tag для всех кнопок
                 SetButtonTags();
 
-                // Обновить состояние командных кнопок
                 UpdateButtons();
             }
             catch (Exception ex)
@@ -91,7 +83,6 @@ namespace Converter_p1_p2
         {
             try
             {
-                // Цифровые кнопки 0-9
                 zeroBtn.Tag = 0;
                 oneBtn.Tag = 1;
                 twoBtn.Tag = 2;
@@ -103,7 +94,6 @@ namespace Converter_p1_p2
                 eightBtn.Tag = 8;
                 nineBtn.Tag = 9;
 
-                // Буквенные кнопки A-F
                 abtn.Tag = 10;      // A
                 bBtn.Tag = 11;       // B
                 cBtn.Tag = 12;       // C
@@ -134,7 +124,7 @@ namespace Converter_p1_p2
                 // Ссылка на компонент, на котором кликнули мышью
                 Button but = (Button)sender;
 
-                // Номер выбранной команды из свойства Tag
+                // Номер выбранной команды из Tag
                 if (but.Tag == null) return;
 
                 int j = Convert.ToInt32(but.Tag);
@@ -149,15 +139,10 @@ namespace Converter_p1_p2
             }
         }
 
-        /// <summary>
-        /// Выполнить команду конвертера
-        /// </summary>
-        /// <param name="j">Номер команды</param>
         private void DoCmnd(int j)
         {
             try
             {
-                // Команда выполнения (Enter/Execute) - номер 20
                 if (j == 20)
                 {
                     string result = ctl.DoCmnd(j);
@@ -165,10 +150,10 @@ namespace Converter_p1_p2
                 }
                 else
                 {
-                    // Если состояние "Преобразовано" и команда не служебная (21-24)
+                    // Если состояние "Преобразовано" и команда не служебная 
                     if (ctl.St == State.Преобразовано && j < 20)
                     {
-                        // Очистить содержимое редактора (команда 18 - BS до полной очистки)
+                        // Очистить содержимое редактора 
                         baseTextBox.Text = ctl.DoCmnd(18);
                         while (!string.IsNullOrEmpty(baseTextBox.Text))
                         {
@@ -227,9 +212,6 @@ namespace Converter_p1_p2
             }
         }
 
-        /// <summary>
-        /// Обновляет состояние командных кнопок по основанию с.сч. исходного числа
-        /// </summary>
         private void UpdateButtons()
         {
             try
@@ -241,7 +223,6 @@ namespace Converter_p1_p2
                     {
                         int j = Convert.ToInt32(button.Tag);
 
-                        // Для цифровых кнопок (0-15)
                         if (j <= 15)
                         {
                             // Доступны только цифры меньше основания
@@ -258,9 +239,6 @@ namespace Converter_p1_p2
             }
         }
 
-        /// <summary>
-        /// Выполняет необходимые обновления при смене ос. с.сч. р1
-        /// </summary>
         private void UpdateP1()
         {
             try
@@ -269,7 +247,7 @@ namespace Converter_p1_p2
                 int newPin = trackBar1.Value;
                 if (newPin < 2 || newPin > 16)
                 {
-                    return; // Ничего не делаем, если значение вне диапазона
+                    return; 
                 }
 
                 // Синхронизируем baseUpDown с trackBar1
@@ -296,7 +274,6 @@ namespace Converter_p1_p2
                     }
                 }
 
-                // Устанавливаем 0
                 baseTextBox.Text = "0";
                 resultTextBox.Text = "0";
             }
@@ -312,9 +289,6 @@ namespace Converter_p1_p2
             }
         }
 
-        /// <summary>
-        /// Выполняет необходимые обновления при смене ос. с.сч. р2
-        /// </summary>
         private void UpdateP2()
         {
             try
@@ -323,7 +297,7 @@ namespace Converter_p1_p2
                 int newPout = trackBar2.Value;
                 if (newPout < 2 || newPout > 16)
                 {
-                    return; // Ничего не делаем, если значение вне диапазона
+                    return; 
                 }
 
                 // Синхронизируем resultUpDown с trackBar2
@@ -332,10 +306,8 @@ namespace Converter_p1_p2
                     resultUpDown.Value = newPout;
                 }
 
-                // Копировать основание результата
                 ctl.Pout = newPout;
 
-                // Обновить подпись
                 resultNumSys.Text = "Основание с. сч. результата " + newPout;
 
                 // Если есть число в редакторе и оно не "0", пересчитать результат
@@ -355,28 +327,19 @@ namespace Converter_p1_p2
             }
         }
 
-        #region Обработчики событий для основания p1
-
-        #region Обработчики событий для основания p1
-
-        /// <summary>
-        /// Изменение основания p1 через TrackBar
-        /// </summary>
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
             try
             {
-                // Значение trackBar1 уже находится в пределах 2-16
                 baseUpDown.Value = trackBar1.Value;
                 UpdateP1();
             }
             catch (ArgumentOutOfRangeException)
             {
-                // Игнорируем ошибку - ничего не делаем
+                // Игнорируем ошибку
             }
             catch (Exception ex)
             {
-                // Для других ошибок показываем сообщение
                 MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -404,8 +367,6 @@ namespace Converter_p1_p2
             }
             catch (ArgumentOutOfRangeException)
             {
-                // Игнорируем ошибку - ничего не делаем
-                // Возвращаем предыдущее значение
                 baseUpDown.Value = ctl.Pin;
             }
             catch (Exception ex)
@@ -415,13 +376,6 @@ namespace Converter_p1_p2
             }
         }
 
-        #endregion
-
-        #region Обработчики событий для основания p2
-
-        /// <summary>
-        /// Изменение основания p2 через TrackBar
-        /// </summary>
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
             try
@@ -473,12 +427,6 @@ namespace Converter_p1_p2
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        #endregion
-
-        #endregion
-
-        #region Обработчики событий меню
 
         /// <summary>
         /// Пункт меню Выход
@@ -560,10 +508,6 @@ namespace Converter_p1_p2
             );
         }
 
-        #endregion
-
-        #region Обработчики событий клавиатуры (отключены)
-
         /// <summary>
         /// Обработка алфавитно-цифровых клавиш - отключено
         /// </summary>
@@ -582,10 +526,6 @@ namespace Converter_p1_p2
             e.Handled = true;
             e.SuppressKeyPress = true;
         }
-
-        #endregion
-
-        #region Существующие обработчики (привязка к button_Click)
 
         // Привязка всех кнопок к единому обработчику button_Click
         private void zeroBtn_Click(object sender, EventArgs e) => button_Click(sender, e);
@@ -614,13 +554,11 @@ namespace Converter_p1_p2
         // Кнопки меню
         private void button1_Click(object sender, EventArgs e) => exitBtn_Click(sender, e);
 
-        // Остальные обработчики (пустые)
+        // Остальные обработчики
         private void baseTextBox_TextChanged(object sender, EventArgs e) { }
         private void resultTextBox_TextChanged(object sender, EventArgs e) { }
         private void label1_Click_1(object sender, EventArgs e) { }
         private void button12_Click(object sender, EventArgs e) => abtn_Click(sender, e);
         private void button17_Click(object sender, EventArgs e) => sixBtn_Click(sender, e);
-
-        #endregion
     }
 }
