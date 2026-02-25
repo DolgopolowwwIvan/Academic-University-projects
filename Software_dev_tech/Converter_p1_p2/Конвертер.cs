@@ -355,10 +355,6 @@ namespace Converter_p1_p2
             }
         }
 
-        #region ����������� ������� ��� ��������� p1
-
-        #region ����������� ������� ��� ��������� p1
-
         /// <summary>
         /// ��������� ��������� p1 ����� TrackBar
         /// </summary>
@@ -415,9 +411,7 @@ namespace Converter_p1_p2
             }
         }
 
-        #endregion
-
-        #region ����������� ������� ��� ��������� p2
+  
 
         /// <summary>
         /// ��������� ��������� p2 ����� TrackBar
@@ -473,12 +467,6 @@ namespace Converter_p1_p2
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        #endregion
-
-        #endregion
-
-        #region ����������� ������� ����
 
         /// <summary>
         /// ����� ���� �����
@@ -560,10 +548,6 @@ namespace Converter_p1_p2
             );
         }
 
-        #endregion
-
-        #region ����������� ������� ���������� (���������)
-
         /// <summary>
         /// ��������� ���������-�������� ������ - ���������
         /// </summary>
@@ -582,10 +566,6 @@ namespace Converter_p1_p2
             e.Handled = true;
             e.SuppressKeyPress = true;
         }
-
-        #endregion
-
-        #region ������������ ����������� (�������� � button_Click)
 
         // �������� ���� ������ � ������� ����������� button_Click
         private void zeroBtn_Click(object sender, EventArgs e) => button_Click(sender, e);
@@ -614,13 +594,11 @@ namespace Converter_p1_p2
         // ������ ����
         private void button1_Click(object sender, EventArgs e) => exitBtn_Click(sender, e);
 
-        // ��������� ����������� (������)
+        // ��������� �����������
         private void baseTextBox_TextChanged(object sender, EventArgs e) { }
         private void resultTextBox_TextChanged(object sender, EventArgs e) { }
         private void label1_Click_1(object sender, EventArgs e) { }
         private void button12_Click(object sender, EventArgs e) => abtn_Click(sender, e);
         private void button17_Click(object sender, EventArgs e) => sixBtn_Click(sender, e);
-
-        #endregion
     }
 }
