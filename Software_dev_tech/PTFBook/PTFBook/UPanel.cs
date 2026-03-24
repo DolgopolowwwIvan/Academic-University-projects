@@ -19,7 +19,6 @@ namespace PTFBook
 
         }
 
-        // ���������� ������
         private void UpdateList()
         {
             listBox1.Items.Clear();
@@ -33,7 +32,6 @@ namespace PTFBook
             }
         }
 
-        // ������ "��������"
         private void btnAdd_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtName.Text) ||
@@ -50,7 +48,6 @@ namespace PTFBook
             lblResult.Text = $"������� ��������. �����: {control.RecordsCount()}";
         }
 
-        // ������ "�����"
         private void btnSearch_Click(object sender, EventArgs e)
         {
             string searchName = txtName.Text;
@@ -79,7 +76,6 @@ namespace PTFBook
             lblResult.Text = $"�������: {found}";
         }
 
-        // ������ "�������"
         private void btnDelete_Click(object sender, EventArgs e)
         {
             if (listBox1.SelectedIndex >= 0)
@@ -93,8 +89,6 @@ namespace PTFBook
                 lblResult.Text = "�������� ������ ��� ��������";
             }
         }
-
-        // ������ "��������"
         private void btnClear_Click(object sender, EventArgs e)
         {
             control.ClearBook();
@@ -102,14 +96,12 @@ namespace PTFBook
             lblResult.Text = "���������� ����� �������";
         }
 
-        // ������ "�������"
         private void btnAbout_Click(object sender, EventArgs e)
         {
             TAboutBox aboutBox = new TAboutBox();
             aboutBox.ShowDialog(this);
         }
 
-        // ������ "�������"
         private void btnCreate_Click(object sender, EventArgs e)
         {
             control.ClearBook();
@@ -119,7 +111,6 @@ namespace PTFBook
             lblResult.Text = "������� ����� ���������� �����";
         }
 
-        // ������ "��������"
         private void btnEdit_Click(object sender, EventArgs e)
         {
             if (listBox1.SelectedIndex >= 0)
