@@ -104,6 +104,16 @@
             btnSearch.UseVisualStyleBackColor = true;
             btnSearch.Click += btnSearch_Click;
             // 
+            // btnAbout
+            // 
+            btnAbout.Location = new Point(698, 645);
+            btnAbout.Name = "btnAbout";
+            btnAbout.Size = new Size(130, 35);
+            btnAbout.TabIndex = 15;
+            btnAbout.Text = "Справка";
+            btnAbout.UseVisualStyleBackColor = true;
+            btnAbout.Click += btnAbout_Click;
+            // 
             // btnAdd
             // 
             btnAdd.Location = new Point(698, 471);
@@ -165,7 +175,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(879, 651);
+            ClientSize = new Size(879, 700);
             Controls.Add(menuStrip1);
             Controls.Add(lblResult);
             Controls.Add(txtPhone);
@@ -178,6 +188,7 @@
             Controls.Add(listBox1);
             Controls.Add(btnClear);
             Controls.Add(btnSave);
+            Controls.Add(btnAbout);
             MainMenuStrip = menuStrip1;
             Name = "TPanel";
             Text = "Телефонная книга";
@@ -196,5 +207,6 @@
         private TextBox txtName;
         private TextBox txtPhone;
         private Label lblResult;
+        private Button btnAbout;
     }
 }
