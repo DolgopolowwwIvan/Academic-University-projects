@@ -45,11 +45,18 @@ namespace PTFBook
         private void btnAdd_Click(object sender, EventArgs e)
         {
             string name = txtName.Text.Trim();
-            string phone = txtPhone.Text.Trim();
+            string phone = txtPhone.Text;
 
             if (string.IsNullOrWhiteSpace(name))
             {
                 MessageBox.Show("Пожалуйста, введите имя абонента", "Ошибка", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (!txtPhone.MaskCompleted)
+            {
+                MessageBox.Show("Пожалуйста, введите номер телефона полностью", "Ошибка", 
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -65,7 +72,7 @@ namespace PTFBook
         private void btnSearch_Click(object sender, EventArgs e)
         {
             string searchName = txtName.Text.Trim();
-            string searchPhone = txtPhone.Text.Trim();
+            string searchPhone = txtPhone.Text;
 
             if (string.IsNullOrWhiteSpace(searchName) && string.IsNullOrWhiteSpace(searchPhone))
             {
@@ -137,8 +144,12 @@ namespace PTFBook
         {
             if (listBox1.SelectedIndex >= 0)
             {
-                string currentName = control.ReadFirstName(listBox1.SelectedIndex);
-                string currentPhone = control.ReadPhone(listBox1.SelectedIndex);
+                if (!txtPhone.MaskCompleted)
+                {
+                    MessageBox.Show("Пожалуйста, введите номер телефона полностью", "Ошибка", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
                 
                 control.UpdateRecord(listBox1.SelectedIndex, txtName.Text, txtPhone.Text);
                 UpdateList();
@@ -167,28 +178,6 @@ namespace PTFBook
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Ошибка сохранения: {ex.Message}", "Ошибка", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
-        private void btnLoad_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Текстовые файлы (*.txt)|*.txt|Файлы (*.*)|*.*";
-            openFileDialog.Title = "Открыть книгу";
-
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    control.LoadFromFile(openFileDialog.FileName);
-                    UpdateList();
-                    lblResult.Text = $"Загружено: {control.RecordsCount()} записей";
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Ошибка загрузки: {ex.Message}", "Ошибка", 
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }

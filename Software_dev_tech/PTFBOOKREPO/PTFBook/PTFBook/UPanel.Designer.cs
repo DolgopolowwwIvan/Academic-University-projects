@@ -22,7 +22,6 @@ namespace PTFBook
         private void InitializeComponent()
         {
             btnSave = new Button();
-            btnLoad = new Button();
             btnClear = new Button();
             listBox1 = new ListBox();
             btnDelete = new Button();
@@ -32,7 +31,7 @@ namespace PTFBook
             btnSearch = new Button();
             btnAdd = new Button();
             txtName = new TextBox();
-            txtPhone = new TextBox();
+            txtPhone = new MaskedTextBox();
             lblResult = new Label();
             menuStrip1 = new MenuStrip();
             menuHelp = new ToolStripMenuItem();
@@ -48,16 +47,6 @@ namespace PTFBook
             btnSave.Text = "Сохранить";
             btnSave.UseVisualStyleBackColor = true;
             btnSave.Click += btnSave_Click;
-            // 
-            // btnLoad
-            // 
-            btnLoad.Location = new Point(698, 376);
-            btnLoad.Name = "btnLoad";
-            btnLoad.Size = new Size(130, 63);
-            btnLoad.TabIndex = 16;
-            btnLoad.Text = "Загрузить";
-            btnLoad.UseVisualStyleBackColor = true;
-            btnLoad.Click += btnLoad_Click;
             // 
             // btnClear
             // 
@@ -151,8 +140,8 @@ namespace PTFBook
             // txtPhone
             // 
             txtPhone.Location = new Point(402, 471);
+            txtPhone.Mask = "8 (999) 000-00-00";
             txtPhone.Name = "txtPhone";
-            txtPhone.PlaceholderText = "Номер";
             txtPhone.Size = new Size(272, 23);
             txtPhone.TabIndex = 12;
             // 
@@ -204,7 +193,6 @@ namespace PTFBook
             Controls.Add(listBox1);
             Controls.Add(btnClear);
             Controls.Add(btnSave);
-            Controls.Add(btnLoad);
             Controls.Add(btnAbout);
             MainMenuStrip = menuStrip1;
             Name = "TPanel";
@@ -214,7 +202,6 @@ namespace PTFBook
         }
 
         private Button btnSave;
-        private Button btnLoad;
         private Button btnClear;
         private ListBox listBox1;
         private Button btnDelete;
@@ -223,7 +210,7 @@ namespace PTFBook
         private Button btnSearch;
         private Button btnAdd;
         private TextBox txtName;
-        private TextBox txtPhone;
+        private MaskedTextBox txtPhone;
         private Label lblResult;
         private Button btnAbout;
     }
