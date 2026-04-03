@@ -22,6 +22,7 @@ namespace PTFBook
         private void InitializeComponent()
         {
             btnSave = new Button();
+            btnLoad = new Button();
             btnClear = new Button();
             listBox1 = new ListBox();
             btnDelete = new Button();
@@ -47,6 +48,16 @@ namespace PTFBook
             btnSave.Text = "Сохранить";
             btnSave.UseVisualStyleBackColor = true;
             btnSave.Click += btnSave_Click;
+            // 
+            // btnLoad
+            // 
+            btnLoad.Location = new Point(698, 206);
+            btnLoad.Name = "btnLoad";
+            btnLoad.Size = new Size(130, 63);
+            btnLoad.TabIndex = 16;
+            btnLoad.Text = "Загрузить";
+            btnLoad.UseVisualStyleBackColor = true;
+            btnLoad.Click += btnLoad_Click;
             // 
             // btnClear
             // 
@@ -193,6 +204,7 @@ namespace PTFBook
             Controls.Add(listBox1);
             Controls.Add(btnClear);
             Controls.Add(btnSave);
+            Controls.Add(btnLoad);
             Controls.Add(btnAbout);
             MainMenuStrip = menuStrip1;
             Name = "TPanel";
@@ -213,5 +225,6 @@ namespace PTFBook
         private TextBox txtPhone;
         private Label lblResult;
         private Button btnAbout;
+        private Button btnLoad;
     }
 }
