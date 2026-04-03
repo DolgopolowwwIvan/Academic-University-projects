@@ -20,8 +20,6 @@
             lblAuthor = new Label();
             lblDescription = new Label();
             btnOK = new Button();
-            pictureBox1 = new PictureBox();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
             // lblTitle
@@ -49,7 +47,7 @@
             lblAuthor.Name = "lblAuthor";
             lblAuthor.Size = new Size(300, 25);
             lblAuthor.TabIndex = 2;
-            lblAuthor.Text = "Автор: Студент";
+            lblAuthor.Text = "Авторы: Долгополов Иван. Армбристере Никита";
             lblAuthor.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lblDescription
@@ -58,7 +56,13 @@
             lblDescription.Name = "lblDescription";
             lblDescription.Size = new Size(300, 80);
             lblDescription.TabIndex = 3;
-            lblDescription.Text = "Приложение для ведения телефонной книги.\r\nДобавление, удаление, поиск и сохранение контактов.";
+            lblDescription.Text = "Для добавления абонента заполните поля «ФИО» и «Номер» и нажмите кнопку «Добавить».\n" +
+                " Запись появится в списке слева. Для удаления выделите запись в списке и нажмите «Удалить» или дважды кликните по ней.\n" +
+                " Для поиска введите имя или номер в соответствующие поля и нажмите «Найти».\n" +
+                " Чтобы очистить всю книгу, используйте кнопку «Очистить».\n" +
+                " Для сохранения данных нажмите «Сохранить» и выберите папку; для загрузки ранее сохранённой книги" +
+                " — выберите пункт меню «Файл» → «Загрузить» (при наличии) или используйте кнопку «Загрузить».\n" +
+                " Новая книга создаётся кнопкой «Создать».";
             lblDescription.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // btnOK
@@ -71,21 +75,11 @@
             btnOK.UseVisualStyleBackColor = true;
             btnOK.Click += btnOK_Click;
             // 
-            // pictureBox1
-            // 
-            pictureBox1.Location = new Point(20, 20);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(80, 80);
-            pictureBox1.TabIndex = 5;
-            pictureBox1.TabStop = false;
-            pictureBox1.BackColor = SystemColors.ControlLight;
-            // 
             // TAboutBox
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(450, 280);
-            Controls.Add(pictureBox1);
             Controls.Add(btnOK);
             Controls.Add(lblDescription);
             Controls.Add(lblAuthor);
@@ -97,7 +91,6 @@
             Name = "TAboutBox";
             StartPosition = FormStartPosition.CenterParent;
             Text = "О программе";
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
         }
 
@@ -106,6 +99,5 @@
         private Label lblAuthor;
         private Label lblDescription;
         private Button btnOK;
-        private PictureBox pictureBox1;
     }
 }
