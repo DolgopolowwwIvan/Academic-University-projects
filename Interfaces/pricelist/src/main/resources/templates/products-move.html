@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Переместить товар - Прайс-лист</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="app-shell">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a href="/home" class="brand">Прайс-лист</a>
+            <nav class="main-nav">
+                <a href="/home">Главная</a>
+                <a href="/products/search">Поиск товаров</a>
+                <a href="/categories">Категории</a>
+                <a href="/products/add">Добавить товар</a>
+                <a href="/users/manage">Пользователи</a>
+            </nav>
+            <div class="userbar">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-secondary">Выход</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="page">
+        <div class="page-header">
+            <h1 class="page-title">Переместить товар</h1>
+            <a href="/products/search" class="btn btn-secondary">Назад</a>
+        </div>
+
+        <div class="card" style="margin-bottom: 16px;">
+            <h2 class="card-title">Текущие данные</h2>
+            <div class="form-grid" style="font-size: 13px;">
+                <div>
+                    <div class="muted" style="margin-bottom: 2px;">Название товара</div>
+                    <div style="font-weight: 500;" th:text="${product.name}">-</div>
+                </div>
+                <div>
+                    <div class="muted" style="margin-bottom: 2px;">Текущая категория</div>
+                    <div style="font-weight: 500;" th:text="${product.categoryName}">-</div>
+                </div>
+                <div>
+                    <div class="muted" style="margin-bottom: 2px;">Цена</div>
+                    <div style="font-weight: 500;" th:text="${#numbers.formatDecimal(product.price, 1, 2)} + ' ₽'">-</div>
+                </div>
+                <div>
+                    <div class="muted" style="margin-bottom: 2px;">Остаток</div>
+                    <div style="font-weight: 500;" th:text="${product.stockQuantity}">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">Новая категория</h2>
+            <form id="moveForm">
+                <input type="hidden" id="productId" th:value="${product.id}">
+
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label for="targetCategory" class="label">Целевая категория <span class="text-danger">*</span></label>
+                    <select id="targetCategory" name="targetCategoryId" required class="select">
+                        <option value="">Выберите категорию</option>
+                        <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}" th:disabled="${cat.id == product.categoryId}">Категория</option>
+                    </select>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">Переместить</button>
+                    <a href="/products/search" class="btn btn-secondary">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            &copy; 2024 Прайс-лист
+        </div>
+    </footer>
+
+    <div id="toast-container"></div>
+
+    <script th:inline="none">
+        document.getElementById('moveForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const productId = document.getElementById('productId').value;
+            const targetCategoryId = document.getElementById('targetCategory').value;
+
+            if (!targetCategoryId) return showToast('Выберите целевую категорию', 'error');
+            if (!confirm('Вы уверены, что хотите переместить товар в выбранную категорию?')) return;
+
+            const formData = new FormData();
+            formData.append('productId', productId);
+            formData.append('targetCategoryId', targetCategoryId);
+
+            fetch('/products/move', { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        setTimeout(() => window.location.href = '/products/search', 1000);
+                    } else {
+                        showToast(data.message, 'error');
+                    }
+                })
+                .catch(error => showToast('Произошла ошибка: ' + error, 'error'));
+        });
+
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.style.cssText = 'padding: 10px 14px; border-radius: 6px; border: 1px solid; margin-bottom: 8px; font-size: 13px;';
+            if (type === 'success') {
+                toast.style.background = '#f0fdf4';
+                toast.style.borderColor = '#bbf7d0';
+                toast.style.color = '#166534';
+            } else {
+                toast.style.background = '#fef2f2';
+                toast.style.borderColor = '#fecaca';
+                toast.style.color = '#dc2626';
+            }
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+    </script>
+</body>
+</html>

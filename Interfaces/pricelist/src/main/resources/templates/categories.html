@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Категории - Прайс-лист</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="app-shell">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a href="/home" class="brand">Прайс-лист</a>
+            <nav class="main-nav">
+                <a href="/home">Главная</a>
+                <a href="/products/search">Поиск товаров</a>
+                <a href="/categories">Категории</a>
+                <a href="/products/add">Добавить товар</a>
+                <a href="/users/manage">Пользователи</a>
+            </nav>
+            <div class="userbar">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-secondary">Выход</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="page">
+        <div class="page-header">
+            <h1 class="page-title">Категории</h1>
+            <a href="/home" class="btn btn-secondary">Назад</a>
+        </div>
+
+        <div class="card" style="margin-bottom: 16px;">
+            <h2 class="card-title" id="formTitle" style="margin-bottom: 12px;">Добавить категорию</h2>
+            <form id="categoryForm">
+                <input type="hidden" id="categoryId" name="id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="categoryName" class="label">Название <span class="text-danger">*</span></label>
+                        <input type="text" id="categoryName" name="name" required
+                               class="field" placeholder="Введите название">
+                    </div>
+                    <div class="form-group">
+                        <label for="categoryDescription" class="label">Описание</label>
+                        <input type="text" id="categoryDescription" name="description"
+                               class="field" placeholder="Введите описание">
+                    </div>
+                </div>
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <button type="button" id="clearForm" class="btn btn-secondary">Очистить</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title" style="margin-bottom: 12px;">Существующие категории</h2>
+
+            <div th:if="${categories.empty}" class="empty">0 items</div>
+
+            <div th:unless="${categories.empty}" class="table-wrap">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Описание</th>
+                        <th class="text-right">Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody id="categoryTableBody">
+                    <tr th:each="category : ${categories}" th:attr="data-id=${category.id}">
+                        <td th:text="${category.name}">Название</td>
+                        <td th:text="${category.description}">Описание</td>
+                        <td class="text-right">
+                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-right: 8px;"
+                                    th:onclick="'editCategory(' + ${category.id} + ')'">Изменить</button>
+                            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;"
+                                    th:onclick="'deleteCategory(' + ${category.id} + ')'">Удалить</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            &copy; 2024 Прайс-лист
+        </div>
+    </footer>
+
+    <div id="toast-container"></div>
+
+    <script th:inline="none">
+        document.getElementById('clearForm').addEventListener('click', function() {
+            document.getElementById('categoryId').value = '';
+            document.getElementById('categoryName').value = '';
+            document.getElementById('categoryDescription').value = '';
+            document.getElementById('formTitle').textContent = 'Добавить категорию';
+        });
+
+        document.getElementById('categoryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('categoryId').value;
+            const name = document.getElementById('categoryName').value;
+            const description = document.getElementById('categoryDescription').value;
+
+            const formData = new FormData();
+            if (id) formData.append('id', id);
+            formData.append('name', name);
+            formData.append('description', description);
+
+            fetch('/categories/save', { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        document.getElementById('clearForm').click();
+                        loadCategories();
+                    } else {
+                        showToast(data.message, 'error');
+                    }
+                })
+                .catch(error => showToast('Произошла ошибка: ' + error, 'error'));
+        });
+
+        function loadCategories() {
+            fetch('/categories/list')
+                .then(response => response.json())
+                .then(categories => {
+                    const tbody = document.getElementById('categoryTableBody');
+                    tbody.innerHTML = categories.map(c => `
+                        <tr data-id="${c.id}">
+                            <td>${c.name}</td>
+                            <td>${c.description || '—'}</td>
+                            <td class="text-right">
+                                <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-right: 8px;" onclick="editCategory(${c.id})">Изменить</button>
+                                <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="deleteCategory(${c.id})">Удалить</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                });
+        }
+
+        function editCategory(id) {
+            fetch('/categories/edit/' + id)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('categoryId').value = data.id;
+                    document.getElementById('categoryName').value = data.name;
+                    document.getElementById('categoryDescription').value = data.description || '';
+                    document.getElementById('formTitle').textContent = 'Редактировать категорию';
+                });
+        }
+
+        function deleteCategory(id) {
+            if (!confirm('Вы уверены, что хотите удалить эту категорию?')) return;
+            fetch('/categories/delete/' + id, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        loadCategories();
+                    } else {
+                        showToast(data.message, 'error');
+                    }
+                });
+        }
+
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.style.cssText = 'padding: 10px 14px; border-radius: 6px; border: 1px solid; margin-bottom: 8px; font-size: 13px;';
+            if (type === 'success') {
+                toast.style.background = '#f0fdf4';
+                toast.style.borderColor = '#bbf7d0';
+                toast.style.color = '#166534';
+            } else {
+                toast.style.background = '#fef2f2';
+                toast.style.borderColor = '#fecaca';
+                toast.style.color = '#dc2626';
+            }
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+    </script>
+</body>
+</html>

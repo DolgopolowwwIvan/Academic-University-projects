@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная - Прайс-лист</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="app-shell">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a href="/home" class="brand">Прайс-лист</a>
+            <nav class="main-nav">
+                <a href="/home">Главная</a>
+                <a href="/products/search">Поиск товаров</a>
+                <th:block sec:authorize="hasRole('ADMIN')">
+                    <a href="/categories">Категории</a>
+                    <a href="/products/add">Добавить товар</a>
+                    <a href="/users/manage">Пользователи</a>
+                </th:block>
+            </nav>
+            <div class="userbar">
+                <span sec:authentication="name">Гость</span>
+                <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
+                    <button type="submit" class="btn btn-secondary">Выход</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="page">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Обзор системы</h1>
+                <p class="page-subtitle">Пользователь: <span th:text="${username}">—</span></p>
+            </div>
+        </div>
+
+        <div class="grid grid-2">
+            <a href="/products/search" class="card" style="text-decoration: none;">
+                <h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 600;">Поиск товаров</h2>
+                <p class="muted" style="margin: 0; font-size: 13px;">Фильтрация по названию, категории, цене и наличию.</p>
+            </a>
+
+            <th:block sec:authorize="hasRole('ADMIN')">
+                <a href="/categories" class="card" style="text-decoration: none;">
+                    <h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 600;">Категории</h2>
+                    <p class="muted" style="margin: 0; font-size: 13px;">Создание и редактирование справочника категорий.</p>
+                </a>
+
+                <a href="/products/add" class="card" style="text-decoration: none;">
+                    <h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 600;">Добавить товар</h2>
+                    <p class="muted" style="margin: 0; font-size: 13px;">Создание новой позиции каталога.</p>
+                </a>
+
+                <a href="/users/manage" class="card" style="text-decoration: none;">
+                    <h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 600;">Пользователи</h2>
+                    <p class="muted" style="margin: 0; font-size: 13px;">Управление учетными записями и ролями.</p>
+                </a>
+            </th:block>
+        </div>
+
+        <div sec:authorize="!isAuthenticated()" class="card" style="margin-top: 16px;">
+            <p class="muted" style="margin: 0; font-size: 13px;">
+                Для изменения данных выполните вход: <a href="/login">Войти</a>
+            </p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            &copy; 2024 Прайс-лист
+        </div>
+    </footer>
+</body>
+</html>

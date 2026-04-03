@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - Прайс-лист</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="auth-layout">
+    <div class="auth-card">
+        <a href="/home" class="brand" style="display: block; text-align: center; margin-bottom: 16px;">Прайс-лист</a>
+        <h2 class="auth-title">Регистрация</h2>
+
+        <form th:action="@{/register}" method="post" id="registerForm">
+            <div th:if="${error}" class="inline-status error" th:text="${error}"></div>
+
+            <div class="form-group">
+                <label for="login" class="label">Логин <span class="text-danger">*</span></label>
+                <input type="text" id="login" name="login" required
+                       class="field" placeholder="Придумайте логин"
+                       minlength="3" maxlength="50">
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="label">Email <span class="text-danger">*</span></label>
+                <input type="email" id="email" name="email" required
+                       class="field" placeholder="example@mail.ru">
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="label">Пароль <span class="text-danger">*</span></label>
+                <input type="password" id="password" name="password" required
+                       class="field" placeholder="Придумайте пароль"
+                       minlength="4">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword" class="label">Подтверждение пароля <span class="text-danger">*</span></label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required
+                       class="field" placeholder="Повторите пароль"
+                       minlength="4">
+            </div>
+
+            <div class="actions" style="margin-top: 16px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Зарегистрироваться</button>
+            </div>
+        </form>
+
+        <div style="margin-top: 16px; text-align: center;">
+            <span class="muted">Уже есть аккаунт? </span>
+            <a href="/login">Войти</a>
+        </div>
+
+        <div style="margin-top: 12px; text-align: center;">
+            <a href="/home" class="muted">На главную</a>
+        </div>
+    </div>
+</body>
+</html>

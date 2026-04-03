@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск товаров - Прайс-лист</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="app-shell">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a href="/home" class="brand">Прайс-лист</a>
+            <nav class="main-nav">
+                <a href="/home">Главная</a>
+                <a href="/products/search">Поиск товаров</a>
+                <th:block sec:authorize="hasRole('ADMIN')">
+                    <a href="/categories">Категории</a>
+                    <a href="/products/add">Добавить товар</a>
+                    <a href="/users/manage">Пользователи</a>
+                </th:block>
+            </nav>
+            <div class="userbar">
+                <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
+                    <button type="submit" class="btn btn-secondary">Выход</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="page">
+        <div class="page-header">
+            <h1 class="page-title">Поиск товаров</h1>
+            <a href="/home" class="btn btn-secondary">Назад</a>
+        </div>
+
+        <div class="card" style="margin-bottom: 16px;">
+            <form id="searchForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="searchName" class="label">Название товара</label>
+                        <input type="text" id="searchName" name="productName"
+                               class="field" placeholder="Частичное совпадение">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="searchCategory" class="label">Категория</label>
+                        <select id="searchCategory" name="categoryId" class="select">
+                            <option value="">Любая</option>
+                            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">Категория</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="searchPriceFrom" class="label">Цена от</label>
+                        <input type="number" id="searchPriceFrom" name="priceFrom" step="0.01" min="0"
+                               class="field" placeholder="0.00">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="searchPriceTo" class="label">Цена до</label>
+                        <input type="number" id="searchPriceTo" name="priceTo" step="0.01" min="0"
+                               class="field" placeholder="9999.99">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 4px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" id="inStockOnly" name="inStockOnly" style="width: 16px; height: 16px;">
+                        <span class="label" style="margin: 0;">Только в наличии</span>
+                    </label>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">Найти</button>
+                    <button type="button" id="clearSearch" class="btn btn-secondary">Очистить</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title" style="margin-bottom: 12px;">Результаты поиска</h2>
+            <div id="searchResults" class="empty">No data</div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            &copy; 2024 Прайс-лист
+        </div>
+    </footer>
+
+    <div id="toast-container"></div>
+
+    <script th:inline="none">
+        document.getElementById('clearSearch').addEventListener('click', function() {
+            document.getElementById('searchName').value = '';
+            document.getElementById('searchCategory').value = '';
+            document.getElementById('searchPriceFrom').value = '';
+            document.getElementById('searchPriceTo').value = '';
+            document.getElementById('inStockOnly').checked = false;
+            document.getElementById('searchResults').innerHTML = '<div class="empty">No data</div>';
+        });
+
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData();
+            const name = document.getElementById('searchName').value;
+            const categoryId = document.getElementById('searchCategory').value;
+            const priceFrom = document.getElementById('searchPriceFrom').value;
+            const priceTo = document.getElementById('searchPriceTo').value;
+            const inStockOnly = document.getElementById('inStockOnly').checked;
+
+            if (name) formData.append('productName', name);
+            if (categoryId) formData.append('categoryId', categoryId);
+            if (priceFrom) formData.append('priceFrom', priceFrom);
+            if (priceTo) formData.append('priceTo', priceTo);
+            if (inStockOnly) formData.append('inStockOnly', 'true');
+
+            fetch('/products/search', { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(products => displayResults(products))
+                .catch(error => showToast('Ошибка поиска: ' + error, 'error'));
+        });
+
+        function displayResults(products) {
+            const container = document.getElementById('searchResults');
+
+            if (products.length === 0) {
+                container.innerHTML = '<div class="empty">No data</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="table-wrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Категория</th>
+                                <th class="text-right">Цена</th>
+                                <th class="text-right">На складе</th>
+                                <th>Описание</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${products.map(p => `
+                                <tr>
+                                    <td style="font-weight: 500;">${p.name}</td>
+                                    <td class="muted">${p.categoryName}</td>
+                                    <td class="text-right">${parseFloat(p.price).toFixed(2)} ₽</td>
+                                    <td class="text-right">${p.stockQuantity}</td>
+                                    <td class="muted">${p.description || '—'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="muted" style="margin-top: 12px;">Найдено: ${products.length}</div>
+            `;
+        }
+
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.style.cssText = 'padding: 10px 14px; border-radius: 6px; border: 1px solid; margin-bottom: 8px; font-size: 13px;';
+            if (type === 'success') {
+                toast.style.background = '#f0fdf4';
+                toast.style.borderColor = '#bbf7d0';
+                toast.style.color = '#166534';
+            } else {
+                toast.style.background = '#fef2f2';
+                toast.style.borderColor = '#fecaca';
+                toast.style.color = '#dc2626';
+            }
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+    </script>
+</body>
+</html>

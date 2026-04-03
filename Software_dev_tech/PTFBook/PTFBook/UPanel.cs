@@ -19,7 +19,7 @@ namespace PTFBook
 
         }
 
-        // Обновление списка
+        // пїЅпїЅпїЅ пїЅ
         private void UpdateList()
         {
             listBox1.Items.Clear();
@@ -33,13 +33,13 @@ namespace PTFBook
             }
         }
 
-        // Кнопка "Добавить"
+        // пїЅ "пїЅ"
         private void btnAdd_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtName.Text) ||
                 string.IsNullOrWhiteSpace(txtPhone.Text))
             {
-                lblResult.Text = "Заполните ФИО и номер телефона";
+                lblResult.Text = "пїЅпїЅ пїЅпїЅпїЅ пїЅ  пїЅ";
                 return;
             }
 
@@ -47,10 +47,10 @@ namespace PTFBook
             UpdateList();
             txtName.Clear();
             txtPhone.Clear();
-            lblResult.Text = $"Абонент добавлен. Всего: {control.RecordsCount()}";
+            lblResult.Text = $" пїЅ. : {control.RecordsCount()}";
         }
 
-        // Кнопка "Найти"
+        // пїЅ ""
         private void btnSearch_Click(object sender, EventArgs e)
         {
             string searchName = txtName.Text;
@@ -58,7 +58,7 @@ namespace PTFBook
 
             if (string.IsNullOrWhiteSpace(searchName) && string.IsNullOrWhiteSpace(searchPhone))
             {
-                lblResult.Text = "Введите ФИО или номер для поиска";
+                lblResult.Text = " пїЅпїЅпїЅ пїЅпїЅпїЅ  пїЅпїЅпїЅ пїЅ";
                 return;
             }
 
@@ -76,43 +76,50 @@ namespace PTFBook
                     found++;
                 }
             }
-            lblResult.Text = $"Найдено: {found}";
+            lblResult.Text = $": {found}";
         }
 
-        // Кнопка "Удалить"
+        // пїЅ ""
         private void btnDelete_Click(object sender, EventArgs e)
         {
             if (listBox1.SelectedIndex >= 0)
             {
                 control.DeleteSelectedRecord(listBox1.SelectedIndex);
                 UpdateList();
-                lblResult.Text = $"Запись удалена. Всего: {control.RecordsCount()}";
+                lblResult.Text = $"пїЅ . : {control.RecordsCount()}";
             }
             else
             {
-                lblResult.Text = "Выберите запись для удаления";
+                lblResult.Text = "пїЅ пїЅ пїЅпїЅпїЅ пїЅ";
             }
         }
 
-        // Кнопка "Очистить"
+        // пїЅ "пїЅ"
         private void btnClear_Click(object sender, EventArgs e)
         {
             control.ClearBook();
             UpdateList();
-            lblResult.Text = "Телефонная книга очищена";
+            lblResult.Text = "пїЅпїЅпїЅ  ";
         }
 
-        // Кнопка "Создать"
+        // пїЅ ""
+        private void btnAbout_Click(object sender, EventArgs e)
+        {
+            TAboutBox aboutBox = new TAboutBox();
+            aboutBox.ShowDialog(this);
+        }
+
+        // пїЅ ""
         private void btnCreate_Click(object sender, EventArgs e)
         {
             control.ClearBook();
             UpdateList();
             txtName.Clear();
             txtPhone.Clear();
-            lblResult.Text = "Создана новая телефонная книга";
+            lblResult.Text = "  пїЅпїЅпїЅ ";
         }
 
-        // Кнопка "Изменить"
+        // пїЅ "пїЅ"
         private void btnEdit_Click(object sender, EventArgs e)
         {
             if (listBox1.SelectedIndex >= 0)
@@ -121,20 +128,20 @@ namespace PTFBook
                 txtPhone.Text = control.ReadPhone(listBox1.SelectedIndex);
                 control.DeleteSelectedRecord(listBox1.SelectedIndex);
                 UpdateList();
-                lblResult.Text = "Редактирование: измените данные и нажмите Добавить";
+                lblResult.Text = ": пїЅ пїЅ пїЅ  пїЅ";
             }
             else
             {
-                lblResult.Text = "Выберите запись для изменения";
+                lblResult.Text = "пїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅ";
             }
         }
 
-        // Кнопка "Сохранить"
+        // пїЅ "пїЅпїЅ"
         private void btnSave_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Телефонная книга (*.json)|*.json|Все файлы (*.*)|*.*";
-            saveFileDialog.Title = "Сохранить телефонную книгу";
+            saveFileDialog.Filter = "пїЅпїЅпїЅ  (*.json)|*.json|пїЅпїЅпїЅ  (*.*)|*.*";
+            saveFileDialog.Title = "пїЅпїЅ пїЅпїЅпїЅ ";
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -142,21 +149,21 @@ namespace PTFBook
                 {
                     control.CreateFile(saveFileDialog.FileName);
                     control.SaveBookToFile();
-                    lblResult.Text = $"Сохранено в файл: {saveFileDialog.FileName}";
+                    lblResult.Text = $"пїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ: {saveFileDialog.FileName}";
                 }
                 catch (Exception ex)
                 {
-                    lblResult.Text = $"Ошибка сохранения: {ex.Message}";
+                    lblResult.Text = $"пїЅ пїЅпїЅпїЅ: {ex.Message}";
                 }
             }
         }
 
-        // Кнопка "Загрузить" (если нужна)
+        // пїЅ "пїЅпїЅ" (пїЅпїЅпїЅпїЅ )
         private void btnLoad_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Телефонная книга (*.json)|*.json|Все файлы (*.*)|*.*";
-            openFileDialog.Title = "Загрузить телефонную книгу";
+            openFileDialog.Filter = "пїЅпїЅпїЅ  (*.json)|*.json|пїЅпїЅпїЅ  (*.*)|*.*";
+            openFileDialog.Title = "пїЅпїЅ пїЅпїЅпїЅ ";
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -164,30 +171,30 @@ namespace PTFBook
                 {
                     control.LoadFromFile(openFileDialog.FileName);
                     UpdateList();
-                    lblResult.Text = $"Загружено из файла: {openFileDialog.FileName}. Всего: {control.RecordsCount()}";
+                    lblResult.Text = $"пїЅпїЅ пїЅпїЅ : {openFileDialog.FileName}. : {control.RecordsCount()}";
                 }
                 catch (Exception ex)
                 {
-                    lblResult.Text = $"Ошибка загрузки: {ex.Message}";
+                    lblResult.Text = $"пїЅ пїЅ: {ex.Message}";
                 }
             }
         }
 
-        // Меню "Справка" -> "О программе"
+        // пїЅпїЅпїЅпїЅ "" -> "пїЅ пїЅпїЅ"
         private void MenuAbout_Click(object sender, EventArgs e)
         {
             TAboutBox aboutBox = new TAboutBox();
             aboutBox.ShowDialog(this);
         }
 
-        // Двойной клик для удаления
+        //  пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ
         private void listBox1_DoubleClick(object sender, EventArgs e)
         {
             if (listBox1.SelectedIndex >= 0)
             {
                 control.DeleteSelectedRecord(listBox1.SelectedIndex);
                 UpdateList();
-                lblResult.Text = $"Запись удалена. Всего: {control.RecordsCount()}";
+                lblResult.Text = $"пїЅ . : {control.RecordsCount()}";
             }
         }
     }

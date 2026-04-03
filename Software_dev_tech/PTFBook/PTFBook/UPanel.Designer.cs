@@ -117,6 +117,7 @@ namespace PTFBook
             btnAbout.Text = "Справка";
             btnAbout.UseVisualStyleBackColor = true;
             btnAbout.Click += MenuAbout_Click;
+
             // 
             // btnAdd
             // 

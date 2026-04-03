@@ -1,0 +1,73 @@
+package stud.pmi31.pricelist.service;
+
+import stud.pmi31.pricelist.dto.CategoryDto;
+import stud.pmi31.pricelist.model.Category;
+import stud.pmi31.pricelist.repository.CategoryRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class CategoryService {
+    
+    private final CategoryRepository categoryRepository;
+    
+    public List<CategoryDto> findAll() {
+        return categoryRepository.findAll().stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+    
+    public CategoryDto findById(Long id) {
+        return categoryRepository.findById(id)
+                .map(this::toDto)
+                .orElse(null);
+    }
+    
+    @Transactional
+    public CategoryDto save(CategoryDto dto) {
+        Category category;
+        if (dto.getId() != null) {
+            category = categoryRepository.findById(dto.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Категория не найдена"));
+            category.setName(dto.getName());
+            category.setDescription(dto.getDescription());
+        } else {
+            category = toEntity(dto);
+        }
+        return toDto(categoryRepository.save(category));
+    }
+    
+    @Transactional
+    public void delete(Long id) {
+        categoryRepository.deleteById(id);
+    }
+    
+    public boolean existsByName(String name) {
+        return categoryRepository.existsByName(name);
+    }
+    
+    public boolean existsByNameExcludingId(String name, Long excludeId) {
+        return categoryRepository.findByName(name)
+                .map(c -> !c.getId().equals(excludeId))
+                .orElse(false);
+    }
+    
+    private CategoryDto toDto(Category category) {
+        CategoryDto dto = new CategoryDto();
+        dto.setId(category.getId());
+        dto.setName(category.getName());
+        dto.setDescription(category.getDescription());
+        return dto;
+    }
+    
+    private Category toEntity(CategoryDto dto) {
+        Category category = new Category();
+        category.setName(dto.getName());
+        category.setDescription(dto.getDescription());
+        return category;
+    }
+}
