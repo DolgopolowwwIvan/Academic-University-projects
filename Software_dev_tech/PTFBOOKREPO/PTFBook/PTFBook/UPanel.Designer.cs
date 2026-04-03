@@ -51,7 +51,7 @@ namespace PTFBook
             // 
             // btnLoad
             // 
-            btnLoad.Location = new Point(698, 206);
+            btnLoad.Location = new Point(698, 376);
             btnLoad.Name = "btnLoad";
             btnLoad.Size = new Size(130, 63);
             btnLoad.TabIndex = 16;
@@ -214,6 +214,7 @@ namespace PTFBook
         }
 
         private Button btnSave;
+        private Button btnLoad;
         private Button btnClear;
         private ListBox listBox1;
         private Button btnDelete;
@@ -225,6 +226,5 @@ namespace PTFBook
         private TextBox txtPhone;
         private Label lblResult;
         private Button btnAbout;
-        private Button btnLoad;
     }
 }
