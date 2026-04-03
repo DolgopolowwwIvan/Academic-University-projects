@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить товар - Прайс-лист</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="app-shell">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a href="/home" class="brand">Прайс-лист</a>
+            <nav class="main-nav">
+                <a href="/home">Главная</a>
+                <a href="/products/search">Поиск товаров</a>
+                <a href="/categories">Категории</a>
+                <a href="/products/add">Добавить товар</a>
+                <a href="/users/manage">Пользователи</a>
+            </nav>
+            <div class="userbar">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-secondary">Выход</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="page">
+        <div class="page-header">
+            <h1 class="page-title">Добавить товар</h1>
+            <a href="/home" class="btn btn-secondary">Назад</a>
+        </div>
+
+        <div th:if="${noCategories}" class="card" style="margin-bottom: 16px;">
+            <p class="muted" style="margin: 0; font-size: 13px;">
+                Нет доступных категорий. <a href="/categories">Открыть категории</a>
+            </p>
+        </div>
+
+        <div class="card">
+            <form id="productForm">
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label for="productCategory" class="label">Категория <span class="text-danger">*</span></label>
+                    <select id="productCategory" name="categoryId" required
+                            class="select" th:disabled="${noCategories}">
+                        <option value="">Выберите категорию</option>
+                        <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">Категория</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label for="productName" class="label">Название товара <span class="text-danger">*</span></label>
+                    <input type="text" id="productName" name="name" required minlength="1" maxlength="200"
+                           class="field" placeholder="Введите название товара">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label for="productDescription" class="label">Описание</label>
+                    <textarea id="productDescription" name="description" rows="3"
+                              class="textarea" placeholder="Введите описание товара"></textarea>
+                </div>
+
+                <div class="form-row" style="margin-bottom: 12px;">
+                    <div class="form-group">
+                        <label for="productPrice" class="label">Цена <span class="text-danger">*</span></label>
+                        <input type="number" id="productPrice" name="price" required step="0.01" min="0.01"
+                               class="field" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="productStock" class="label">Количество на складе <span class="text-danger">*</span></label>
+                        <input type="number" id="productStock" name="stockQuantity" required min="0"
+                               class="field" placeholder="0">
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary" th:disabled="${noCategories}">Сохранить</button>
+                    <button type="button" id="clearForm" class="btn btn-secondary">Очистить</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            &copy; 2024 Прайс-лист
+        </div>
+    </footer>
+
+    <div id="toast-container"></div>
+
+    <script th:inline="none">
+        document.getElementById('productPrice').addEventListener('input', function() {
+            this.setCustomValidity(this.value && parseFloat(this.value) <= 0 ? 'Цена должна быть больше 0' : '');
+        });
+
+        document.getElementById('productStock').addEventListener('input', function() {
+            this.setCustomValidity(this.value && parseInt(this.value) < 0 ? 'Количество не может быть отрицательным' : '');
+        });
+
+        document.getElementById('clearForm').addEventListener('click', function() {
+            document.getElementById('productForm').reset();
+        });
+
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const categoryId = document.getElementById('productCategory').value;
+            const name = document.getElementById('productName').value;
+            const description = document.getElementById('productDescription').value;
+            const price = document.getElementById('productPrice').value;
+            const stockQuantity = document.getElementById('productStock').value;
+
+            if (!categoryId) return showToast('Выберите категорию', 'error');
+            if (!name || name.trim().length === 0) return showToast('Введите название товара', 'error');
+            if (!price || parseFloat(price) <= 0) return showToast('Введите корректную цену', 'error');
+            if (stockQuantity === '' || parseInt(stockQuantity) < 0) return showToast('Введите корректное количество', 'error');
+
+            const formData = new FormData();
+            formData.append('categoryId', categoryId);
+            formData.append('name', name);
+            formData.append('description', description);
+            formData.append('price', price);
+            formData.append('stockQuantity', stockQuantity);
+
+            fetch('/products/save', { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        document.getElementById('clearForm').click();
+                    } else {
+                        showToast(data.message, 'error');
+                    }
+                })
+                .catch(error => showToast('Произошла ошибка: ' + error, 'error'));
+        });
+
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.style.cssText = 'padding: 10px 14px; border-radius: 6px; border: 1px solid; margin-bottom: 8px; font-size: 13px;';
+            if (type === 'success') {
+                toast.style.background = '#f0fdf4';
+                toast.style.borderColor = '#bbf7d0';
+                toast.style.color = '#166534';
+            } else {
+                toast.style.background = '#fef2f2';
+                toast.style.borderColor = '#fecaca';
+                toast.style.color = '#dc2626';
+            }
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+    </script>
+</body>
+</html>

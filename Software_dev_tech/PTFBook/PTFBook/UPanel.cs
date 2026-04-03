@@ -19,6 +19,7 @@ namespace PTFBook
 
         }
 
+        // ��� �
         private void UpdateList()
         {
             listBox1.Items.Clear();
@@ -32,12 +33,13 @@ namespace PTFBook
             }
         }
 
+        // � "�"
         private void btnAdd_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtName.Text) ||
                 string.IsNullOrWhiteSpace(txtPhone.Text))
             {
-                lblResult.Text = "��������� ��� � ����� ��������";
+                lblResult.Text = "�� ��� �  �";
                 return;
             }
 
@@ -45,9 +47,10 @@ namespace PTFBook
             UpdateList();
             txtName.Clear();
             txtPhone.Clear();
-            lblResult.Text = $"������� ��������. �����: {control.RecordsCount()}";
+            lblResult.Text = $" �. : {control.RecordsCount()}";
         }
 
+        // � ""
         private void btnSearch_Click(object sender, EventArgs e)
         {
             string searchName = txtName.Text;
@@ -55,7 +58,7 @@ namespace PTFBook
 
             if (string.IsNullOrWhiteSpace(searchName) && string.IsNullOrWhiteSpace(searchPhone))
             {
-                lblResult.Text = "������� ��� ��� ����� ��� ������";
+                lblResult.Text = " ��� ���  ��� �";
                 return;
             }
 
@@ -73,44 +76,50 @@ namespace PTFBook
                     found++;
                 }
             }
-            lblResult.Text = $"�������: {found}";
+            lblResult.Text = $": {found}";
         }
 
+        // � ""
         private void btnDelete_Click(object sender, EventArgs e)
         {
             if (listBox1.SelectedIndex >= 0)
             {
                 control.DeleteSelectedRecord(listBox1.SelectedIndex);
                 UpdateList();
-                lblResult.Text = $"������ �������. �����: {control.RecordsCount()}";
+                lblResult.Text = $"� . : {control.RecordsCount()}";
             }
             else
             {
-                lblResult.Text = "�������� ������ ��� ��������";
+                lblResult.Text = "� � ��� �";
             }
         }
+
+        // � "�"
         private void btnClear_Click(object sender, EventArgs e)
         {
             control.ClearBook();
             UpdateList();
-            lblResult.Text = "���������� ����� �������";
+            lblResult.Text = "���  ";
         }
 
+        // � ""
         private void btnAbout_Click(object sender, EventArgs e)
         {
             TAboutBox aboutBox = new TAboutBox();
             aboutBox.ShowDialog(this);
         }
 
+        // � ""
         private void btnCreate_Click(object sender, EventArgs e)
         {
             control.ClearBook();
             UpdateList();
             txtName.Clear();
             txtPhone.Clear();
-            lblResult.Text = "������� ����� ���������� �����";
+            lblResult.Text = "  ��� ";
         }
 
+        // � "�"
         private void btnEdit_Click(object sender, EventArgs e)
         {
             if (listBox1.SelectedIndex >= 0)
@@ -119,20 +128,20 @@ namespace PTFBook
                 txtPhone.Text = control.ReadPhone(listBox1.SelectedIndex);
                 control.DeleteSelectedRecord(listBox1.SelectedIndex);
                 UpdateList();
-                lblResult.Text = "��������������: �������� ������ � ������� ��������";
+                lblResult.Text = ": � � �  �";
             }
             else
             {
-                lblResult.Text = "�������� ������ ��� ���������";
+                lblResult.Text = "� � ��� ��";
             }
         }
 
-        // ������ "���������"
+        // � "��"
         private void btnSave_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "���������� ����� (*.json)|*.json|��� ����� (*.*)|*.*";
-            saveFileDialog.Title = "��������� ���������� �����";
+            saveFileDialog.Filter = "���  (*.json)|*.json|���  (*.*)|*.*";
+            saveFileDialog.Title = "�� ��� ";
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -140,21 +149,21 @@ namespace PTFBook
                 {
                     control.CreateFile(saveFileDialog.FileName);
                     control.SaveBookToFile();
-                    lblResult.Text = $"��������� � ����: {saveFileDialog.FileName}";
+                    lblResult.Text = $"�� � ����: {saveFileDialog.FileName}";
                 }
                 catch (Exception ex)
                 {
-                    lblResult.Text = $"������ ����������: {ex.Message}";
+                    lblResult.Text = $"� ���: {ex.Message}";
                 }
             }
         }
 
-        // ������ "���������" (���� �����)
+        // � "��" (���� )
         private void btnLoad_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "���������� ����� (*.json)|*.json|��� ����� (*.*)|*.*";
-            openFileDialog.Title = "��������� ���������� �����";
+            openFileDialog.Filter = "���  (*.json)|*.json|���  (*.*)|*.*";
+            openFileDialog.Title = "�� ��� ";
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -162,30 +171,30 @@ namespace PTFBook
                 {
                     control.LoadFromFile(openFileDialog.FileName);
                     UpdateList();
-                    lblResult.Text = $"��������� �� �����: {openFileDialog.FileName}. �����: {control.RecordsCount()}";
+                    lblResult.Text = $"�� �� : {openFileDialog.FileName}. : {control.RecordsCount()}";
                 }
                 catch (Exception ex)
                 {
-                    lblResult.Text = $"������ ��������: {ex.Message}";
+                    lblResult.Text = $"� �: {ex.Message}";
                 }
             }
         }
 
-        // ���� "�������" -> "� ���������"
+        // ���� "" -> "� ��"
         private void MenuAbout_Click(object sender, EventArgs e)
         {
             TAboutBox aboutBox = new TAboutBox();
             aboutBox.ShowDialog(this);
         }
 
-        // ������� ���� ��� ��������
+        //  ���� ��� �
         private void listBox1_DoubleClick(object sender, EventArgs e)
         {
             if (listBox1.SelectedIndex >= 0)
             {
                 control.DeleteSelectedRecord(listBox1.SelectedIndex);
                 UpdateList();
-                lblResult.Text = $"������ �������. �����: {control.RecordsCount()}";
+                lblResult.Text = $"� . : {control.RecordsCount()}";
             }
         }
     }

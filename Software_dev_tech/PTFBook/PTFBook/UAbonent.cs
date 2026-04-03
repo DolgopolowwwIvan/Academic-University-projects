@@ -55,7 +55,7 @@ namespace PTFBook
         // Деструктор
         ~TAbonent()
         {
-            // Финализатор
+            
         }
     }
 }

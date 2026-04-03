@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Прайс-лист</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="app-shell">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a href="/home" class="brand">Прайс-лист</a>
+
+            <nav class="main-nav">
+                <a href="/home">Главная</a>
+                <a href="/products/search">Поиск товаров</a>
+                <th:block sec:authorize="hasRole('ADMIN')">
+                    <a href="/categories">Категории</a>
+                    <a href="/products/add">Добавить товар</a>
+                    <a href="/users/manage">Пользователи</a>
+                </th:block>
+            </nav>
+
+            <div class="userbar">
+                <span sec:authentication="name">Гость</span>
+                <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
+                    <button type="submit" class="btn btn-secondary">Выход</button>
+                </form>
+            </div>
+        </div>
+    </header>
+    
+    <main class="page" th:fragment="content">
+        <div th:insert="~{::page-content}">
+            Content goes here
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="footer-inner">
+            &copy; 2024 Прайс-лист
+        </div>
+    </footer>
+    
+    <div id="toast-container"></div>
+
+    <th:block th:fragment="page-content">
+    </th:block>
+</body>
+</html>

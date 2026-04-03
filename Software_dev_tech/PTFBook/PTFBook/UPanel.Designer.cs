@@ -1,4 +1,7 @@
-﻿namespace PTFBook
+﻿using System;
+using System.Windows.Forms;
+
+namespace PTFBook
 {
     partial class TPanel
     {
@@ -23,6 +26,7 @@
             listBox1 = new ListBox();
             btnDelete = new Button();
             btnEdit = new Button();
+            btnAbout = new Button();
             btnCreate = new Button();
             btnSearch = new Button();
             btnAdd = new Button();
@@ -112,7 +116,8 @@
             btnAbout.TabIndex = 15;
             btnAbout.Text = "Справка";
             btnAbout.UseVisualStyleBackColor = true;
-            btnAbout.Click += btnAbout_Click;
+            btnAbout.Click += MenuAbout_Click;
+
             // 
             // btnAdd
             // 
