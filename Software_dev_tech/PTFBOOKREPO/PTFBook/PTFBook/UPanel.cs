@@ -5,7 +5,7 @@ namespace PTFBook
 {
     public partial class TPanel : Form
     {
-        private TControl control;
+         TControl control;
 
         public TPanel()
         {
@@ -25,11 +25,11 @@ namespace PTFBook
             UpdateList();
         }
 
-        private void TPanel_Load(object sender, EventArgs e)
+         void TPanel_Load(object sender, EventArgs e)
         {
         }
 
-        private void UpdateList()
+         void UpdateList()
         {
             listBox1.Items.Clear();
             for (int i = 0; i < control.RecordsCount(); i++)
@@ -42,7 +42,7 @@ namespace PTFBook
             }
         }
 
-        private void btnAdd_Click(object sender, EventArgs e)
+         void btnAdd_Click(object sender, EventArgs e)
         {
             string name = txtName.Text.Trim();
             string phone = txtPhone.Text.Trim();
@@ -62,7 +62,7 @@ namespace PTFBook
             lblResult.Text = $"Записей: {control.RecordsCount()}";
         }
 
-        private void btnSearch_Click(object sender, EventArgs e)
+         void btnSearch_Click(object sender, EventArgs e)
         {
             string searchName = txtName.Text.Trim();
             string searchPhone = txtPhone.Text.Trim();
@@ -90,7 +90,7 @@ namespace PTFBook
             }
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+         void btnDelete_Click(object sender, EventArgs e)
         {
             if (listBox1.SelectedIndex >= 0)
             {
@@ -105,20 +105,20 @@ namespace PTFBook
             }
         }
 
-        private void btnClear_Click(object sender, EventArgs e)
+         void btnClear_Click(object sender, EventArgs e)
         {
             control.ClearBook();
             UpdateList();
             lblResult.Text = "Книга очищена";
         }
 
-        private void btnAbout_Click(object sender, EventArgs e)
+         void btnAbout_Click(object sender, EventArgs e)
         {
             TAboutBox aboutBox = new TAboutBox();
             aboutBox.ShowDialog(this);
         }
 
-        private void btnCreate_Click(object sender, EventArgs e)
+         void btnCreate_Click(object sender, EventArgs e)
         {
             var result = MessageBox.Show("Вы уверены, что хотите создать новую книгу? Все несохраненные данные будут стерты.", 
                 "Новая книга", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
@@ -133,7 +133,7 @@ namespace PTFBook
             }
         }
 
-        private void btnEdit_Click(object sender, EventArgs e)
+         void btnEdit_Click(object sender, EventArgs e)
         {
             if (listBox1.SelectedIndex >= 0)
             {
@@ -151,7 +151,7 @@ namespace PTFBook
             }
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+         void btnSave_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "Текстовые файлы (*.txt)|*.txt|Файлы (*.*)|*.*";
@@ -172,7 +172,7 @@ namespace PTFBook
             }
         }
 
-        private void btnLoad_Click(object sender, EventArgs e)
+         void btnLoad_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Текстовые файлы (*.txt)|*.txt|Файлы (*.*)|*.*";
@@ -194,13 +194,13 @@ namespace PTFBook
             }
         }
 
-        private void MenuAbout_Click(object sender, EventArgs e)
+         void MenuAbout_Click(object sender, EventArgs e)
         {
             TAboutBox aboutBox = new TAboutBox();
             aboutBox.ShowDialog(this);
         }
 
-        private void listBox1_DoubleClick(object sender, EventArgs e)
+         void listBox1_DoubleClick(object sender, EventArgs e)
         {
             if (listBox1.SelectedIndex >= 0)
             {
@@ -212,13 +212,13 @@ namespace PTFBook
     }
 }
 
-        private void TPanel_Load(object sender, EventArgs e)
+         void TPanel_Load(object sender, EventArgs e)
         {
 
         }
 
         // ��� �
-        private void UpdateList()
+         void UpdateList()
         {
             listBox1.Items.Clear();
             for (int i = 0; i < control.RecordsCount(); i++)
@@ -232,7 +232,7 @@ namespace PTFBook
         }
 
         // � "�"
-        private void btnAdd_Click(object sender, EventArgs e)
+         void btnAdd_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtName.Text) ||
                 string.IsNullOrWhiteSpace(txtPhone.Text))
@@ -249,7 +249,7 @@ namespace PTFBook
         }
 
         // � ""
-        private void btnSearch_Click(object sender, EventArgs e)
+         void btnSearch_Click(object sender, EventArgs e)
         {
             string searchName = txtName.Text;
             string searchPhone = txtPhone.Text;
@@ -278,7 +278,7 @@ namespace PTFBook
         }
 
         // � ""
-        private void btnDelete_Click(object sender, EventArgs e)
+         void btnDelete_Click(object sender, EventArgs e)
         {
             if (listBox1.SelectedIndex >= 0)
             {
@@ -293,7 +293,7 @@ namespace PTFBook
         }
 
         // � "�"
-        private void btnClear_Click(object sender, EventArgs e)
+         void btnClear_Click(object sender, EventArgs e)
         {
             control.ClearBook();
             UpdateList();
@@ -301,14 +301,14 @@ namespace PTFBook
         }
 
         // � ""
-        private void btnAbout_Click(object sender, EventArgs e)
+         void btnAbout_Click(object sender, EventArgs e)
         {
             TAboutBox aboutBox = new TAboutBox();
             aboutBox.ShowDialog(this);
         }
 
         // � ""
-        private void btnCreate_Click(object sender, EventArgs e)
+         void btnCreate_Click(object sender, EventArgs e)
         {
             control.ClearBook();
             UpdateList();
@@ -318,7 +318,7 @@ namespace PTFBook
         }
 
         // � "�"
-        private void btnEdit_Click(object sender, EventArgs e)
+         void btnEdit_Click(object sender, EventArgs e)
         {
             if (listBox1.SelectedIndex >= 0)
             {
@@ -335,7 +335,7 @@ namespace PTFBook
         }
 
         // � "��"
-        private void btnSave_Click(object sender, EventArgs e)
+         void btnSave_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "���  (*.json)|*.json|���  (*.*)|*.*";
@@ -357,7 +357,7 @@ namespace PTFBook
         }
 
         // � "��" (���� )
-        private void btnLoad_Click(object sender, EventArgs e)
+         void btnLoad_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "���  (*.json)|*.json|���  (*.*)|*.*";
@@ -379,14 +379,14 @@ namespace PTFBook
         }
 
         // ���� "" -> "� ��"
-        private void MenuAbout_Click(object sender, EventArgs e)
+         void MenuAbout_Click(object sender, EventArgs e)
         {
             TAboutBox aboutBox = new TAboutBox();
             aboutBox.ShowDialog(this);
         }
 
         //  ���� ��� �
-        private void listBox1_DoubleClick(object sender, EventArgs e)
+         void listBox1_DoubleClick(object sender, EventArgs e)
         {
             if (listBox1.SelectedIndex >= 0)
             {
