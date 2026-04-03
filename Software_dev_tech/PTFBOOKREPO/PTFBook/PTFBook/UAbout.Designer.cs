@@ -1,4 +1,7 @@
-﻿namespace PTFBook
+﻿using System;
+using System.Windows.Forms;
+
+namespace PTFBook
 {
     partial class TAboutBox
     {
