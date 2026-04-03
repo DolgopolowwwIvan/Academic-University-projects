@@ -24,7 +24,7 @@ namespace PTFBook
             return FList.Count;
         }
 
-        // Добавление с сортировкой (из проекта товарища)
+  
         public void AddRecord(TAbonent newAbonent)
         {
             FList.Add(newAbonent);

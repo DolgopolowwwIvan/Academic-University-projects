@@ -72,7 +72,6 @@ namespace PTFBook
             return FL.FindRecord(new TAbonent(name, number));
         }
 
-        // Универсальный поиск (из проекта товарища)
         public int FindRecordUniversal(string name, string number)
         {
             for (int i = 0; i < FL.Count(); i++)

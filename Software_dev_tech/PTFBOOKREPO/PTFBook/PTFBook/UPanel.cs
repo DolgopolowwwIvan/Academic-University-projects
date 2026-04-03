@@ -12,7 +12,6 @@ namespace PTFBook
             InitializeComponent();
             control = new TControl();
             
-            // Загружаем данные при старте (из проекта товарища)
             try
             {
                 control.LoadFromFile();
