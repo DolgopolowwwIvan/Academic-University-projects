@@ -26,6 +26,12 @@ public class CategoryController {
         return "categories";
     }
     
+    @GetMapping("/categories/view")
+    public String viewCategoriesPage(Model model) {
+        model.addAttribute("categories", categoryService.findAll());
+        return "categories-view";
+    }
+
     @GetMapping("/categories/list")
     @ResponseBody
     public List<CategoryDto> getCategoriesList() {

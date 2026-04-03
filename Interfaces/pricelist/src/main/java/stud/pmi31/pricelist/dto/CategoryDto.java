@@ -10,4 +10,5 @@ public class CategoryDto {
     @NotBlank(message = "Название категории обязательно")
     private String name;
     private String description;
+    private Integer productCount;
 }

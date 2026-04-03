@@ -3,6 +3,7 @@ package stud.pmi31.pricelist.service;
 import stud.pmi31.pricelist.dto.CategoryDto;
 import stud.pmi31.pricelist.model.Category;
 import stud.pmi31.pricelist.repository.CategoryRepository;
+import stud.pmi31.pricelist.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,10 +15,21 @@ import java.util.stream.Collectors;
 public class CategoryService {
     
     private final CategoryRepository categoryRepository;
-    
+    private final ProductRepository productRepository;
+
     public List<CategoryDto> findAll() {
         return categoryRepository.findAll().stream()
-                .map(this::toDto)
+                .map(this::toDtoWithCount)
+                .collect(Collectors.toList());
+    }
+
+    public List<CategoryDto> findAllWithProductCount() {
+        return categoryRepository.findAll().stream()
+                .map(category -> {
+                    CategoryDto dto = toDto(category);
+                    dto.setProductCount(productRepository.countByCategoryId(category.getId()));
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
     
@@ -64,6 +76,12 @@ public class CategoryService {
         return dto;
     }
     
+    private CategoryDto toDtoWithCount(Category category) {
+        CategoryDto dto = toDto(category);
+        dto.setProductCount(productRepository.countByCategoryId(category.getId()));
+        return dto;
+    }
+
     private Category toEntity(CategoryDto dto) {
         Category category = new Category();
         category.setName(dto.getName());

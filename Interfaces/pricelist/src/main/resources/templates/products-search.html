@@ -13,8 +13,9 @@
             <nav class="main-nav">
                 <a href="/home">Главная</a>
                 <a href="/products/search">Поиск товаров</a>
+                <a href="/categories/view">Категории</a>
                 <th:block sec:authorize="hasRole('ADMIN')">
-                    <a href="/categories">Категории</a>
+                    <a href="/categories">Управление</a>
                     <a href="/products/add">Добавить товар</a>
                     <a href="/users/manage">Пользователи</a>
                 </th:block>

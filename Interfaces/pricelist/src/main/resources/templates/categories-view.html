@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Категории - Прайс-лист</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="app-shell">
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a href="/home" class="brand">Прайс-лист</a>
+            <nav class="main-nav">
+                <a href="/home">Главная</a>
+                <a href="/products/search">Поиск товаров</a>
+                <a href="/categories/view">Категории</a>
+                <th:block sec:authorize="hasRole('ADMIN')">
+                    <a href="/categories">Управление категориями</a>
+                    <a href="/products/add">Добавить товар</a>
+                    <a href="/users/manage">Пользователи</a>
+                </th:block>
+            </nav>
+            <div class="userbar">
+                <span sec:authentication="name">Гость</span>
+                <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
+                    <button type="submit" class="btn btn-secondary">Выход</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="page">
+        <div class="page-header">
+            <h1 class="page-title">Категории товаров</h1>
+            <a href="/home" class="btn btn-secondary">Назад</a>
+        </div>
+
+        <div class="card">
+            <div th:if="${categories.empty}" class="empty">Категории не найдены</div>
+
+            <div th:unless="${categories.empty}" class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Название</th>
+                            <th>Описание</th>
+                            <th class="text-right">Товаров</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="category : ${categories}">
+                            <td style="font-weight: 500;" th:text="${category.name}">Название</td>
+                            <td class="muted" th:text="${category.description}">Описание</td>
+                            <td class="text-right muted">—</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div sec:authorize="hasRole('ADMIN')" class="card" style="margin-top: 16px;">
+            <p class="muted" style="margin: 0; font-size: 13px;">
+                Для редактирования перейдите: <a href="/categories">Управление категориями</a>
+            </p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            &copy; 2024 Прайс-лист
+        </div>
+    </footer>
+</body>
+</html>
