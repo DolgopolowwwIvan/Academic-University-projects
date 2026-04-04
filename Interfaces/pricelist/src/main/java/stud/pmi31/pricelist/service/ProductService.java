@@ -101,6 +101,7 @@ public class ProductService {
     private ProductDto toDto(Product product) {
         ProductDto dto = new ProductDto();
         dto.setId(product.getId());
+        dto.setSku(product.getSku());
         dto.setName(product.getName());
         dto.setDescription(product.getDescription());
         dto.setPrice(product.getPrice());
@@ -112,6 +113,7 @@ public class ProductService {
     
     private Product toEntity(ProductDto dto) {
         Product product = new Product();
+        product.setSku(dto.getSku());
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());

@@ -50,6 +50,12 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 12px;">
+                    <label for="productSku" class="label">Артикул <span class="text-danger">*</span></label>
+                    <input type="text" id="productSku" name="sku" required minlength="1" maxlength="50"
+                           class="field" placeholder="Например: SKU-001">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 12px;">
                     <label for="productName" class="label">Название товара <span class="text-danger">*</span></label>
                     <input type="text" id="productName" name="name" required minlength="1" maxlength="200"
                            class="field" placeholder="Введите название товара">
@@ -91,6 +97,15 @@
     <div id="toast-container"></div>
 
     <script th:inline="none">
+        // CSRF токен
+        const csrfToken = document.querySelector('meta[name="_csrf"]') ? document.querySelector('meta[name="_csrf"]').content : '';
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]') ? document.querySelector('meta[name="_csrf_header"]').content : 'X-XSRF-TOKEN';
+
+        const csrfHeaders = {};
+        if (csrfToken) {
+            csrfHeaders[csrfHeader] = csrfToken;
+        }
+
         document.getElementById('productPrice').addEventListener('input', function() {
             this.setCustomValidity(this.value && parseFloat(this.value) <= 0 ? 'Цена должна быть больше 0' : '');
         });
@@ -101,30 +116,38 @@
 
         document.getElementById('clearForm').addEventListener('click', function() {
             document.getElementById('productForm').reset();
+            document.getElementById('productSku').value = '';
         });
 
         document.getElementById('productForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
             const categoryId = document.getElementById('productCategory').value;
+            const sku = document.getElementById('productSku').value;
             const name = document.getElementById('productName').value;
             const description = document.getElementById('productDescription').value;
             const price = document.getElementById('productPrice').value;
             const stockQuantity = document.getElementById('productStock').value;
 
             if (!categoryId) return showToast('Выберите категорию', 'error');
+            if (!sku || sku.trim().length === 0) return showToast('Введите артикул', 'error');
             if (!name || name.trim().length === 0) return showToast('Введите название товара', 'error');
             if (!price || parseFloat(price) <= 0) return showToast('Введите корректную цену', 'error');
             if (stockQuantity === '' || parseInt(stockQuantity) < 0) return showToast('Введите корректное количество', 'error');
 
             const formData = new FormData();
             formData.append('categoryId', categoryId);
+            formData.append('sku', sku);
             formData.append('name', name);
             formData.append('description', description);
             formData.append('price', price);
             formData.append('stockQuantity', stockQuantity);
 
-            fetch('/products/save', { method: 'POST', body: formData })
+            fetch('/products/save', {
+                method: 'POST',
+                body: formData,
+                headers: csrfHeaders
+            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {

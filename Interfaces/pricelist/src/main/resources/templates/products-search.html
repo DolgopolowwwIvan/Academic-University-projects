@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -95,13 +95,22 @@
     <div id="toast-container"></div>
 
     <script th:inline="none">
+        // CSRF токен
+        const csrfToken = document.querySelector('meta[name="_csrf"]') ? document.querySelector('meta[name="_csrf"]').content : '';
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]') ? document.querySelector('meta[name="_csrf_header"]').content : 'X-XSRF-TOKEN';
+
+        const csrfHeaders = {};
+        if (csrfToken) {
+            csrfHeaders[csrfHeader] = csrfToken;
+        }
+
         document.getElementById('clearSearch').addEventListener('click', function() {
             document.getElementById('searchName').value = '';
             document.getElementById('searchCategory').value = '';
             document.getElementById('searchPriceFrom').value = '';
             document.getElementById('searchPriceTo').value = '';
             document.getElementById('inStockOnly').checked = false;
-            document.getElementById('searchResults').innerHTML = '<div class="empty">No data</div>';
+            document.getElementById('searchResults').innerHTML = '<div class="empty">Нет данных</div>';
         });
 
         document.getElementById('searchForm').addEventListener('submit', function(e) {
@@ -120,8 +129,17 @@
             if (priceTo) formData.append('priceTo', priceTo);
             if (inStockOnly) formData.append('inStockOnly', 'true');
 
-            fetch('/products/search', { method: 'POST', body: formData })
-                .then(response => response.json())
+            fetch('/products/search', {
+                method: 'POST',
+                body: formData,
+                headers: csrfHeaders
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('HTTP error ' + response.status);
+                    }
+                    return response.json();
+                })
                 .then(products => displayResults(products))
                 .catch(error => showToast('Ошибка поиска: ' + error, 'error'));
         });
@@ -130,7 +148,7 @@
             const container = document.getElementById('searchResults');
 
             if (products.length === 0) {
-                container.innerHTML = '<div class="empty">No data</div>';
+                container.innerHTML = '<div class="empty">Ничего не найдено</div>';
                 return;
             }
 
@@ -139,6 +157,7 @@
                     <table class="table">
                         <thead>
                             <tr>
+                                <th>Артикул</th>
                                 <th>Название</th>
                                 <th>Категория</th>
                                 <th class="text-right">Цена</th>
@@ -149,6 +168,7 @@
                         <tbody>
                             ${products.map(p => `
                                 <tr>
+                                    <td class="muted">${p.sku || '—'}</td>
                                     <td style="font-weight: 500;">${p.name}</td>
                                     <td class="muted">${p.categoryName}</td>
                                     <td class="text-right">${parseFloat(p.price).toFixed(2)} ₽</td>

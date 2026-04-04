@@ -1,7 +1,9 @@
 package stud.pmi31.pricelist.controller;
 
 import stud.pmi31.pricelist.dto.CategoryDto;
+import stud.pmi31.pricelist.dto.ProductDto;
 import stud.pmi31.pricelist.service.CategoryService;
+import stud.pmi31.pricelist.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,18 +20,30 @@ import java.util.Map;
 public class CategoryController {
     
     private final CategoryService categoryService;
-    
+    private final ProductService productService;
+
     @GetMapping("/categories")
     public String categoriesPage(Model model) {
-        model.addAttribute("categories", categoryService.findAll());
+        model.addAttribute("categories", categoryService.findAllWithProductCount());
         model.addAttribute("category", new CategoryDto());
         return "categories";
     }
     
     @GetMapping("/categories/view")
     public String viewCategoriesPage(Model model) {
-        model.addAttribute("categories", categoryService.findAll());
+        model.addAttribute("categories", categoryService.findAllWithProductCount());
         return "categories-view";
+    }
+
+    @GetMapping("/categories/{id}/products")
+    public String viewCategoryProducts(@PathVariable Long id, Model model) {
+        CategoryDto category = categoryService.findById(id);
+        if (category == null) {
+            return "redirect:/categories/view?error=notfound";
+        }
+        model.addAttribute("category", category);
+        model.addAttribute("products", productService.findByCategoryId(id));
+        return "category-products";
     }
 
     @GetMapping("/categories/list")
@@ -38,6 +52,12 @@ public class CategoryController {
         return categoryService.findAll();
     }
     
+    @GetMapping("/categories/products/{id}")
+    @ResponseBody
+    public List<ProductDto> getCategoryProducts(@PathVariable Long id) {
+        return productService.findByCategoryId(id);
+    }
+
     @PostMapping("/categories/save")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveCategory(@Valid @ModelAttribute CategoryDto category, 

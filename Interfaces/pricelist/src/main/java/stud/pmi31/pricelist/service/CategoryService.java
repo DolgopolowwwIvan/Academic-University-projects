@@ -17,6 +17,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
 
+    @Transactional(readOnly = true)
     public List<CategoryDto> findAll() {
         return categoryRepository.findAll().stream()
                 .map(this::toDtoWithCount)
@@ -27,7 +28,7 @@ public class CategoryService {
         return categoryRepository.findAll().stream()
                 .map(category -> {
                     CategoryDto dto = toDto(category);
-                    dto.setProductCount(productRepository.countByCategoryId(category.getId()));
+                    dto.setProductCount((int) productRepository.countByCategoryId(category.getId()));
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -78,7 +79,7 @@ public class CategoryService {
     
     private CategoryDto toDtoWithCount(Category category) {
         CategoryDto dto = toDto(category);
-        dto.setProductCount(productRepository.countByCategoryId(category.getId()));
+        dto.setProductCount((int) productRepository.countByCategoryId(category.getId()));
         return dto;
     }
 

@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import stud.pmi31.pricelist.dto.UserDto;
 import stud.pmi31.pricelist.service.UserService;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,11 +22,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .csrf(csrf -> csrf
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .ignoringRequestMatchers("/**")
+            )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/home", "/products/search", "/categories/list", "/categories/view", "/register", "/css/**").permitAll()
-                .requestMatchers("/categories/**", "/products/add", "/products/save",
+                .requestMatchers("/", "/home", "/products/search", "/categories/list", "/categories/view",
+                                "/categories/products/**", "/categories/{id}/products", "/register", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/categories/save", "/categories/delete", "/products/add", "/products/save",
                                "/products/move/**", "/products/delete/**", "/users/manage/**",
-                               "/users/save").hasRole("ADMIN")
+                               "/users/save", "/users/delete/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

@@ -8,6 +8,9 @@ import java.math.BigDecimal;
 public class ProductDto {
     private Long id;
     
+    @NotBlank(message = "Артикул обязателен")
+    private String sku;
+
     @NotBlank(message = "Название товара обязательно")
     private String name;
     private String description;

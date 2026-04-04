@@ -36,22 +36,24 @@
         </div>
 
         <div class="card">
-            <div th:if="${categories.empty}" class="empty">Категории не найдены</div>
+            <div th:if="${#lists.isEmpty(categories)}" class="empty">Категории не найдены</div>
 
-            <div th:unless="${categories.empty}" class="table-wrap">
+            <div th:if="${not #lists.isEmpty(categories)}" class="table-wrap">
                 <table class="table">
                     <thead>
                         <tr>
                             <th>Название</th>
                             <th>Описание</th>
-                            <th class="text-right">Товаров</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="category : ${categories}">
-                            <td style="font-weight: 500;" th:text="${category.name}">Название</td>
+                            <td>
+                                <a th:href="@{/categories/{id}/products(id=${category.id})}"
+                                   style="font-weight: 500; color: inherit; text-decoration: none;"
+                                   th:text="${category.name}">Название</a>
+                            </td>
                             <td class="muted" th:text="${category.description}">Описание</td>
-                            <td class="text-right muted">—</td>
                         </tr>
                     </tbody>
                 </table>
@@ -65,10 +67,80 @@
         </div>
     </main>
 
+    <!-- Модальное окно для просмотра товаров категории -->
+    <div id="productsModal" class="modal" style="display: none;">
+        <div class="modal-backdrop" onclick="closeProductsModal()"></div>
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalCategoryName">Товары категории</h2>
+                <button class="modal-close" onclick="closeProductsModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalProductsBody">
+                <div class="empty">Загрузка...</div>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer">
         <div class="footer-inner">
             &copy; 2024 Прайс-лист
         </div>
     </footer>
+
+    <script th:inline="none">
+        function viewCategoryProducts(categoryId, categoryName) {
+            document.getElementById('modalCategoryName').textContent = 'Товары: ' + categoryName;
+            document.getElementById('productsModal').style.display = 'flex';
+            document.getElementById('modalProductsBody').innerHTML = '<div class="empty">Загрузка...</div>';
+
+            fetch('/categories/products/' + categoryId)
+                .then(response => response.json())
+                .then(products => {
+                    const body = document.getElementById('modalProductsBody');
+                    if (products.length === 0) {
+                        body.innerHTML = '<div class="empty">В этой категории нет товаров</div>';
+                        return;
+                    }
+                    body.innerHTML = `
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Название</th>
+                                        <th class="text-right">Цена</th>
+                                        <th class="text-right">На складе</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${products.map(p => `
+                                        <tr>
+                                            <td style="font-weight: 500;">${p.name}</td>
+                                            <td class="text-right">${parseFloat(p.price).toFixed(2)} ₽</td>
+                                            <td class="text-right">${p.stockQuantity}</td>
+                                            <td class="muted">${p.description || '—'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="muted" style="margin-top: 12px;">Всего товаров: ${products.length}</div>
+                    `;
+                })
+                .catch(error => {
+                    document.getElementById('modalProductsBody').innerHTML =
+                        '<div class="empty" style="color: #dc2626;">Ошибка загрузки товаров</div>';
+                });
+        }
+
+        function closeProductsModal() {
+            document.getElementById('productsModal').style.display = 'none';
+        }
+
+        // Закрытие по Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeProductsModal();
+        });
+    </script>
 </body>
 </html>

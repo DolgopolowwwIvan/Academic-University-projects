@@ -8,7 +8,8 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "products", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"name", "category_id"})
+    @UniqueConstraint(columnNames = {"name", "category_id"}),
+    @UniqueConstraint(columnNames = {"sku"})
 })
 @Data
 @NoArgsConstructor
@@ -17,6 +18,9 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String sku;
 
     @Column(nullable = false)
     private String name;
