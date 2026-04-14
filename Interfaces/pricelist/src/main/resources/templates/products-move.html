@@ -19,6 +19,7 @@
                 <a href="/users/manage">Пользователи</a>
             </nav>
             <div class="userbar">
+                <span sec:authentication="name">Гость</span>
                 <form th:action="@{/logout}" method="post">
                     <button type="submit" class="btn btn-secondary">Выход</button>
                 </form>

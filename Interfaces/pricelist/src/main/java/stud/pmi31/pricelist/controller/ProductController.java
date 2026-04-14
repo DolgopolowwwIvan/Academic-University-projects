@@ -138,4 +138,35 @@ public class ProductController {
         }
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/products/edit/{id}")
+    @ResponseBody
+    public ResponseEntity<ProductDto> getProduct(@PathVariable Long id) {
+        ProductDto product = productService.findById(id);
+        if (product == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(product);
+    }
+
+    @GetMapping("/api/check-product-sku")
+    @ResponseBody
+    public Map<String, Boolean> checkProductSku(@RequestParam String sku,
+                                                 @RequestParam(required = false) Long excludeId) {
+        Map<String, Boolean> result = new HashMap<>();
+        boolean exists = productService.existsBySku(sku, excludeId);
+        result.put("exists", exists);
+        return result;
+    }
+
+    @GetMapping("/api/check-product-name")
+    @ResponseBody
+    public Map<String, Boolean> checkProductName(@RequestParam String name,
+                                                  @RequestParam Long categoryId,
+                                                  @RequestParam(required = false) Long excludeId) {
+        Map<String, Boolean> result = new HashMap<>();
+        boolean exists = productService.existsByNameAndCategoryId(name, categoryId, excludeId);
+        result.put("exists", exists);
+        return result;
+    }
 }

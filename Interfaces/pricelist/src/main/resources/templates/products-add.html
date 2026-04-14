@@ -19,6 +19,7 @@
                 <a href="/users/manage">Пользователи</a>
             </nav>
             <div class="userbar">
+                <span sec:authentication="name">Гость</span>
                 <form th:action="@{/logout}" method="post">
                     <button type="submit" class="btn btn-secondary">Выход</button>
                 </form>
@@ -53,12 +54,16 @@
                     <label for="productSku" class="label">Артикул <span class="text-danger">*</span></label>
                     <input type="text" id="productSku" name="sku" required minlength="1" maxlength="50"
                            class="field" placeholder="Например: SKU-001">
+                    <div id="skuError" class="error-message"></div>
+                    <div id="skuSuccess" class="success-message">Артикул доступен</div>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 12px;">
                     <label for="productName" class="label">Название товара <span class="text-danger">*</span></label>
                     <input type="text" id="productName" name="name" required minlength="1" maxlength="200"
                            class="field" placeholder="Введите название товара">
+                    <div id="nameError" class="error-message"></div>
+                    <div id="nameSuccess" class="success-message">Название доступно</div>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 12px;">
@@ -106,21 +111,146 @@
             csrfHeaders[csrfHeader] = csrfToken;
         }
 
-        document.getElementById('productPrice').addEventListener('input', function() {
-            this.setCustomValidity(this.value && parseFloat(this.value) <= 0 ? 'Цена должна быть больше 0' : '');
+        // Элементы валидации
+        const skuInput = document.getElementById('productSku');
+        const nameInput = document.getElementById('productName');
+        const categorySelect = document.getElementById('productCategory');
+        const skuError = document.getElementById('skuError');
+        const skuSuccess = document.getElementById('skuSuccess');
+        const nameError = document.getElementById('nameError');
+        const nameSuccess = document.getElementById('nameSuccess');
+
+        let skuValid = true;
+        let nameValid = true;
+        let skuPending = false;
+        let namePending = false;
+
+        function validateSku(sku) {
+            if (!sku || sku.trim().length === 0) {
+                skuError.textContent = 'Артикул обязателен';
+                skuError.classList.add('visible');
+                skuSuccess.classList.remove('visible');
+                skuInput.classList.add('error');
+                skuInput.classList.remove('success');
+                skuValid = false;
+                return;
+            }
+
+            skuPending = true;
+            fetch('/api/check-product-sku?sku=' + encodeURIComponent(sku.trim()))
+                .then(response => response.json())
+                .then(data => {
+                    skuPending = false;
+                    if (data.exists) {
+                        skuError.textContent = 'Этот артикул уже существует';
+                        skuError.classList.add('visible');
+                        skuSuccess.classList.remove('visible');
+                        skuInput.classList.add('error');
+                        skuInput.classList.remove('success');
+                        skuValid = false;
+                    } else {
+                        skuError.classList.remove('visible');
+                        skuSuccess.classList.add('visible');
+                        skuInput.classList.remove('error');
+                        skuInput.classList.add('success');
+                        skuValid = true;
+                    }
+                })
+                .catch(() => {
+                    skuPending = false;
+                    skuError.textContent = 'Ошибка проверки';
+                    skuError.classList.add('visible');
+                    skuValid = false;
+                });
+        }
+
+        function validateProductName(name) {
+            const categoryId = categorySelect.value;
+            if (!categoryId) {
+                nameError.textContent = 'Сначала выберите категорию';
+                nameError.classList.add('visible');
+                nameSuccess.classList.remove('visible');
+                nameValid = false;
+                return;
+            }
+
+            if (!name || name.trim().length === 0) {
+                nameError.textContent = 'Название обязательно';
+                nameError.classList.add('visible');
+                nameSuccess.classList.remove('visible');
+                nameInput.classList.add('error');
+                nameInput.classList.remove('success');
+                nameValid = false;
+                return;
+            }
+
+            namePending = true;
+            fetch('/api/check-product-name?name=' + encodeURIComponent(name.trim()) + '&categoryId=' + categoryId)
+                .then(response => response.json())
+                .then(data => {
+                    namePending = false;
+                    if (data.exists) {
+                        nameError.textContent = 'Товар с таким названием уже существует в этой категории';
+                        nameError.classList.add('visible');
+                        nameSuccess.classList.remove('visible');
+                        nameInput.classList.add('error');
+                        nameInput.classList.remove('success');
+                        nameValid = false;
+                    } else {
+                        nameError.classList.remove('visible');
+                        nameSuccess.classList.add('visible');
+                        nameInput.classList.remove('error');
+                        nameInput.classList.add('success');
+                        nameValid = true;
+                    }
+                })
+                .catch(() => {
+                    namePending = false;
+                    nameError.textContent = 'Ошибка проверки';
+                    nameError.classList.add('visible');
+                    nameValid = false;
+                });
+        }
+
+        skuInput.addEventListener('blur', function() {
+            if (this.value.trim().length > 0) {
+                validateSku(this.value.trim());
+            }
         });
 
-        document.getElementById('productStock').addEventListener('input', function() {
-            this.setCustomValidity(this.value && parseInt(this.value) < 0 ? 'Количество не может быть отрицательным' : '');
+        nameInput.addEventListener('blur', function() {
+            if (this.value.trim().length > 0 && categorySelect.value) {
+                validateProductName(this.value.trim());
+            }
+        });
+
+        categorySelect.addEventListener('change', function() {
+            if (nameInput.value.trim() && !namePending) {
+                validateProductName(nameInput.value.trim());
+            }
         });
 
         document.getElementById('clearForm').addEventListener('click', function() {
             document.getElementById('productForm').reset();
             document.getElementById('productSku').value = '';
+            skuInput.classList.remove('error', 'success');
+            nameInput.classList.remove('error', 'success');
+            skuError.classList.remove('visible');
+            nameError.classList.remove('visible');
+            skuSuccess.classList.remove('visible');
+            nameSuccess.classList.remove('visible');
+            skuValid = true;
+            nameValid = true;
+            skuPending = false;
+            namePending = false;
         });
 
         document.getElementById('productForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+            if (skuPending || namePending) {
+                e.preventDefault();
+                showToast('Подождите завершения проверки', 'error');
+                return;
+            }
 
             const categoryId = document.getElementById('productCategory').value;
             const sku = document.getElementById('productSku').value;
@@ -130,8 +260,18 @@
             const stockQuantity = document.getElementById('productStock').value;
 
             if (!categoryId) return showToast('Выберите категорию', 'error');
-            if (!sku || sku.trim().length === 0) return showToast('Введите артикул', 'error');
-            if (!name || name.trim().length === 0) return showToast('Введите название товара', 'error');
+            if (!skuValid) {
+                e.preventDefault();
+                showToast('Артикул занят или некорректен', 'error');
+                skuInput.focus();
+                return;
+            }
+            if (!nameValid) {
+                e.preventDefault();
+                showToast('Название товара занято или некорректно', 'error');
+                nameInput.focus();
+                return;
+            }
             if (!price || parseFloat(price) <= 0) return showToast('Введите корректную цену', 'error');
             if (stockQuantity === '' || parseInt(stockQuantity) < 0) return showToast('Введите корректное количество', 'error');
 

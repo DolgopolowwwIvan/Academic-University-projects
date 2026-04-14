@@ -98,6 +98,15 @@ public class ProductService {
         return productRepository.existsByNameAndCategoryId(name, categoryId);
     }
     
+    public boolean existsBySku(String sku, Long excludeId) {
+        if (excludeId != null) {
+            return productRepository.findBySku(sku)
+                    .map(p -> !p.getId().equals(excludeId))
+                    .orElse(false);
+        }
+        return productRepository.existsBySku(sku);
+    }
+
     private ProductDto toDto(Product product) {
         ProductDto dto = new ProductDto();
         dto.setId(product.getId());

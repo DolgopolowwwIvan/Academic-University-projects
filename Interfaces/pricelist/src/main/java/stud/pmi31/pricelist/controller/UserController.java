@@ -32,6 +32,34 @@ public class UserController {
         return userService.findAll();
     }
 
+    @GetMapping("/api/check-login")
+    @ResponseBody
+    public Map<String, Boolean> checkLogin(@RequestParam String login,
+                                           @RequestParam(required = false) Long excludeId) {
+        Map<String, Boolean> result = new HashMap<>();
+        boolean exists = userService.existsByLogin(login);
+        if (excludeId != null) {
+            UserDto user = userService.findByLogin(login);
+            exists = user != null && !user.getId().equals(excludeId);
+        }
+        result.put("exists", exists);
+        return result;
+    }
+
+    @GetMapping("/api/check-email")
+    @ResponseBody
+    public Map<String, Boolean> checkEmail(@RequestParam String email,
+                                           @RequestParam(required = false) Long excludeId) {
+        Map<String, Boolean> result = new HashMap<>();
+        boolean exists = userService.existsByEmail(email);
+        if (excludeId != null) {
+            UserDto user = userService.findByEmail(email);
+            exists = user != null && !user.getId().equals(excludeId);
+        }
+        result.put("exists", exists);
+        return result;
+    }
+
     @PostMapping("/users/save")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveUser(@Valid @ModelAttribute UserDto user, 

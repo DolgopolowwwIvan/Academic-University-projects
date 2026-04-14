@@ -28,7 +28,8 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/home", "/products/search", "/categories/list", "/categories/view",
-                                "/categories/products/**", "/categories/{id}/products", "/register", "/css/**", "/js/**").permitAll()
+                                "/categories/products/**", "/register", "/css/**", "/js/**", "/api/**",
+                                "/categories/edit/**", "/users/edit/**", "/products/edit/**").permitAll()
                 .requestMatchers("/categories/save", "/categories/delete", "/products/add", "/products/save",
                                "/products/move/**", "/products/delete/**", "/users/manage/**",
                                "/users/save", "/users/delete/**").hasRole("ADMIN")

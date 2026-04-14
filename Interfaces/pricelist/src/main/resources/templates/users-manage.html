@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Управление пользователями - Прайс-лист</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
@@ -19,6 +21,7 @@
                 <a href="/users/manage">Пользователи</a>
             </nav>
             <div class="userbar">
+                <span sec:authentication="name">Гость</span>
                 <form th:action="@{/logout}" method="post">
                     <button type="submit" class="btn btn-secondary">Выход</button>
                 </form>
@@ -47,12 +50,16 @@
                         <label for="userLogin" class="label">Логин <span class="text-danger">*</span></label>
                         <input type="text" id="userLogin" name="login" required
                                class="field" placeholder="Введите логин">
+                        <div id="loginError" class="error-message"></div>
+                        <div id="loginSuccess" class="success-message">Логин доступен</div>
                     </div>
 
                     <div class="form-group">
                         <label for="userEmail" class="label">Email <span class="text-danger">*</span></label>
                         <input type="email" id="userEmail" name="email" required
                                class="field" placeholder="example@mail.ru">
+                        <div id="emailError" class="error-message"></div>
+                        <div id="emailSuccess" class="success-message">Email доступен</div>
                     </div>
                 </div>
 
@@ -87,20 +94,6 @@
                         </tr>
                     </thead>
                     <tbody id="userTableBody">
-                        <tr th:each="user : ${users}" th:attr="data-id=${user.id}">
-                            <td style="font-weight: 500;" th:text="${user.login}">Логин</td>
-                            <td class="muted" th:text="${user.email}">Email</td>
-                            <td>
-                                <span th:if="${user.role == 1}" style="display: inline-block; padding: 2px 8px; font-size: 12px; border-radius: 4px; background: #e0e7ff; color: #3730a3;">Администратор</span>
-                                <span th:if="${user.role != 1}" style="display: inline-block; padding: 2px 8px; font-size: 12px; border-radius: 4px; background: #f1f5f9; color: #475569;">Пользователь</span>
-                            </td>
-                            <td class="text-right">
-                                <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-right: 8px;"
-                                        th:onclick="'editUser(' + ${user.id} + ')'">Изменить</button>
-                                <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;"
-                                        th:onclick="'deleteUser(' + ${user.id} + ')'">Удалить</button>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -109,7 +102,7 @@
 
     <footer class="footer">
         <div class="footer-inner">
-            &copy; 2026 Прайс-лист
+            &copy; 2026$ curl -s "http://localhost:8080/login" 2>&1 | grep -o "login\|Login" | head -5 Прайс-лист
         </div>
     </footer>
 
@@ -125,6 +118,119 @@
             csrfHeaders[csrfHeader] = csrfToken;
         }
 
+        // Элементы валидации
+        const loginInput = document.getElementById('userLogin');
+        const emailInput = document.getElementById('userEmail');
+        const loginError = document.getElementById('loginError');
+        const loginSuccess = document.getElementById('loginSuccess');
+        const emailError = document.getElementById('emailError');
+        const emailSuccess = document.getElementById('emailSuccess');
+
+        let loginValid = true;
+        let emailValid = true;
+        let currentUserId = null;
+        let loginPending = false;
+        let emailPending = false;
+
+        function validateLogin(login) {
+            if (login.length < 3) {
+                loginError.textContent = 'Логин должен содержать минимум 3 символа';
+                loginError.classList.add('visible');
+                loginSuccess.classList.remove('visible');
+                loginInput.classList.add('error');
+                loginInput.classList.remove('success');
+                loginValid = false;
+                return;
+            }
+
+            loginPending = true;
+            const url = '/api/check-login?login=' + encodeURIComponent(login) +
+                       (currentUserId ? '&excludeId=' + currentUserId : '');
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    loginPending = false;
+                    if (data.exists) {
+                        loginError.textContent = 'Этот логин уже занят';
+                        loginError.classList.add('visible');
+                        loginSuccess.classList.remove('visible');
+                        loginInput.classList.add('error');
+                        loginInput.classList.remove('success');
+                        loginValid = false;
+                    } else {
+                        loginError.classList.remove('visible');
+                        loginSuccess.classList.add('visible');
+                        loginInput.classList.remove('error');
+                        loginInput.classList.add('success');
+                        loginValid = true;
+                    }
+                })
+                .catch(() => {
+                    loginPending = false;
+                    loginError.textContent = 'Ошибка проверки';
+                    loginError.classList.add('visible');
+                    loginValid = false;
+                });
+        }
+
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!emailRegex.test(email)) {
+                emailError.textContent = 'Введите корректный email';
+                emailError.classList.add('visible');
+                emailSuccess.classList.remove('visible');
+                emailInput.classList.add('error');
+                emailInput.classList.remove('success');
+                emailValid = false;
+                return;
+            }
+
+            emailPending = true;
+            const url = '/api/check-email?email=' + encodeURIComponent(email) +
+                       (currentUserId ? '&excludeId=' + currentUserId : '');
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    emailPending = false;
+                    if (data.exists) {
+                        emailError.textContent = 'Этот email уже зарегистрирован';
+                        emailError.classList.add('visible');
+                        emailSuccess.classList.remove('visible');
+                        emailInput.classList.add('error');
+                        emailInput.classList.remove('success');
+                        emailValid = false;
+                    } else {
+                        emailError.classList.remove('visible');
+                        emailSuccess.classList.add('visible');
+                        emailInput.classList.remove('error');
+                        emailInput.classList.add('success');
+                        emailValid = true;
+                    }
+                })
+                .catch(() => {
+                    emailPending = false;
+                    emailError.textContent = 'Ошибка проверки';
+                    emailError.classList.add('visible');
+                    emailValid = false;
+                });
+        }
+
+        // Валидация при потере фокуса
+        loginInput.addEventListener('blur', function() {
+            if (this.value.trim().length >= 3) {
+                validateLogin(this.value.trim());
+            }
+        });
+
+        emailInput.addEventListener('blur', function() {
+            if (this.value.trim().length > 0) {
+                validateEmail(this.value.trim());
+            }
+        });
+
         document.getElementById('clearForm').addEventListener('click', function() {
             document.getElementById('userId').value = '';
             document.getElementById('userLogin').value = '';
@@ -132,21 +238,44 @@
             document.getElementById('userRole').value = '0';
             document.getElementById('formTitle').textContent = 'Добавить пользователя';
             document.getElementById('userLogin').disabled = false;
+            loginInput.classList.remove('error', 'success');
+            emailInput.classList.remove('error', 'success');
+            loginError.classList.remove('visible');
+            emailError.classList.remove('visible');
+            loginSuccess.classList.remove('visible');
+            emailSuccess.classList.remove('visible');
+            currentUserId = null;
+            loginValid = true;
+            emailValid = true;
+            loginPending = false;
+            emailPending = false;
         });
-        
+
         document.getElementById('userForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
+            // Если идёт проверка, ждём
+            if (loginPending || emailPending) {
+                e.preventDefault();
+                showToast('Подождите завершения проверки', 'error');
+                return;
+            }
+
+            if (!loginValid) {
+                e.preventDefault();
+                showToast('Логин занят или некорректен', 'error');
+                loginInput.focus();
+                return;
+            }
+            if (!emailValid) {
+                e.preventDefault();
+                showToast('Email занят или некорректен', 'error');
+                emailInput.focus();
+                return;
+            }
+
             const id = document.getElementById('userId').value;
             const login = document.getElementById('userLogin').value;
             const email = document.getElementById('userEmail').value;
             const role = document.getElementById('userRole').value;
-            
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showToast('Введите корректный email', 'error');
-                return;
-            }
             
             const formData = new FormData();
             if (id) formData.append('id', id);
@@ -179,8 +308,11 @@
                 .then(response => response.json())
                 .then(users => {
                     const tbody = document.getElementById('userTableBody');
-                    tbody.innerHTML = users.map(u => `
-                        <tr data-id="${u.id}">
+                    tbody.innerHTML = '';
+                    users.forEach(u => {
+                        const tr = document.createElement('tr');
+                        tr.setAttribute('data-id', u.id);
+                        tr.innerHTML = `
                             <td style="font-weight: 500;">${u.login}</td>
                             <td class="muted">${u.email}</td>
                             <td>
@@ -189,15 +321,29 @@
                                 </span>
                             </td>
                             <td class="text-right">
-                                <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-right: 8px;" onclick="editUser(${u.id})">Изменить</button>
-                                <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="deleteUser(${u.id})">Удалить</button>
+                                <button class="btn btn-secondary btn-edit-user" data-id="${u.id}" style="padding: 4px 8px; font-size: 12px; margin-right: 8px;">Изменить</button>
+                                <button class="btn btn-danger btn-delete-user" data-id="${u.id}" style="padding: 4px 8px; font-size: 12px;">Удалить</button>
                             </td>
-                        </tr>
-                    `).join('');
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    // Добавляем обработчики
+                    document.querySelectorAll('.btn-edit-user').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            editUser(parseInt(this.dataset.id));
+                        });
+                    });
+                    document.querySelectorAll('.btn-delete-user').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            deleteUser(parseInt(this.dataset.id));
+                        });
+                    });
                 });
         }
         
         function editUser(id) {
+            currentUserId = id;
             fetch('/users/edit/' + id)
                 .then(response => response.json())
                 .then(data => {
@@ -207,6 +353,17 @@
                     document.getElementById('userRole').value = data.role;
                     document.getElementById('formTitle').textContent = 'Редактировать пользователя';
                     document.getElementById('userLogin').disabled = true;
+                    // Сброс валидации для существующего пользователя
+                    loginInput.classList.remove('error', 'success');
+                    emailInput.classList.remove('error', 'success');
+                    loginError.classList.remove('visible');
+                    emailError.classList.remove('visible');
+                    loginSuccess.classList.remove('visible');
+                    emailSuccess.classList.remove('visible');
+                    loginValid = true;
+                    emailValid = true;
+                    loginPending = false;
+                    emailPending = false;
                 });
         }
         
@@ -228,6 +385,11 @@
             });
         }
         
+        // Делаем функции глобальными
+        window.editUser = editUser;
+        window.deleteUser = deleteUser;
+        window.loadUsers = loadUsers;
+
         function showToast(message, type) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -245,6 +407,9 @@
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 5000);
         }
+
+        // Загружаем пользователей при старте
+        loadUsers();
     </script>
 </body>
 </html>

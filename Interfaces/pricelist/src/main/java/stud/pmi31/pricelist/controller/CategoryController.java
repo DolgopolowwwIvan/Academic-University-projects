@@ -58,6 +58,16 @@ public class CategoryController {
         return productService.findByCategoryId(id);
     }
 
+    @GetMapping("/api/check-category-name")
+    @ResponseBody
+    public Map<String, Boolean> checkCategoryName(@RequestParam String name,
+                                                   @RequestParam(required = false) Long excludeId) {
+        Map<String, Boolean> result = new HashMap<>();
+        boolean exists = categoryService.existsByNameExcludingId(name, excludeId);
+        result.put("exists", exists);
+        return result;
+    }
+
     @PostMapping("/categories/save")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveCategory(@Valid @ModelAttribute CategoryDto category, 

@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Поиск товаров - Прайс-лист</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
@@ -21,9 +23,15 @@
                 </th:block>
             </nav>
             <div class="userbar">
-                <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
-                    <button type="submit" class="btn btn-secondary">Выход</button>
-                </form>
+                <th:block sec:authorize="!isAuthenticated()">
+                    <a href="/login" class="btn btn-primary">Войти</a>
+                </th:block>
+                <th:block sec:authorize="isAuthenticated()">
+                    <span sec:authentication="name">Гость</span>
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="btn btn-secondary">Выход</button>
+                    </form>
+                </th:block>
             </div>
         </div>
     </header>
@@ -94,6 +102,62 @@
 
     <div id="toast-container"></div>
 
+    <!-- Модальное окно для редактирования товара -->
+    <div id="editProductModal" class="modal" style="display: none;">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Редактировать товар</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editProductForm">
+                    <input type="hidden" id="editProductId">
+
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label for="editProductSku" class="label">Артикул</label>
+                        <input type="text" id="editProductSku" class="field" readonly style="background: var(--bg-muted);">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label for="editProductCategory" class="label">Категория <span class="text-danger">*</span></label>
+                        <select id="editProductCategory" class="select" required>
+                            <option value="">Выберите категорию</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label for="editProductName" class="label">Название <span class="text-danger">*</span></label>
+                        <input type="text" id="editProductName" class="field" required>
+                        <div id="editNameError" class="error-message"></div>
+                        <div id="editNameSuccess" class="success-message">Название доступно</div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label for="editProductDescription" class="label">Описание</label>
+                        <textarea id="editProductDescription" class="textarea" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-row" style="margin-bottom: 12px;">
+                        <div class="form-group">
+                            <label for="editProductPrice" class="label">Цена <span class="text-danger">*</span></label>
+                            <input type="number" id="editProductPrice" step="0.01" min="0.01" class="field" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProductStock" class="label">На складе <span class="text-danger">*</span></label>
+                            <input type="number" id="editProductStock" min="0" class="field" required>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <button type="button" class="btn btn-secondary btn-cancel-edit">Отмена</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script th:inline="none">
         // CSRF токен
         const csrfToken = document.querySelector('meta[name="_csrf"]') ? document.querySelector('meta[name="_csrf"]').content : '';
@@ -102,6 +166,79 @@
         const csrfHeaders = {};
         if (csrfToken) {
             csrfHeaders[csrfHeader] = csrfToken;
+        }
+
+        // Загружаем категории для модального окна
+        let categoriesData = [];
+        fetch('/categories/list')
+            .then(response => response.json())
+            .then(cats => {
+                categoriesData = cats;
+                const catSelect = document.getElementById('editProductCategory');
+                if (catSelect) {
+                    cats.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.id;
+                        opt.textContent = c.name;
+                        catSelect.appendChild(opt);
+                    });
+                }
+            });
+
+        // Элементы валидации для редактирования
+        const editNameInput = document.getElementById('editProductName');
+        const editNameError = document.getElementById('editNameError');
+        const editNameSuccess = document.getElementById('editNameSuccess');
+        let editNameValid = true;
+        let editNamePending = false;
+        let editProductId = null;
+
+        function validateEditProductName(name, categoryId) {
+            if (!name || name.trim().length === 0) {
+                editNameError.textContent = 'Название обязательно';
+                editNameError.classList.add('visible');
+                editNameSuccess.classList.remove('visible');
+                editNameInput.classList.add('error');
+                editNameInput.classList.remove('success');
+                editNameValid = false;
+                return;
+            }
+
+            editNamePending = true;
+            fetch('/api/check-product-name?name=' + encodeURIComponent(name.trim()) + '&categoryId=' + categoryId + '&excludeId=' + editProductId)
+                .then(response => response.json())
+                .then(data => {
+                    editNamePending = false;
+                    if (data.exists) {
+                        editNameError.textContent = 'Товар с таким названием уже существует в этой категории';
+                        editNameError.classList.add('visible');
+                        editNameSuccess.classList.remove('visible');
+                        editNameInput.classList.add('error');
+                        editNameInput.classList.remove('success');
+                        editNameValid = false;
+                    } else {
+                        editNameError.classList.remove('visible');
+                        editNameSuccess.classList.add('visible');
+                        editNameInput.classList.remove('error');
+                        editNameInput.classList.add('success');
+                        editNameValid = true;
+                    }
+                })
+                .catch(() => {
+                    editNamePending = false;
+                    editNameError.textContent = 'Ошибка проверки';
+                    editNameError.classList.add('visible');
+                    editNameValid = false;
+                });
+        }
+
+        if (editNameInput) {
+            editNameInput.addEventListener('blur', function() {
+                const categoryId = document.getElementById('editProductCategory').value;
+                if (this.value.trim() && categoryId) {
+                    validateEditProductName(this.value.trim(), categoryId);
+                }
+            });
         }
 
         document.getElementById('clearSearch').addEventListener('click', function() {
@@ -152,7 +289,7 @@
                 return;
             }
 
-            container.innerHTML = `
+            const html = `
                 <div class="table-wrap">
                     <table class="table">
                         <thead>
@@ -163,24 +300,137 @@
                                 <th class="text-right">Цена</th>
                                 <th class="text-right">На складе</th>
                                 <th>Описание</th>
+                                <th class="text-right">Действия</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            ${products.map(p => `
-                                <tr>
-                                    <td class="muted">${p.sku || '—'}</td>
-                                    <td style="font-weight: 500;">${p.name}</td>
-                                    <td class="muted">${p.categoryName}</td>
-                                    <td class="text-right">${parseFloat(p.price).toFixed(2)} ₽</td>
-                                    <td class="text-right">${p.stockQuantity}</td>
-                                    <td class="muted">${p.description || '—'}</td>
-                                </tr>
-                            `).join('')}
+                        <tbody id="searchResultsBody">
                         </tbody>
                     </table>
                 </div>
                 <div class="muted" style="margin-top: 12px;">Найдено: ${products.length}</div>
             `;
+            container.innerHTML = html;
+
+            const tbody = document.getElementById('searchResultsBody');
+            products.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="muted">${p.sku || '—'}</td>
+                    <td style="font-weight: 500;">${p.name}</td>
+                    <td class="muted">${p.categoryName}</td>
+                    <td class="text-right">${parseFloat(p.price).toFixed(2)} ₽</td>
+                    <td class="text-right">${p.stockQuantity}</td>
+                    <td class="muted">${p.description || '—'}</td>
+                    <td class="text-right">
+                        <button class="btn btn-secondary btn-edit" data-id="${p.id}" style="padding: 4px 8px; font-size: 12px; margin-right: 8px;">Изменить</button>
+                        <button class="btn btn-danger btn-delete" data-id="${p.id}" style="padding: 4px 8px; font-size: 12px;">Удалить</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Добавляем обработчики
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    openEditProduct(parseInt(this.dataset.id));
+                });
+            });
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    deleteProduct(parseInt(this.dataset.id));
+                });
+            });
+        }
+
+        function openEditProduct(productId) {
+            editProductId = productId;
+            editNameValid = true;
+            editNamePending = false;
+
+            fetch('/products/edit/' + productId)
+                .then(response => response.json())
+                .then(product => {
+                    document.getElementById('editProductId').value = product.id;
+                    document.getElementById('editProductSku').value = product.sku || '—';
+                    document.getElementById('editProductCategory').value = product.categoryId;
+                    document.getElementById('editProductName').value = product.name;
+                    document.getElementById('editProductDescription').value = product.description || '';
+                    document.getElementById('editProductPrice').value = product.price;
+                    document.getElementById('editProductStock').value = product.stockQuantity;
+
+                    // Сброс валидации
+                    editNameInput.classList.remove('error', 'success');
+                    editNameError.classList.remove('visible');
+                    editNameSuccess.classList.remove('visible');
+
+                    document.getElementById('editProductModal').style.display = 'flex';
+                })
+                .catch(error => showToast('Ошибка загрузки данных: ' + error, 'error'));
+        }
+
+        function closeEditModal() {
+            document.getElementById('editProductModal').style.display = 'none';
+        }
+
+        document.getElementById('editProductForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (editNamePending) {
+                showToast('Подождите завершения проверки', 'error');
+                return;
+            }
+
+            if (!editNameValid) {
+                showToast('Название товара занято', 'error');
+                editNameInput.focus();
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('id', document.getElementById('editProductId').value);
+            formData.append('categoryId', document.getElementById('editProductCategory').value);
+            formData.append('sku', document.getElementById('editProductSku').value);
+            formData.append('name', document.getElementById('editProductName').value);
+            formData.append('description', document.getElementById('editProductDescription').value);
+            formData.append('price', document.getElementById('editProductPrice').value);
+            formData.append('stockQuantity', document.getElementById('editProductStock').value);
+
+            fetch('/products/save', {
+                method: 'POST',
+                body: formData,
+                headers: csrfHeaders
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        closeEditModal();
+                        // Обновляем результаты поиска
+                        document.getElementById('searchForm').dispatchEvent(new Event('submit'));
+                    } else {
+                        showToast(data.message, 'error');
+                    }
+                })
+                .catch(error => showToast('Ошибка сохранения: ' + error, 'error'));
+        });
+
+        function deleteProduct(productId) {
+            if (!confirm('Вы уверены, что хотите удалить этот товар?')) return;
+
+            fetch('/products/delete/' + productId, {
+                method: 'POST'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Товар удалён', 'success');
+                        // Обновляем результаты поиска
+                        document.getElementById('searchForm').dispatchEvent(new Event('submit'));
+                    } else {
+                        showToast(data.message, 'error');
+                    }
+                })
+                .catch(error => showToast('Ошибка: ' + error, 'error'));
         }
 
         function showToast(message, type) {
@@ -200,6 +450,20 @@
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
         }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeEditModal();
+        });
+
+        // Обработчики для модального окна
+        document.querySelector('#editProductModal .modal-backdrop').addEventListener('click', closeEditModal);
+        document.querySelector('#editProductModal .modal-close').addEventListener('click', closeEditModal);
+        document.querySelector('#editProductModal .btn-cancel-edit').addEventListener('click', closeEditModal);
+
+        // Делаем функции глобальными
+        window.openEditProduct = openEditProduct;
+        window.closeEditModal = closeEditModal;
+        window.deleteProduct = deleteProduct;
     </script>
 </body>
 </html>

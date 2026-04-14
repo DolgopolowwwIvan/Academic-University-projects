@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Категории - Прайс-лист</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
@@ -19,6 +21,7 @@
                 <a href="/users/manage">Пользователи</a>
             </nav>
             <div class="userbar">
+                <span sec:authentication="name">Гость</span>
                 <form th:action="@{/logout}" method="post">
                     <button type="submit" class="btn btn-secondary">Выход</button>
                 </form>
@@ -41,6 +44,8 @@
                         <label for="categoryName" class="label">Название <span class="text-danger">*</span></label>
                         <input type="text" id="categoryName" name="name" required
                                class="field" placeholder="Введите название">
+                        <div id="nameError" class="error-message"></div>
+                        <div id="nameSuccess" class="success-message">Название доступно</div>
                     </div>
                     <div class="form-group">
                         <label for="categoryDescription" class="label">Описание</label>
@@ -70,18 +75,6 @@
                     </tr>
                     </thead>
                     <tbody id="categoryTableBody">
-                    <tr th:each="category : ${categories}" th:attr="data-id=${category.id}">
-                        <td th:text="${category.name}">Название</td>
-                        <td th:text="${category.description}">Описание</td>
-                        <td class="text-right">
-                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-right: 8px;"
-                                    th:data-id="${category.id}" th:data-name="${category.name}" onclick="viewCategoryProducts(this.dataset.id, this.dataset.name)">Товары</button>
-                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-right: 8px;"
-                                    th:onclick="'editCategory(' + ${category.id} + ')'">Изменить</button>
-                            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;"
-                                    th:onclick="'deleteCategory(' + ${category.id} + ')'">Удалить</button>
-                        </td>
-                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -98,11 +91,11 @@
 
     <!-- Модальное окно для просмотра товаров категории -->
     <div id="productsModal" class="modal" style="display: none;">
-        <div class="modal-backdrop" onclick="closeProductsModal()"></div>
+        <div class="modal-backdrop"></div>
         <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">
                 <h2 class="modal-title" id="modalCategoryName">Товары категории</h2>
-                <button class="modal-close" onclick="closeProductsModal()">&times;</button>
+                <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body" id="modalProductsBody">
                 <div class="empty">Загрузка...</div>
@@ -120,15 +113,90 @@
             csrfHeaders[csrfHeader] = csrfToken;
         }
 
+        // Элементы валидации
+        const nameInput = document.getElementById('categoryName');
+        const nameError = document.getElementById('nameError');
+        const nameSuccess = document.getElementById('nameSuccess');
+
+        let nameValid = true;
+        let currentCategoryId = null;
+        let namePending = false;
+
+        function validateCategoryName(name) {
+            if (!name || name.trim().length === 0) {
+                nameError.textContent = 'Название обязательно';
+                nameError.classList.add('visible');
+                nameSuccess.classList.remove('visible');
+                nameInput.classList.add('error');
+                nameInput.classList.remove('success');
+                nameValid = false;
+                return;
+            }
+
+            namePending = true;
+            const url = '/api/check-category-name?name=' + encodeURIComponent(name.trim()) +
+                       (currentCategoryId ? '&excludeId=' + currentCategoryId : '');
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    namePending = false;
+                    if (data.exists) {
+                        nameError.textContent = 'Категория с таким названием уже существует';
+                        nameError.classList.add('visible');
+                        nameSuccess.classList.remove('visible');
+                        nameInput.classList.add('error');
+                        nameInput.classList.remove('success');
+                        nameValid = false;
+                    } else {
+                        nameError.classList.remove('visible');
+                        nameSuccess.classList.add('visible');
+                        nameInput.classList.remove('error');
+                        nameInput.classList.add('success');
+                        nameValid = true;
+                    }
+                })
+                .catch(() => {
+                    namePending = false;
+                    nameError.textContent = 'Ошибка проверки';
+                    nameError.classList.add('visible');
+                    nameValid = false;
+                });
+        }
+
+        nameInput.addEventListener('blur', function() {
+            if (this.value.trim().length > 0) {
+                validateCategoryName(this.value.trim());
+            }
+        });
+
         document.getElementById('clearForm').addEventListener('click', function() {
             document.getElementById('categoryId').value = '';
             document.getElementById('categoryName').value = '';
             document.getElementById('categoryDescription').value = '';
             document.getElementById('formTitle').textContent = 'Добавить категорию';
+            nameInput.classList.remove('error', 'success');
+            nameError.classList.remove('visible');
+            nameSuccess.classList.remove('visible');
+            currentCategoryId = null;
+            nameValid = true;
+            namePending = false;
         });
 
         document.getElementById('categoryForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+            if (namePending) {
+                e.preventDefault();
+                showToast('Подождите завершения проверки', 'error');
+                return;
+            }
+
+            if (!nameValid) {
+                e.preventDefault();
+                showToast('Название категории занято или некорректно', 'error');
+                nameInput.focus();
+                return;
+            }
+
             const id = document.getElementById('categoryId').value;
             const name = document.getElementById('categoryName').value;
             const description = document.getElementById('categoryDescription').value;
@@ -161,17 +229,38 @@
                 .then(response => response.json())
                 .then(categories => {
                     const tbody = document.getElementById('categoryTableBody');
-                    tbody.innerHTML = categories.map(c => `
-                        <tr data-id="${c.id}">
+                    tbody.innerHTML = '';
+                    categories.forEach(c => {
+                        const tr = document.createElement('tr');
+                        tr.setAttribute('data-id', c.id);
+                        tr.innerHTML = `
                             <td>${c.name}</td>
                             <td>${c.description || '—'}</td>
                             <td class="text-right">
-                                <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-right: 8px;" onclick="viewCategoryProducts(\${c.id}, \`\${c.name}\`)">Товары</button>
-                                <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px; margin-right: 8px;" onclick="editCategory(\${c.id})">Изменить</button>
-                                <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" onclick="deleteCategory(\${c.id})">Удалить</button>
+                                <button class="btn btn-secondary btn-view" data-id="${c.id}" data-name="${c.name}" style="padding: 4px 8px; font-size: 12px; margin-right: 8px;">Товары</button>
+                                <button class="btn btn-secondary btn-edit-cat" data-id="${c.id}" style="padding: 4px 8px; font-size: 12px; margin-right: 8px;">Изменить</button>
+                                <button class="btn btn-danger btn-delete-cat" data-id="${c.id}" style="padding: 4px 8px; font-size: 12px;">Удалить</button>
                             </td>
-                        </tr>
-                    `).join('');
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    // Добавляем обработчики
+                    document.querySelectorAll('.btn-view').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            viewCategoryProducts(this.dataset.id, this.dataset.name);
+                        });
+                    });
+                    document.querySelectorAll('.btn-edit-cat').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            editCategory(parseInt(this.dataset.id));
+                        });
+                    });
+                    document.querySelectorAll('.btn-delete-cat').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            deleteCategory(parseInt(this.dataset.id));
+                        });
+                    });
                 });
         }
 
@@ -257,6 +346,7 @@
         }
 
         function editCategory(id) {
+            currentCategoryId = id;
             fetch('/categories/edit/' + id)
                 .then(response => response.json())
                 .then(data => {
@@ -264,6 +354,11 @@
                     document.getElementById('categoryName').value = data.name;
                     document.getElementById('categoryDescription').value = data.description || '';
                     document.getElementById('formTitle').textContent = 'Редактировать категорию';
+                    nameInput.classList.remove('error', 'success');
+                    nameError.classList.remove('visible');
+                    nameSuccess.classList.remove('visible');
+                    nameValid = true;
+                    namePending = false;
                 });
         }
 
@@ -283,6 +378,12 @@
                     }
                 });
         }
+
+        // Делаем функции глобальными
+        window.editCategory = editCategory;
+        window.deleteCategory = deleteCategory;
+        window.viewCategoryProducts = viewCategoryProducts;
+        window.closeProductsModal = closeProductsModal;
 
         function showToast(message, type) {
             const container = document.getElementById('toast-container');
@@ -305,6 +406,13 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') closeProductsModal();
         });
+
+        // Обработчики для модального окна
+        document.querySelector('.modal-backdrop').addEventListener('click', closeProductsModal);
+        document.querySelector('.modal-close').addEventListener('click', closeProductsModal);
+
+        // Загружаем категории при старте
+        loadCategories();
     </script>
 </body>
 </html>

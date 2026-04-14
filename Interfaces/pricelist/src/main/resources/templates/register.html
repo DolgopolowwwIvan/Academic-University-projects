@@ -19,12 +19,16 @@
                 <input type="text" id="login" name="login" required
                        class="field" placeholder="Придумайте логин"
                        minlength="3" maxlength="50">
+                <div id="loginError" class="error-message"></div>
+                <div id="loginSuccess" class="success-message">Логин доступен</div>
             </div>
 
             <div class="form-group">
                 <label for="email" class="label">Email <span class="text-danger">*</span></label>
                 <input type="email" id="email" name="email" required
                        class="field" placeholder="example@mail.ru">
+                <div id="emailError" class="error-message"></div>
+                <div id="emailSuccess" class="success-message">Email доступен</div>
             </div>
 
             <div class="form-group">
@@ -55,5 +59,141 @@
             <a href="/home" class="muted">На главную</a>
         </div>
     </div>
+
+    <script th:inline="none">
+        const loginInput = document.getElementById('login');
+        const emailInput = document.getElementById('email');
+        const loginError = document.getElementById('loginError');
+        const loginSuccess = document.getElementById('loginSuccess');
+        const emailError = document.getElementById('emailError');
+        const emailSuccess = document.getElementById('emailSuccess');
+
+        let loginValid = true;
+        let emailValid = true;
+        let loginPending = false;
+        let emailPending = false;
+
+        // Проверка логина при потере фокуса
+        loginInput.addEventListener('blur', function() {
+            const login = this.value.trim();
+
+            if (login.length < 3) {
+                loginError.textContent = 'Логин должен содержать минимум 3 символа';
+                loginError.classList.add('visible');
+                loginSuccess.classList.remove('visible');
+                loginInput.classList.add('error');
+                loginInput.classList.remove('success');
+                loginValid = false;
+                return;
+            }
+
+            loginPending = true;
+            fetch('/api/check-login?login=' + encodeURIComponent(login))
+                .then(response => response.json())
+                .then(data => {
+                    loginPending = false;
+                    if (data.exists) {
+                        loginError.textContent = 'Этот логин уже занят';
+                        loginError.classList.add('visible');
+                        loginSuccess.classList.remove('visible');
+                        loginInput.classList.add('error');
+                        loginInput.classList.remove('success');
+                        loginValid = false;
+                    } else {
+                        loginError.classList.remove('visible');
+                        loginSuccess.classList.add('visible');
+                        loginInput.classList.remove('error');
+                        loginInput.classList.add('success');
+                        loginValid = true;
+                    }
+                })
+                .catch(error => {
+                    loginPending = false;
+                    loginError.textContent = 'Ошибка проверки';
+                    loginError.classList.add('visible');
+                    loginValid = false;
+                });
+        });
+
+        // Проверка email при потере фокуса
+        emailInput.addEventListener('blur', function() {
+            const email = this.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!emailRegex.test(email)) {
+                emailError.textContent = 'Введите корректный email';
+                emailError.classList.add('visible');
+                emailSuccess.classList.remove('visible');
+                emailInput.classList.add('error');
+                emailInput.classList.remove('success');
+                emailValid = false;
+                return;
+            }
+
+            emailPending = true;
+            fetch('/api/check-email?email=' + encodeURIComponent(email))
+                .then(response => response.json())
+                .then(data => {
+                    emailPending = false;
+                    if (data.exists) {
+                        emailError.textContent = 'Этот email уже зарегистрирован';
+                        emailError.classList.add('visible');
+                        emailSuccess.classList.remove('visible');
+                        emailInput.classList.add('error');
+                        emailInput.classList.remove('success');
+                        emailValid = false;
+                    } else {
+                        emailError.classList.remove('visible');
+                        emailSuccess.classList.add('visible');
+                        emailInput.classList.remove('error');
+                        emailInput.classList.add('success');
+                        emailValid = true;
+                    }
+                })
+                .catch(error => {
+                    emailPending = false;
+                    emailError.textContent = 'Ошибка проверки';
+                    emailError.classList.add('visible');
+                    emailValid = false;
+                });
+        });
+
+        // Проверка при отправке формы
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            // Если идёт проверка, ждём
+            if (loginPending || emailPending) {
+                e.preventDefault();
+                showToast('Подождите завершения проверки', 'error');
+                return;
+            }
+
+            // Если поля пустые, запускаем проверку
+            if (loginInput.value.trim().length < 3) {
+                e.preventDefault();
+                showToast('Логин должен содержать минимум 3 символа', 'error');
+                loginInput.focus();
+                return;
+            }
+            if (!loginValid) {
+                e.preventDefault();
+                showToast('Логин занят', 'error');
+                loginInput.focus();
+                return;
+            }
+
+            if (emailInput.value.trim().length === 0 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim())) {
+                e.preventDefault();
+                showToast('Введите корректный email', 'error');
+                emailInput.focus();
+                return;
+            }
+            if (!emailValid) {
+                e.preventDefault();
+                showToast('Email уже зарегистрирован', 'error');
+                emailInput.focus();
+                return;
+            }
+        });
+    </script>
 </body>
 </html>

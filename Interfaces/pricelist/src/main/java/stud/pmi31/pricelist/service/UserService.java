@@ -76,6 +76,20 @@ public class UserService {
                 .orElse(false);
     }
     
+    public boolean existsByLogin(String login) {
+        return userRepository.existsByLogin(login);
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public UserDto findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(this::toDto)
+                .orElse(null);
+    }
+
     @Transactional
     public UserDto register(UserDto dto) {
         // Проверка на существование пользователя с таким логином

@@ -15,6 +15,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     
     boolean existsByNameAndCategoryId(String name, Long categoryId);
     
+    // Поиск по артикулу (для уникальности)
+    Optional<Product> findBySku(String sku);
+
+    boolean existsBySku(String sku);
+
     // Поиск товаров с фильтрами
     @Query("SELECT p FROM Product p JOIN FETCH p.category WHERE " +
            "(:productName IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :productName, '%'))) AND " +

@@ -260,7 +260,7 @@ a:hover {
 .table td {
     border: 1px solid var(--border);
     padding: 8px 10px;
-    text-align: left;
+    text-align: center !important;
     vertical-align: middle;
 }
 
@@ -460,5 +460,39 @@ a:hover {
 .modal-body {
     padding: 16px;
     overflow-y: auto;
+}
+
+/* Валидация полей */
+.field.error,
+.select.error {
+    border-color: var(--danger);
+    background-color: #fef2f2;
+}
+
+.field.success,
+.select.success {
+    border-color: var(--success);
+}
+
+.error-message {
+    color: var(--danger);
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+}
+
+.error-message.visible {
+    display: block;
+}
+
+.success-message {
+    color: var(--success);
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+}
+
+.success-message.visible {
+    display: block;
 }
 

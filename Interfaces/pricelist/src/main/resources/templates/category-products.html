@@ -21,10 +21,15 @@
                 </th:block>
             </nav>
             <div class="userbar">
-                <span sec:authentication="name">Гость</span>
-                <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
-                    <button type="submit" class="btn btn-secondary">Выход</button>
-                </form>
+                <th:block sec:authorize="!isAuthenticated()">
+                    <a href="/login" class="btn btn-primary">Войти</a>
+                </th:block>
+                <th:block sec:authorize="isAuthenticated()">
+                    <span sec:authentication="name">Гость</span>
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="btn btn-secondary">Выход</button>
+                    </form>
+                </th:block>
             </div>
         </div>
     </header>
