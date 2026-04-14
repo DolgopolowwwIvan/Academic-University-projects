@@ -171,7 +171,7 @@ namespace PTFBook
             {
                 try
                 {
-                    control.SaveToFile();
+                    control.SaveToFile(saveFileDialog.FileName);
                     lblResult.Text = "Сохранено в файл";
                 }
                 catch (Exception ex)

@@ -94,11 +94,11 @@ namespace PTFBook
             return -1;
         }
 
-        public void SaveToFile()
+        public void SaveToFile(string fileName)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(currentFileName))
+                using (StreamWriter sw = new StreamWriter(fileName))
                 {
                     for (int i = 0; i < FL.Count(); i++)
                     {
@@ -106,6 +106,7 @@ namespace PTFBook
                         sw.WriteLine($"{rec.FirstName}|{rec.Phone}");
                     }
                 }
+                currentFileName = fileName;
                 MessageBox.Show("Телефонная книга сохранена", "Сохранение", 
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -114,6 +115,11 @@ namespace PTFBook
                 MessageBox.Show("Ошибка при сохранении: " + ex.Message, "Ошибка", 
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        public void SaveToFile()
+        {
+            SaveToFile(currentFileName);
         }
 
         public void LoadFromFile()
