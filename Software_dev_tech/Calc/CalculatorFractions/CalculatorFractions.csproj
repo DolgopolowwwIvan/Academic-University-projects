@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -13,11 +13,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="src\TFrac.cs" />
-    <Compile Include="src\TEditor.cs" />
-    <Compile Include="src\TMemory.cs" />
-    <Compile Include="src\TProc.cs" />
-    <Compile Include="src\TCtrl.cs" />
+    <ProjectReference Include="Core\CalculatorFractions.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="src\MainForm.cs" />
     <Compile Include="src\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
