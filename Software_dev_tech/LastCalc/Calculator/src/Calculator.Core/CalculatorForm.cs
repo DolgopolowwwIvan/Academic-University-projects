@@ -54,7 +54,7 @@ public class CalculatorForm : Form
     private void InitializeComponent()
     {
         this.Text = "Калькулятор";
-        this.Size = new Size(550, 700);
+        this.Size = new Size(700, 700);
         this.MinimumSize = new Size(550, 700);
         this.FormBorderStyle = FormBorderStyle.FixedSingle;
         this.MaximizeBox = false;
