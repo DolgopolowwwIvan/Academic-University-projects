@@ -54,15 +54,19 @@ public class CalculatorForm : Form
     private void InitializeComponent()
     {
         this.Text = "Калькулятор";
-        this.Size = new Size(400, 600);
-        this.FormBorderStyle = FormBorderStyle.FixedDialog;
+        this.Size = new Size(550, 700);
+        this.MinimumSize = new Size(550, 700);
+        this.FormBorderStyle = FormBorderStyle.FixedSingle;
         this.MaximizeBox = false;
         this.StartPosition = FormStartPosition.CenterScreen;
         this.KeyPreview = true;
         this.KeyDown += CalculatorForm_KeyDown;
+        this.BackColor = Color.FromArgb(30, 30, 30);
 
         // Меню
         _menuStrip = new MenuStrip();
+        _menuStrip.BackColor = Color.FromArgb(50, 50, 50);
+        _menuStrip.ForeColor = Color.White;
 
         var editMenuItem = new ToolStripMenuItem("Правка");
         editMenuItem.DropDownItems.Add(new ToolStripMenuItem("Копировать", null, MenuCopy_Click, Keys.Control | Keys.C));
@@ -85,75 +89,77 @@ public class CalculatorForm : Form
         _display = new Label
         {
             Text = "0",
-            Font = new Font("Arial", 24, FontStyle.Bold),
+            Font = new Font("Consolas", 32, FontStyle.Bold),
             TextAlign = ContentAlignment.MiddleRight,
-            BorderStyle = BorderStyle.FixedSingle,
-            Location = new Point(12, 30),
-            Size = new Size(360, 50),
-            BackColor = Color.White
+            BorderStyle = BorderStyle.None,
+            Location = new Point(20, 35),
+            Size = new Size(500, 60),
+            BackColor = Color.FromArgb(20, 20, 20),
+            ForeColor = Color.FromArgb(0, 255, 100)
         };
 
         _memoryStatus = new Label
         {
             Text = "",
-            Font = new Font("Arial", 10),
+            Font = new Font("Arial", 11, FontStyle.Bold),
             TextAlign = ContentAlignment.MiddleLeft,
-            Location = new Point(12, 85),
-            Size = new Size(50, 20),
-            ForeColor = Color.Green
+            Location = new Point(20, 95),
+            Size = new Size(60, 25),
+            ForeColor = Color.FromArgb(255, 200, 0),
+            BackColor = Color.FromArgb(30, 30, 30)
         };
 
         // Кнопки
-        int btnWidth = 60;
-        int btnHeight = 40;
-        int startX = 12;
-        int startY = 120;
-        int gap = 5;
+        int btnWidth = 75;
+        int btnHeight = 50;
+        int startX = 20;
+        int startY = 140;
+        int gap = 8;
 
         // Инженерные функции
-        _btnSin = CreateButton("sin", TCtrl.CMD_FUNC_SIN, startX, startY);
-        _btnCos = CreateButton("cos", TCtrl.CMD_FUNC_COS, startX + btnWidth + gap, startY);
-        _btnTan = CreateButton("tan", TCtrl.CMD_FUNC_TAN, startX + 2 * (btnWidth + gap), startY);
-        _btnSqrt = CreateButton("√", TCtrl.CMD_FUNC_SQRT, startX + 3 * (btnWidth + gap), startY);
-        _btnLog = CreateButton("log", TCtrl.CMD_FUNC_LOG, startX + 4 * (btnWidth + gap), startY);
-        _btnLn = CreateButton("ln", TCtrl.CMD_FUNC_LN, startX + 5 * (btnWidth + gap), startY);
+        _btnSin = CreateButton("sin", TCtrl.CMD_FUNC_SIN, startX, startY, color: Color.FromArgb(70, 70, 90));
+        _btnCos = CreateButton("cos", TCtrl.CMD_FUNC_COS, startX + btnWidth + gap, startY, color: Color.FromArgb(70, 70, 90));
+        _btnTan = CreateButton("tan", TCtrl.CMD_FUNC_TAN, startX + 2 * (btnWidth + gap), startY, color: Color.FromArgb(70, 70, 90));
+        _btnSqrt = CreateButton("√x", TCtrl.CMD_FUNC_SQRT, startX + 3 * (btnWidth + gap), startY, color: Color.FromArgb(70, 70, 90));
+        _btnLog = CreateButton("log₁₀", TCtrl.CMD_FUNC_LOG, startX + 4 * (btnWidth + gap), startY, color: Color.FromArgb(70, 70, 90));
+        _btnLn = CreateButton("ln", TCtrl.CMD_FUNC_LN, startX + 5 * (btnWidth + gap), startY, color: Color.FromArgb(70, 70, 90));
+        _btnExp = CreateButton("eˣ", TCtrl.CMD_FUNC_EXP, startX + 6 * (btnWidth + gap), startY, color: Color.FromArgb(70, 70, 90));
 
         startY += btnHeight + gap;
-        _btnExp = CreateButton("exp", TCtrl.CMD_FUNC_EXP, startX, startY);
-        _btnAbs = CreateButton("|x|", TCtrl.CMD_FUNC_ABS, startX + btnWidth + gap, startY);
-        _btnMPlus = CreateButton("M+", TCtrl.CMD_MEMORY_ADD, startX + 2 * (btnWidth + gap), startY);
-        _btnMMinus = CreateButton("M-", TCtrl.CMD_MEMORY_SUBTRACT, startX + 3 * (btnWidth + gap), startY);
-        _btnMR = CreateButton("MR", TCtrl.CMD_MEMORY_RECALL, startX + 4 * (btnWidth + gap), startY);
-        _btnMC = CreateButton("MC", TCtrl.CMD_MEMORY_CLEAR, startX + 5 * (btnWidth + gap), startY);
+        _btnAbs = CreateButton("|x|", TCtrl.CMD_FUNC_ABS, startX, startY, color: Color.FromArgb(70, 70, 90));
+        _btnMPlus = CreateButton("M+", TCtrl.CMD_MEMORY_ADD, startX + btnWidth + gap, startY, color: Color.FromArgb(90, 70, 70));
+        _btnMMinus = CreateButton("M-", TCtrl.CMD_MEMORY_SUBTRACT, startX + 2 * (btnWidth + gap), startY, color: Color.FromArgb(90, 70, 70));
+        _btnMR = CreateButton("MR", TCtrl.CMD_MEMORY_RECALL, startX + 3 * (btnWidth + gap), startY, color: Color.FromArgb(90, 70, 70));
+        _btnMC = CreateButton("MC", TCtrl.CMD_MEMORY_CLEAR, startX + 4 * (btnWidth + gap), startY, color: Color.FromArgb(90, 70, 70));
 
         startY += btnHeight + gap;
         // Цифры и операции
-        _btn7 = CreateButton("7", TCtrl.CMD_DIGIT_7, startX, startY);
-        _btn8 = CreateButton("8", TCtrl.CMD_DIGIT_8, startX + btnWidth + gap, startY);
-        _btn9 = CreateButton("9", TCtrl.CMD_DIGIT_9, startX + 2 * (btnWidth + gap), startY);
-        _btnDivide = CreateButton("/", TCtrl.CMD_DIVIDE, startX + 3 * (btnWidth + gap), startY);
-        _btnClear = CreateButton("C", TCtrl.CMD_CLEAR, startX + 4 * (btnWidth + gap), startY);
-        _btnClearAll = CreateButton("CA", TCtrl.CMD_CLEAR_ALL, startX + 5 * (btnWidth + gap), startY);
+        _btn7 = CreateButton("7", TCtrl.CMD_DIGIT_7, startX, startY, color: Color.FromArgb(60, 60, 60));
+        _btn8 = CreateButton("8", TCtrl.CMD_DIGIT_8, startX + btnWidth + gap, startY, color: Color.FromArgb(60, 60, 60));
+        _btn9 = CreateButton("9", TCtrl.CMD_DIGIT_9, startX + 2 * (btnWidth + gap), startY, color: Color.FromArgb(60, 60, 60));
+        _btnDivide = CreateButton("÷", TCtrl.CMD_DIVIDE, startX + 3 * (btnWidth + gap), startY, color: Color.FromArgb(255, 140, 0));
+        _btnClear = CreateButton("C", TCtrl.CMD_CLEAR, startX + 4 * (btnWidth + gap), startY, color: Color.FromArgb(200, 50, 50));
+        _btnClearAll = CreateButton("CA", TCtrl.CMD_CLEAR_ALL, startX + 5 * (btnWidth + gap), startY, color: Color.FromArgb(200, 50, 50));
+        _btnBackspace = CreateButton("⌫", TCtrl.CMD_BACKSPACE, startX + 6 * (btnWidth + gap), startY, color: Color.FromArgb(200, 50, 50));
 
         startY += btnHeight + gap;
-        _btn4 = CreateButton("4", TCtrl.CMD_DIGIT_4, startX, startY);
-        _btn5 = CreateButton("5", TCtrl.CMD_DIGIT_5, startX + btnWidth + gap, startY);
-        _btn6 = CreateButton("6", TCtrl.CMD_DIGIT_6, startX + 2 * (btnWidth + gap), startY);
-        _btnMultiply = CreateButton("*", TCtrl.CMD_MULTIPLY, startX + 3 * (btnWidth + gap), startY);
-        _btnBackspace = CreateButton("←", TCtrl.CMD_BACKSPACE, startX + 4 * (btnWidth + gap), startY);
-        _btnPlusMinus = CreateButton("±", TCtrl.CMD_CHANGE_SIGN, startX + 5 * (btnWidth + gap), startY);
+        _btn4 = CreateButton("4", TCtrl.CMD_DIGIT_4, startX, startY, color: Color.FromArgb(60, 60, 60));
+        _btn5 = CreateButton("5", TCtrl.CMD_DIGIT_5, startX + btnWidth + gap, startY, color: Color.FromArgb(60, 60, 60));
+        _btn6 = CreateButton("6", TCtrl.CMD_DIGIT_6, startX + 2 * (btnWidth + gap), startY, color: Color.FromArgb(60, 60, 60));
+        _btnMultiply = CreateButton("×", TCtrl.CMD_MULTIPLY, startX + 3 * (btnWidth + gap), startY, color: Color.FromArgb(255, 140, 0));
+        _btnPlusMinus = CreateButton("±", TCtrl.CMD_CHANGE_SIGN, startX + 4 * (btnWidth + gap), startY, color: Color.FromArgb(60, 60, 60));
+        _btnSubtract = CreateButton("−", TCtrl.CMD_SUBTRACT, startX + 5 * (btnWidth + gap), startY, color: Color.FromArgb(255, 140, 0));
+        _btnEquals = CreateButton("=", TCtrl.CMD_EQUALS, startX + 6 * (btnWidth + gap), startY, color: Color.FromArgb(0, 200, 100));
 
         startY += btnHeight + gap;
-        _btn1 = CreateButton("1", TCtrl.CMD_DIGIT_1, startX, startY);
-        _btn2 = CreateButton("2", TCtrl.CMD_DIGIT_2, startX + btnWidth + gap, startY);
-        _btn3 = CreateButton("3", TCtrl.CMD_DIGIT_3, startX + 2 * (btnWidth + gap), startY);
-        _btnSubtract = CreateButton("-", TCtrl.CMD_SUBTRACT, startX + 3 * (btnWidth + gap), startY);
-        _btnDot = CreateButton(".", TCtrl.CMD_DECIMAL_POINT, startX + 4 * (btnWidth + gap), startY);
-        _btnEquals = CreateButton("=", TCtrl.CMD_EQUALS, startX + 5 * (btnWidth + gap), startY);
+        _btn1 = CreateButton("1", TCtrl.CMD_DIGIT_1, startX, startY, color: Color.FromArgb(60, 60, 60));
+        _btn2 = CreateButton("2", TCtrl.CMD_DIGIT_2, startX + btnWidth + gap, startY, color: Color.FromArgb(60, 60, 60));
+        _btn3 = CreateButton("3", TCtrl.CMD_DIGIT_3, startX + 2 * (btnWidth + gap), startY, color: Color.FromArgb(60, 60, 60));
+        _btnDot = CreateButton(".", TCtrl.CMD_DECIMAL_POINT, startX + 3 * (btnWidth + gap), startY, color: Color.FromArgb(60, 60, 60));
+        _btnAdd = CreateButton("+", TCtrl.CMD_ADD, startX + 4 * (btnWidth + gap), startY, width: 2 * btnWidth + gap, color: Color.FromArgb(255, 140, 0));
 
         startY += btnHeight + gap;
-        _btn0 = CreateButton("0", TCtrl.CMD_DIGIT_0, startX, startY, width: 2 * btnWidth + gap);
-        _btnAdd = CreateButton("+", TCtrl.CMD_ADD, startX + 2 * (btnWidth + gap), startY, width: 2 * btnWidth + gap);
+        _btn0 = CreateButton("0", TCtrl.CMD_DIGIT_0, startX, startY, width: 2 * btnWidth + gap, color: Color.FromArgb(60, 60, 60));
 
         // Добавление элементов
         this.Controls.Add(_display);
@@ -195,16 +201,23 @@ public class CalculatorForm : Form
     }
 
     // Создать кнопку
-    private Button CreateButton(string text, int command, int x, int y, int width = 60, int height = 40)
+    private Button CreateButton(string text, int command, int x, int y, int width = 75, int height = 50, Color? color = null)
     {
         var button = new Button
         {
             Text = text,
-            Font = new Font("Arial", 12),
+            Font = new Font("Segoe UI", 14, FontStyle.Regular),
             Size = new Size(width, height),
             Location = new Point(x, y),
-            Tag = command
+            Tag = command,
+            BackColor = color ?? Color.FromArgb(60, 60, 60),
+            ForeColor = Color.White,
+            FlatStyle = FlatStyle.Flat,
+            Cursor = Cursors.Hand
         };
+        button.FlatAppearance.BorderSize = 0;
+        button.FlatAppearance.MouseOverBackColor = Color.FromArgb(80, 80, 80);
+        button.FlatAppearance.MouseDownBackColor = Color.FromArgb(100, 100, 100);
         button.Click += Button_Click;
         return button;
     }
@@ -272,11 +285,11 @@ public class CalculatorForm : Form
         try
         {
             string clipboardText = Clipboard.GetText();
-            if (double.TryParse(clipboardText, out double value))
+            if (double.TryParse(clipboardText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double value))
             {
                 _controller.Number.Value = value;
                 _controller.Editor.SetNumber(_controller.Number);
-                _display.Text = _controller.Number.Value.ToString();
+                _display.Text = _controller.Number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
             }
         }
         catch
@@ -300,7 +313,8 @@ public class CalculatorForm : Form
     // О программе
     private void MenuAbout_Click(object sender, EventArgs e)
     {
-        MessageBox.Show("Калькулятор v1.0\nРазработано на C#", "О программе", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        MessageBox.Show("Калькулятор v1.0\nРазработано на C#\n\nФункции:\n• Арифметические операции (+, −, ×, ÷)\n• Тригонометрические (sin, cos, tan)\n• Логарифмы (log₁₀, ln)\n• Степени и корни (√x, eˣ)\n• Память (M+, M-, MR, MC)", 
+            "О программе", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
     // Скрыть инженерные кнопки
@@ -314,7 +328,14 @@ public class CalculatorForm : Form
         _btnLn.Visible = false;
         _btnExp.Visible = false;
         _btnAbs.Visible = false;
-        this.Size = new Size(400, 450);
+        _btnMPlus.Visible = false;
+        _btnMMinus.Visible = false;
+        _btnMR.Visible = false;
+        _btnMC.Visible = false;
+        _btnBackspace.Visible = false;
+        _btnPlusMinus.Visible = false;
+        this.Size = new Size(550, 520);
+        this.MinimumSize = new Size(550, 520);
     }
 
     // Показать инженерные кнопки
@@ -328,7 +349,14 @@ public class CalculatorForm : Form
         _btnLn.Visible = true;
         _btnExp.Visible = true;
         _btnAbs.Visible = true;
-        this.Size = new Size(400, 600);
+        _btnMPlus.Visible = true;
+        _btnMMinus.Visible = true;
+        _btnMR.Visible = true;
+        _btnMC.Visible = true;
+        _btnBackspace.Visible = true;
+        _btnPlusMinus.Visible = true;
+        this.Size = new Size(550, 700);
+        this.MinimumSize = new Size(550, 700);
     }
 
     protected override void Dispose(bool disposing)
