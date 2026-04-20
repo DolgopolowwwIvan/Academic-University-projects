@@ -5,34 +5,23 @@
 #ifndef UCLCPNL_H
 #define UCLCPNL_H
 
-// Для C++ Builder VCL
-#ifdef __BORLANDC__
-    #include <System.Classes.hpp>
-    #include <System.SysUtils.hpp>
-    #include <Vcl.Controls.hpp>
-    #include <Vcl.StdCtrls.hpp>
-    #include <Vcl.Buttons.hpp>
-    #include <Vcl.ExtCtrls.hpp>
-    #include <Vcl.Menus.hpp>
-    #include <Vcl.Dialogs.hpp>
-    #include <Vcl.ComCtrls.hpp>
-    #include <Clipbrd.hpp>
-#else
-    // Заглушки для компиляции на Linux (не для GUI)
-    #include <string>
-#endif
+#include <System.Classes.hpp>
+#include <System.SysUtils.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <Vcl.Buttons.hpp>
+#include <Vcl.ExtCtrls.hpp>
+#include <Vcl.Menus.hpp>
+#include <Vcl.Dialogs.hpp>
+#include <Vcl.ComCtrls.hpp>
+#include <Clipbrd.hpp>
 
 #include "UControl.h"
 
 // Класс формы калькулятора
 // Наследуется от TForm в среде C++ Builder
-#ifdef __BORLANDC__
 class TClcPnl : public TForm
-#else
-class TClcPnl  // Заглушка для Linux
-#endif
 {
-#ifdef __BORLANDC__
 __published:
     // Визуальные компоненты
     TStaticText* DisplayLabel;      // Отображение текущей дроби
@@ -121,29 +110,5 @@ public:
 
 // Глобальная переменная формы (стандарт для C++ Builder)
 extern PACKAGE TClcPnl* ClcPnl;
-
-#else
-// Заглушка для Linux
-class TClcPnl {
-private:
-    TCtrl* FCtrl;
-    bool FNumberMode;
-
-public:
-    TClcPnl() : FCtrl(new TCtrl()), FNumberMode(false) {}
-    ~TClcPnl() { delete FCtrl; }
-
-    // Методы-заглушки для тестирования логики
-    std::string ExecuteCommand(int cmd) {
-        std::string clipboard = "";
-        std::string mstate = "";
-        return FCtrl->ExecuteCommand(cmd, clipboard, mstate);
-    }
-
-    std::string GetDisplay() {
-        return FCtrl->GetDisplayString();
-    }
-};
-#endif
 
 #endif // UCLCPNL_H

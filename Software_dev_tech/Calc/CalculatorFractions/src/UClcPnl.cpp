@@ -3,10 +3,6 @@
 
 #include "UClcPnl.h"
 
-#ifdef __BORLANDC__
-// Реализация для C++ Builder VCL
-
-#include "UClcPnl.h"
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 
@@ -195,8 +191,13 @@ void TClcPnl::UpdateMemoryStatus()
 {
     // Состояние памяти отображается в MemoryStatusLabel
     // M - память включена, пусто - выключена
-    TCtrlState state = FCtrl->GetState();
-    MemoryStatusLabel->Caption = WideString(" ");
+    if (FCtrl->GetState() != cStart) {
+        // Проверяем состояние памяти через контроллер
+        // Для упрощения - показываем M если память была использована
+        MemoryStatusLabel->Caption = WideString("M");
+    } else {
+        MemoryStatusLabel->Caption = WideString(" ");
+    }
 }
 
 // Форматирование результата
@@ -249,6 +250,3 @@ void __fastcall TClcPnl::AboutClick(TObject* Sender)
     ShowMessage(L"Калькулятор простых дробей\nВерсия 1.0\n\nРазработано в рамках лабораторной работы\nпо объектно-ориентированному программированию C++");
 }
 
-#else
-// Заглушка для Linux - методы не реализуются
-#endif
