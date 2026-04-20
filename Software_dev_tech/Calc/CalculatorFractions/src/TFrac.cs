@@ -1,30 +1,21 @@
-// TFrac.cs - Абстрактный тип данных "Простая дробь"
-// Original: Абстрактный тип данных простые дроби
-
 using System;
 
 namespace CalculatorFractions
 {
-    /// <summary>
-    /// Класс простой дроби (числитель/знаменатель)
-    /// ADT TFrac - Простая дробь (тип TFrac)
-    /// Это пара целых чисел: числитель и знаменатель (a/b)
-    /// Простые дроби изменяемые
-    /// </summary>
+    // Класс простой дроби (числитель/знаменатель)
+    // ADT TFrac - Простая дробь (тип TFrac)
+    // Это пара целых чисел: числитель и знаменатель (a/b)
+    // Простые дроби изменяемые
     public class TFrac
     {
         private int FNum;       // Числитель (numerator)
         private int FDenom;     // Знаменатель (denominator)
         private bool FShowAsFraction;  // Режим отображения: "дробь" или "число"
 
-    /// <summary>
-    /// Конструктор по умолчанию: 0/1
-    /// </summary>
+    // Конструктор по умолчанию: 0/1
     public TFrac() : this(0, 1) { }
 
-    /// <summary>
-    /// Конструктор с параметрами
-    /// </summary>
+    // Конструктор с параметрами
     public TFrac(int num, int denom = 1)
     {
         FNum = num;
@@ -33,9 +24,7 @@ namespace CalculatorFractions
         Reduce();
     }
 
-        /// <summary>
-        /// Копирующий конструктор
-        /// </summary>
+        // Копирующий конструктор
         public TFrac(TFrac other)
         {
             FNum = other.FNum;
@@ -43,9 +32,7 @@ namespace CalculatorFractions
             FShowAsFraction = other.FShowAsFraction;
         }
 
-        /// <summary>
-        /// Сокращение дроби
-        /// </summary>
+        // Сокращение дроби
         private void Reduce()
         {
             if (FDenom == 0)
@@ -69,9 +56,7 @@ namespace CalculatorFractions
             }
         }
 
-        /// <summary>
-        /// Вычисление НОД
-        /// </summary>
+        // Вычисление НОД
         private int Gcd(int a, int b)
         {
             while (b != 0)
@@ -87,20 +72,16 @@ namespace CalculatorFractions
         public int Numerator => FNum;
         public int Denominator => FDenom;
 
-        /// <summary>
-        /// Режим отображения: "дробь" (true) или "число" (false)
-        /// В режиме "дробь" всегда показывается как a/b
-        /// В режиме "число" целые дроби показываются без /1
-        /// </summary>
+        // Режим отображения: "дробь" (true) или "число" (false)
+        // В режиме "дробь" всегда показывается как a/b
+        // В режиме "число" целые дроби показываются без /1
         public bool ShowAsFraction
         {
             get => FShowAsFraction;
             set => FShowAsFraction = value;
         }
 
-        /// <summary>
-        /// Установка значения дроби
-        /// </summary>
+        // Установка значения дроби
         public void Set(int num, int denom)
         {
             if (denom == 0)
@@ -112,14 +93,10 @@ namespace CalculatorFractions
             Reduce();
         }
 
-        /// <summary>
-        /// Проверка на ноль (0/1)
-        /// </summary>
+        // Проверка на ноль (0/1)
         public bool IsZero() => FNum == 0;
 
-        /// <summary>
-        /// Сложение
-        /// </summary>
+        // Сложение
         public TFrac Add(TFrac other)
         {
             int num = FNum * other.FDenom + other.FNum * FDenom;
@@ -129,9 +106,7 @@ namespace CalculatorFractions
             return result;
         }
 
-        /// <summary>
-        /// Вычитание
-        /// </summary>
+        // Вычитание
         public TFrac Sub(TFrac other)
         {
             int num = FNum * other.FDenom - other.FNum * FDenom;
@@ -141,9 +116,7 @@ namespace CalculatorFractions
             return result;
         }
 
-        /// <summary>
-        /// Умножение
-        /// </summary>
+        // Умножение
         public TFrac Mul(TFrac other)
         {
             int num = FNum * other.FNum;
@@ -153,9 +126,7 @@ namespace CalculatorFractions
             return result;
         }
 
-        /// <summary>
-        /// Деление
-        /// </summary>
+        // Деление
         public TFrac Div(TFrac other)
         {
             if (other.FNum == 0)
@@ -169,9 +140,7 @@ namespace CalculatorFractions
             return result;
         }
 
-        /// <summary>
-        /// Возведение в квадрат (Sqr)
-        /// </summary>
+        // Возведение в квадрат (Sqr)
         public TFrac Sqr()
         {
             TFrac result = new TFrac(FNum * FNum, FDenom * FDenom);
@@ -179,9 +148,7 @@ namespace CalculatorFractions
             return result;
         }
 
-        /// <summary>
-        /// Обратное значение (Rev) - 1/x
-        /// </summary>
+        // Обратное значение (Rev) - 1/x
         public TFrac Rev()
         {
             if (FNum == 0)
@@ -193,9 +160,7 @@ namespace CalculatorFractions
             return result;
         }
 
-        /// <summary>
-        /// Преобразование в строку с учётом режима отображения
-        /// </summary>
+        // Преобразование в строку с учётом режима отображения
         public override string ToString()
         {
             if (FShowAsFraction)
@@ -210,17 +175,13 @@ namespace CalculatorFractions
             return $"{FNum}/{FDenom}";
         }
 
-        /// <summary>
-        /// Преобразование в десятичное число
-        /// </summary>
+        // Преобразование в десятичное число
         public double ToDouble()
         {
             return (double)FNum / (double)FDenom;
         }
 
-        /// <summary>
-        /// Оператор равенства
-        /// </summary>
+        // Оператор равенства
         public override bool Equals(object obj)
         {
             if (obj is TFrac other)
@@ -230,9 +191,7 @@ namespace CalculatorFractions
             return false;
         }
 
-        /// <summary>
-        /// Оператор неравенства
-        /// </summary>
+        // Оператор неравенства
         public override int GetHashCode()
         {
             return FNum.GetHashCode() ^ FDenom.GetHashCode();

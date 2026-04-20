@@ -1,14 +1,9 @@
-// TProc.cs - Параметризованный абстрактный тип данных "Процессор"
-// Original: ADT TProc - Процессор
-
 using System;
 
 namespace CalculatorFractions
 {
-    /// <summary>
-    /// Типы двухоперандных операций
-    /// Original: TOprtn = (None, Add, Sub, Mul, Dvd)
-    /// </summary>
+    // Типы двухоперандных операций
+    // Процессор: TOprtn = (None, Add, Sub, Mul, Dvd)
     public enum TOprtn
     {
         opNone,  // Нет операции
@@ -18,31 +13,24 @@ namespace CalculatorFractions
         opDiv    // Деление (/)
     }
 
-    /// <summary>
-    /// Типы однооперандных функций
-    /// Original: TFunc = (Rev, Sqr)
-    /// </summary>
+    // Типы однооперандных функций
     public enum TFunc
     {
         fnRev,  // Обратное значение (1/x)
         fnSqr   // Возведение в квадрат
     }
 
-    /// <summary>
-    /// TProc - Параметризованный класс процессора для выполнения операций над типом T
-    /// Выполняет двухоперандные операции и однооперандные функции над значениями типа T
-    /// </summary>
+    // TProc - Параметризованный класс процессора для выполнения операций над типом T
+    // Выполняет двухоперандные операции и однооперандные функции над значениями типа T
     public class TProc<T> where T : class, new()
     {
         private T FLop_Res;    // Левый операнд и результат
         private T FRop;        // Правый операнд
         private TOprtn FOperation;  // Текущая операция
 
-        /// <summary>
-        /// Конструктор
-        /// Инициализирует поля объектами типа T со значениями по умолчанию
-        /// Процессор устанавливается в состояние: "операция не установлена" (opNone)
-        /// </summary>
+        // Конструктор
+        // Инициализирует поля объектами типа T со значениями по умолчанию
+        // Процессор устанавливается в состояние: "операция не установлена" (opNone)
         public TProc()
         {
             FLop_Res = new T();
@@ -50,10 +38,8 @@ namespace CalculatorFractions
             FOperation = TOprtn.opNone;
         }
 
-        /// <summary>
-        /// Сброс процессора
-        /// Поля инициализируются значениями по умолчанию, операция сбрасывается
-        /// </summary>
+        // Сброс процессора
+        // Поля инициализируются значениями по умолчанию, операция сбрасывается
         public void Reset()
         {
             FLop_Res = new T();
@@ -61,19 +47,15 @@ namespace CalculatorFractions
             FOperation = TOprtn.opNone;
         }
 
-        /// <summary>
-        /// Сброс операции
-        /// Процессор устанавливается в состояние: "операция не установлена"
-        /// </summary>
+        // Сброс операции
+        // Процессор устанавливается в состояние: "операция не установлена"
         public void OprtnClear()
         {
             FOperation = TOprtn.opNone;
         }
 
-        /// <summary>
-        /// Выполнить операцию
-        /// Выполняет текущую операцию над FRop и FLop_Res, результат в FLop_Res
-        /// </summary>
+        // Выполнить операцию
+        // Выполняет текущую операцию над FRop и FLop_Res, результат в FLop_Res
         public void OprtnRun()
         {
             if (FOperation == TOprtn.opNone) return;
@@ -98,10 +80,8 @@ namespace CalculatorFractions
             }
         }
 
-        /// <summary>
-        /// Вычислить функцию
-        /// Выполняет функцию Func над FRop, результат сохраняется в FRop
-        /// </summary>
+        // Вычислить функцию
+        // Выполняет функцию Func над FRop, результат сохраняется в FRop
         public void FuncRun(TFunc Func)
         {
             dynamic dynRop = FRop;
@@ -117,57 +97,41 @@ namespace CalculatorFractions
             }
         }
 
-        /// <summary>
-        /// Читать левый операнд
-        /// </summary>
+        // Читать левый операнд
         public T Lop_Res => FLop_Res;
 
-        /// <summary>
-        /// Записать левый операнд
-        /// </summary>
+        // Записать левый операнд
         public void SetLop_Res(T value)
         {
             FLop_Res = value;
         }
 
-        /// <summary>
-        /// Читать правый операнд
-        /// </summary>
+        // Читать правый операнд
         public T Rop => FRop;
 
-        /// <summary>
-        /// Записать правый операнд
-        /// </summary>
+        // Записать правый операнд
         public void SetRop(T value)
         {
             FRop = value;
         }
 
-        /// <summary>
-        /// Читать состояние (текущую операцию)
-        /// </summary>
+        // Читать состояние (текущую операцию)
         public TOprtn Operation => FOperation;
 
-        /// <summary>
-        /// Записать состояние (установить операцию)
-        /// </summary>
+        // Записать состояние (установить операцию)
         public void SetOperation(TOprtn value)
         {
             FOperation = value;
         }
 
-        /// <summary>
-        /// Проверка: операция установлена
-        /// </summary>
+        // Проверка: операция установлена
         public bool IsOperationSet()
         {
             return FOperation != TOprtn.opNone;
         }
     }
 
-    /// <summary>
-    /// Преобразование операции в строку
-    /// </summary>
+    // Преобразование операции в строку
     public static class OprtnExtensions
     {
         public static string ToStringValue(this TOprtn oprtn)

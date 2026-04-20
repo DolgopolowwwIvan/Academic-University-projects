@@ -1,14 +1,9 @@
-// TEditor.cs - Класс "Ввод и редактирование простых дробей"
-// Original: РедакторПростыхДробей
-
 using System;
 
 namespace CalculatorFractions
 {
-    /// <summary>
-    /// Класс TEditor - Ввод и редактирование простых дробей
-    /// Обязанность: ввод, хранение и редактирование строкового представления простых дробей
-    /// </summary>
+    // Класс TEditor - Ввод и редактирование простых дробей
+    // Обязанность: ввод, хранение и редактирование строкового представления простых дробей
     public class TEditor
     {
         private string FString;  // Строковое представление редактируемой простой дроби
@@ -17,17 +12,13 @@ namespace CalculatorFractions
         private const string FSeparator = "/";  // Разделитель числителя и знаменателя
         private const string FZeroString = "0/1"; // Строковое представление нуля
 
-        /// <summary>
-        /// Конструктор
-        /// </summary>
+        // Конструктор
         public TEditor()
         {
             FString = FZeroString;
         }
 
-        /// <summary>
-        /// Проверка: можно ли добавить цифру
-        /// </summary>
+        // Проверка: можно ли добавить цифру
         private bool CanAddDigit()
         {
             if (string.IsNullOrEmpty(FString)) return true;
@@ -45,21 +36,15 @@ namespace CalculatorFractions
             }
         }
 
-        /// <summary>
-        /// Проверка: можно ли добавить разделитель
-        /// </summary>
+        // Проверка: можно ли добавить разделитель
         private bool CanAddSeparator()
         {
-            // Разделитель можно добавить только если есть числитель и ещё нет разделителя
             if (string.IsNullOrEmpty(FString) || FString == "-" || FString == "-0") return false;
 
             // Проверяем, нет ли уже разделителя
             return FString.IndexOf(FSeparator) == -1;
         }
 
-        /// <summary>
-        /// Дробь есть ноль - возвращает true, если строка содержит 0/1
-        /// </summary>
         public bool IsFractionZero()
         {
             try
@@ -73,9 +58,7 @@ namespace CalculatorFractions
             }
         }
 
-        /// <summary>
-        /// Добавить знак - добавляет или удаляет знак "-" из строки
-        /// </summary>
+        // Добавить знак - добавляет или удаляет знак "-" из строки
         public string AddSign()
         {
             if (string.IsNullOrEmpty(FString))
@@ -93,9 +76,7 @@ namespace CalculatorFractions
             return FString;
         }
 
-        /// <summary>
-        /// Добавить цифру - добавляет цифру к строке, если формат позволяет
-        /// </summary>
+        // Добавить цифру - добавляет цифру к строке, если формат позволяет
         public string AddDigit(int digit)
         {
             if (digit < 0 || digit > 9) return FString;
@@ -137,17 +118,11 @@ namespace CalculatorFractions
             return FString;
         }
 
-        /// <summary>
-        /// Добавить ноль - добавляет ноль к строке, если формат позволяет
-        /// </summary>
         public string AddZero()
         {
             return AddDigit(0);
         }
 
-        /// <summary>
-        /// Добавить разделитель - добавляет '/' к строке
-        /// </summary>
         public string AddSeparator()
         {
             if (!CanAddSeparator()) return FString;
@@ -162,9 +137,7 @@ namespace CalculatorFractions
             return FString;
         }
 
-        /// <summary>
-        /// Забой символа - удаляет крайний правый символ (Backspace)
-        /// </summary>
+        // Забой символа - удаляет крайний правый символ (Backspace)
         public string Backspace()
         {
             if (string.IsNullOrEmpty(FString)) return FString;
@@ -181,18 +154,13 @@ namespace CalculatorFractions
             return FString;
         }
 
-        /// <summary>
-        /// Очистить - устанавливает строку в 0/1 (Clear)
-        /// </summary>
         public string Clear()
         {
             FString = FZeroString;
             return FString;
         }
 
-        /// <summary>
-        /// Редактировать - выполняет команду редактирования по номеру
-        /// </summary>
+        // Редактировать - выполняет команду редактирования по номеру
         public string Edit(TEditCommand command)
         {
             switch (command)
@@ -215,14 +183,10 @@ namespace CalculatorFractions
             }
         }
 
-        /// <summary>
-        /// Свойство: читать строку в формате строки
-        /// </summary>
+        // Свойство: читать строку в формате строки
         public string GetString() => FString;
 
-        /// <summary>
-        /// Свойство: писать строку в формате строки
-        /// </summary>
+        // Свойство: писать строку в формате строки
         public void SetString(string value)
         {
             if (string.IsNullOrEmpty(value))
@@ -251,9 +215,7 @@ namespace CalculatorFractions
             }
         }
 
-        /// <summary>
-        /// Получить дробь как TFrac
-        /// </summary>
+        // Получить дробь как TFrac
         public TFrac ToFraction()
         {
             int sepPos = FString.IndexOf(FSeparator);
@@ -277,9 +239,7 @@ namespace CalculatorFractions
         }
     }
 
-    /// <summary>
-    /// Команды редактирования
-    /// </summary>
+    // Команды редактирования
     public enum TEditCommand
     {
         ecDigit0 = 0,

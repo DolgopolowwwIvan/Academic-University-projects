@@ -1,14 +1,10 @@
-// TCtrl.cs - Класс "Управление калькулятором чисел"
-// Original: УправлениеКалькуляторомПростыхДробей (тип TCtrl)
+
+// УправлениеКалькуляторомПростыхДробей (тип TCtrl)
 
 using System;
 
 namespace CalculatorFractions
 {
-    /// <summary>
-    /// Состояния калькулятора
-    /// Original: TCtrlState = (cStart, cEditing, FunDone, cValDone, cExpDone, cOpChange, cError)
-    /// </summary>
     public enum TCtrlState
     {
         cStart,      // Начальное
@@ -20,9 +16,7 @@ namespace CalculatorFractions
         cError       // Ошибка
     }
 
-    /// <summary>
-    /// Команды калькулятора
-    /// </summary>
+    // Команды калькулятора
     public enum TCalcCommand
     {
         cmdDigit0 = 0,
@@ -55,10 +49,6 @@ namespace CalculatorFractions
         cmdPaste = 27         // Вставить из буфера
     }
 
-    /// <summary>
-    /// Класс управления калькулятором
-    /// Обязанность: управление выполнением команд калькулятора
-    /// </summary>
     public class TCtrl
     {
         private TCtrlState FState;           // Состояние калькулятора
@@ -71,9 +61,7 @@ namespace CalculatorFractions
         private TCtrlState FPrevState;       // Предыдущее состояние
         private bool FShowAsFraction;        // Режим отображения: "дробь" или "число"
 
-        /// <summary>
-        /// Конструктор
-        /// </summary>
+        // Конструктор
         public TCtrl()
         {
             FState = TCtrlState.cStart;
@@ -82,9 +70,7 @@ namespace CalculatorFractions
             SetInitialState();
         }
 
-        /// <summary>
-        /// Режим отображения: "дробь" (true) или "число" (false)
-        /// </summary>
+        // Режим отображения: "дробь" (true) или "число" (false)
         public bool ShowAsFraction
         {
             get => FShowAsFraction;
@@ -97,9 +83,7 @@ namespace CalculatorFractions
             }
         }
 
-        /// <summary>
-        /// Установка начального состояния
-        /// </summary>
+        // Установка начального состояния
         private void SetInitialState()
         {
             FState = TCtrlState.cStart;
@@ -112,9 +96,7 @@ namespace CalculatorFractions
             FDisplayString = "0/1";
         }
 
-        /// <summary>
-        /// Обновить строку отображения с учётом режима
-        /// </summary>
+        // Обновить строку отображения с учётом режима
         private void UpdateDisplayString()
         {
             if (FState == TCtrlState.cStart || FState == TCtrlState.cEditing)
@@ -127,9 +109,7 @@ namespace CalculatorFractions
             }
         }
 
-        /// <summary>
-        /// Преобразование команды в операцию
-        /// </summary>
+        // Преобразование команды в операцию
         private TOprtn CommandToOperation(int cmd)
         {
             switch (cmd)
@@ -142,23 +122,17 @@ namespace CalculatorFractions
             }
         }
 
-        /// <summary>
-        /// Получить текущую строку отображения
-        /// </summary>
+        // Получить текущую строку отображения
         public string GetDisplayString()
         {
             UpdateDisplayString();
             return FDisplayString;
         }
 
-        /// <summary>
-        /// Получить текущее состояние
-        /// </summary>
+        // Получить текущее состояние
         public TCtrlState GetState() => FState;
 
-        /// <summary>
-        /// Выполнить команду калькулятора
-        /// </summary>
+        // Выполнить команду калькулятора
         public string ExecuteCommand(int command, ref string clipboard, ref string MState)
         {
             string result;
@@ -278,9 +252,7 @@ namespace CalculatorFractions
             return FEditor.GetString();
         }
 
-        /// <summary>
-        /// Выполнить команду редактора
-        /// </summary>
+        // Выполнить команду редактора
         private string ExecuteEditorCommand(int command)
         {
             TEditCommand editCmd = (TEditCommand)command;
@@ -290,9 +262,7 @@ namespace CalculatorFractions
             return result;
         }
 
-        /// <summary>
-        /// Выполнить операцию
-        /// </summary>
+        // Выполнить операцию
         private string ExecuteOperation(int command)
         {
             // Сброс состояния ошибки при новой операции
@@ -376,9 +346,7 @@ namespace CalculatorFractions
             }
         }
 
-        /// <summary>
-        /// Выполнить функцию
-        /// </summary>
+        // Выполнить функцию
         private string ExecuteFunction(int command)
         {
             // Сброс состояния ошибки при новой функции
@@ -410,12 +378,9 @@ namespace CalculatorFractions
             }
         }
 
-        /// <summary>
-        /// Вычислить выражение
-        /// </summary>
+        // Вычислить выражение
         private string CalculateExpression()
         {
-            // Сброс состояния ошибки при вычислении
             if (FState == TCtrlState.cError)
             {
                 SetInitialState();
@@ -506,9 +471,7 @@ namespace CalculatorFractions
             }
         }
 
-        /// <summary>
-        /// Установить начальное состояние калькулятора
-        /// </summary>
+        // Установить начальное состояние калькулятора
         private string SetInitialCalculatorState()
         {
             SetInitialState();
@@ -516,9 +479,7 @@ namespace CalculatorFractions
             return FDisplayString;
         }
 
-        /// <summary>
-        /// Выполнить команду памяти
-        /// </summary>
+        // Выполнить команду памяти
         private string ExecuteMemoryCommand(int command, ref string MState)
         {
             TFrac currentFrac = FEditor.ToFraction();
@@ -555,9 +516,7 @@ namespace CalculatorFractions
             return FEditor.GetString();
         }
 
-        /// <summary>
-        /// Выполнить команду буфера обмена
-        /// </summary>
+        // Выполнить команду буфера обмена
         private string ExecuteClipboardCommand(int command, ref string clipboard)
         {
             switch (command)
