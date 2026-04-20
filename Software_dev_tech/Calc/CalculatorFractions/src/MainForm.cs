@@ -1,6 +1,3 @@
-// MainForm.cs - Форма калькулятора простых дробей
-// Visual Studio Windows Forms C#
-
 using System;
 using System.Windows.Forms;
 

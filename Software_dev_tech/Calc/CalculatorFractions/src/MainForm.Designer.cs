@@ -1,4 +1,4 @@
-// MainForm.Designer.cs - Дизайнер формы
+
 namespace CalculatorFractions
 {
     partial class MainForm
