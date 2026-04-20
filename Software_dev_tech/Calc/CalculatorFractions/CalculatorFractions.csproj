@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <RootNamespace>CalculatorFractions</RootNamespace>
+    <AssemblyName>CalculatorFractions</AssemblyName>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="src\TFrac.cs" />
+    <Compile Include="src\TEditor.cs" />
+    <Compile Include="src\TMemory.cs" />
+    <Compile Include="src\TProc.cs" />
+    <Compile Include="src\TCtrl.cs" />
+    <Compile Include="src\MainForm.cs" />
+    <Compile Include="src\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="src\Program.cs" />
+  </ItemGroup>
+
+</Project>
