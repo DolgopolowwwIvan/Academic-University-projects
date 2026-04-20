@@ -125,7 +125,7 @@ public class TEditor
             numberStr = "-" + numberStr;
         }
 
-        if (double.TryParse(numberStr, out double value))
+        if (double.TryParse(numberStr, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double value))
         {
             return new TANumber(value);
         }
@@ -137,7 +137,7 @@ public class TEditor
     // Установить число в буфер ввода
     public void SetNumber(TANumber number)
     {
-        _inputBuffer = number.Value.ToString();
+        _inputBuffer = number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
         _isNegative = number.Value < 0;
         _hasDecimalPoint = _inputBuffer.Contains(".");
         _error = string.Empty;
@@ -152,6 +152,13 @@ public class TEditor
             result = "-" + result;
         }
         return string.IsNullOrEmpty(result) ? "0" : result;
+    }
+
+    // Получить число как строку для отображения
+    public string GetNumberString()
+    {
+        var number = GetNumber();
+        return number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
     }
 
     // Сбросить состояние

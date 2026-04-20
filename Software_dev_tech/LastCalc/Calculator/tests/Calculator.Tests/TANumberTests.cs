@@ -63,7 +63,7 @@ public class TANumberTests
         var number = new TANumber(123.45);
 
         // Действие
-        var result = number.ToString();
+        var result = number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
         // Проверка
         Assert.Equal("123.45", result);

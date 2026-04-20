@@ -81,7 +81,7 @@ public class TClipBoardTests
         clipBoard.Copy("Test data");
 
         // Действие
-        var result = clipBoard.Paste();
+        var result = clipBoard.Content;
 
         // Проверка
         Assert.Equal("Test data", result);
@@ -94,10 +94,38 @@ public class TClipBoardTests
         var clipBoard = new TClipBoard();
 
         // Действие
-        var result = clipBoard.Paste();
+        var result = clipBoard.Content;
 
         // Проверка
         Assert.Empty(result);
+    }
+
+    [Fact]
+    public void PasteValue_ValidNumber_ReturnsNumber()
+    {
+        // Инициализация
+        var clipBoard = new TClipBoard();
+        clipBoard.Copy("123.45");
+
+        // Действие
+        var result = clipBoard.PasteValue();
+
+        // Проверка
+        Assert.Equal(123.45, result, 2);
+    }
+
+    [Fact]
+    public void PasteValue_InvalidContent_ReturnsZero()
+    {
+        // Инициализация
+        var clipBoard = new TClipBoard();
+        clipBoard.Copy("not a number");
+
+        // Действие
+        var result = clipBoard.PasteValue();
+
+        // Проверка
+        Assert.Equal(0, result);
     }
 
     [Fact]

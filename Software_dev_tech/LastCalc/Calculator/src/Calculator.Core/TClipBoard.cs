@@ -34,15 +34,20 @@ public class TClipBoard
         _hasContent = !string.IsNullOrEmpty(_content);
     }
 
-    // Вставить значение из буфера
-    public string Paste()
+    // Вставить значение из буфера и конвертировать в число
+    public double PasteValue()
     {
         if (!_hasContent)
         {
-            return string.Empty;
+            return 0;
         }
 
-        return _content;
+        if (double.TryParse(_content, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double value))
+        {
+            return value;
+        }
+
+        return 0;
     }
 
     // Очистить буфер

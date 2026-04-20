@@ -139,7 +139,7 @@ public class TCtrl
             }
 
             // Обновляем буфер и состояние памяти
-            buffer = _number.Value.ToString();
+            buffer = _number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
             memoryState = _memory.GetStateString();
 
             if (!string.IsNullOrEmpty(_processor.Error))
@@ -183,7 +183,7 @@ public class TCtrl
             }
 
             _number = _editor.GetNumber();
-            result = _editor.GetDisplayString();
+            result = _editor.GetNumberString();
             _state = TCtrlState.cEditing;
         }
         catch (Exception ex)
@@ -237,7 +237,7 @@ public class TCtrl
                     break;
             }
 
-            result = _processor.Lopd_Res.Value.ToString();
+            result = _processor.Lopd_Res.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
             _state = TCtrlState.cOpChange;
             _editor.Clear();
         }
@@ -280,7 +280,7 @@ public class TCtrl
             }
 
             _number = _processor.Lopd_Res.Copy();
-            result = _number.Value.ToString();
+            result = _number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
             _state = TCtrlState.FunDone;
             _editor.SetNumber(_number);
         }
@@ -312,14 +312,14 @@ public class TCtrl
                 }
 
                 _number = _processor.Lopd_Res.Copy();
-                result = _number.Value.ToString();
+                result = _number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
                 _state = TCtrlState.cExpDone;
                 _processor.Operation = TOperation.None;
                 _editor.SetNumber(_number);
             }
             else
             {
-                result = _number.Value.ToString();
+                result = _number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
                 _state = TCtrlState.cValDone;
             }
         }
@@ -381,7 +381,7 @@ public class TCtrl
             }
 
             memoryState = _memory.GetStateString();
-            result = _number.Value.ToString();
+            result = _number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
             if (!string.IsNullOrEmpty(_memory.Error))
             {
@@ -406,20 +406,14 @@ public class TCtrl
             switch (command)
             {
                 case CMD_COPY:
-                    _clipBoard.Copy(_number.Value.ToString());
+                    _clipBoard.Copy(_number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
                     buffer = _clipBoard.Content;
                     break;
                 case CMD_PASTE:
-                    string pasted = _clipBoard.Paste();
-                    if (!string.IsNullOrEmpty(pasted))
-                    {
-                        if (double.TryParse(pasted, out double value))
-                        {
-                            _number = new TANumber(value);
-                            _editor.SetNumber(_number);
-                            result = _number.Value.ToString();
-                        }
-                    }
+                    double pastedValue = _clipBoard.PasteValue();
+                    _number = new TANumber(pastedValue);
+                    _editor.SetNumber(_number);
+                    result = _number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
                     buffer = _clipBoard.Content;
                     break;
             }

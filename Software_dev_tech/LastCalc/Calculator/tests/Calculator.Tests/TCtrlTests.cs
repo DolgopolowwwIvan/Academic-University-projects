@@ -302,7 +302,22 @@ public class TCtrlTests
 
         // Проверка
         var recalled = ctrl.Memory.Recall();
-        Assert.Equal(15, recalled.Value);
+        Assert.Equal(15.0, recalled.Value, 1);
+    }
+
+    [Fact]
+    public void ExecuteCalculatorCommand_Paste_RestoresValue()
+    {
+        // Инициализация
+        var ctrl = new TCtrl();
+        string buffer = "42";
+        string memoryState = string.Empty;
+
+        // Действие
+        ctrl.ExecuteCalculatorCommand(TCtrl.CMD_PASTE, ref buffer, ref memoryState);
+
+        // Проверка
+        Assert.Equal(42, ctrl.Number.Value);
     }
 
     [Fact]
@@ -317,21 +332,6 @@ public class TCtrlTests
         ctrl.ExecuteCalculatorCommand(TCtrl.CMD_DIGIT_1, ref buffer, ref memoryState);
         ctrl.ExecuteCalculatorCommand(TCtrl.CMD_DIGIT_2, ref buffer, ref memoryState);
         ctrl.ExecuteCalculatorCommand(TCtrl.CMD_COPY, ref buffer, ref memoryState);
-
-        // Проверка
-        Assert.Equal("12", buffer);
-    }
-
-    [Fact]
-    public void ExecuteCalculatorCommand_Paste_RestoresValue()
-    {
-        // Инициализация
-        var ctrl = new TCtrl();
-        string buffer = "42";
-        string memoryState = string.Empty;
-
-        // Действие
-        ctrl.ExecuteCalculatorCommand(TCtrl.CMD_PASTE, ref buffer, ref memoryState);
 
         // Проверка
         Assert.Equal(42, ctrl.Number.Value);

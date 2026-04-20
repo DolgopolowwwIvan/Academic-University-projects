@@ -124,7 +124,18 @@ public class TMemory
             return "0";
         }
 
-        return _storedValue.Value.ToString();
+        return _storedValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    // Получить число из памяти
+    public TANumber GetValue()
+    {
+        if (!_hasValue || _storedValue == null)
+        {
+            return new TANumber(0);
+        }
+
+        return _storedValue.Copy();
     }
 
     // Сбросить состояние
