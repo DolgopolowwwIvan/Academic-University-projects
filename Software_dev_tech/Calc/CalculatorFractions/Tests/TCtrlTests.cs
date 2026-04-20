@@ -9,7 +9,9 @@ public class TCtrlTests
     public void Constructor_DefaultState_DisplayIsZero()
     {
         var ctrl = new TCtrl();
-        var display = ctrl.ExecuteCommand((int)TCalcCommand.cmdNone, ref "", ref "");
+        string mState = "";
+        string clipboard = "";
+        var display = ctrl.ExecuteCommand((int)TCalcCommand.cmdNone, ref mState, ref clipboard);
         Assert.True(display == "0" || display == "0/1");
     }
 
@@ -17,8 +19,10 @@ public class TCtrlTests
     public void ExecuteCommand_DigitInput_ShowsDigit()
     {
         var ctrl = new TCtrl();
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref "", ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref mState, ref clipboard);
         Assert.Equal("5", result);
     }
 
@@ -26,9 +30,11 @@ public class TCtrlTests
     public void ExecuteCommand_MultipleDigits_AppendsDigits()
     {
         var ctrl = new TCtrl();
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit1, ref "", ref "");
-        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit2, ref "", ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit1, ref mState, ref clipboard);
+        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit2, ref mState, ref clipboard);
         Assert.Equal("12", result);
     }
 
@@ -36,11 +42,13 @@ public class TCtrlTests
     public void ExecuteCommand_Addition_CalculatesCorrectly()
     {
         var ctrl = new TCtrl();
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdAdd, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit3, ref "", ref "");
-        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref "", ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdAdd, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit3, ref mState, ref clipboard);
+        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref mState, ref clipboard);
         Assert.Equal("8", result);
     }
 
@@ -48,11 +56,13 @@ public class TCtrlTests
     public void ExecuteCommand_Subtraction_CalculatesCorrectly()
     {
         var ctrl = new TCtrl();
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit7, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdSub, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit4, ref "", ref "");
-        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref "", ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit7, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdSub, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit4, ref mState, ref clipboard);
+        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref mState, ref clipboard);
         Assert.Equal("3", result);
     }
 
@@ -60,11 +70,13 @@ public class TCtrlTests
     public void ExecuteCommand_Multiplication_CalculatesCorrectly()
     {
         var ctrl = new TCtrl();
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit6, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdMul, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit7, ref "", ref "");
-        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref "", ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit6, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdMul, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit7, ref mState, ref clipboard);
+        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref mState, ref clipboard);
         Assert.Equal("42", result);
     }
 
@@ -72,11 +84,13 @@ public class TCtrlTests
     public void ExecuteCommand_Division_CalculatesCorrectly()
     {
         var ctrl = new TCtrl();
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit8, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDiv, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit2, ref "", ref "");
-        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref "", ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit8, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDiv, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit2, ref mState, ref clipboard);
+        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref mState, ref clipboard);
         Assert.Equal("4", result);
     }
 
@@ -84,11 +98,13 @@ public class TCtrlTests
     public void ExecuteCommand_DivisionByZero_ShowsError()
     {
         var ctrl = new TCtrl();
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDiv, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit0, ref "", ref "");
-        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref "", ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDiv, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit0, ref mState, ref clipboard);
+        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref mState, ref clipboard);
         Assert.Equal("Error", result);
     }
 
@@ -96,13 +112,15 @@ public class TCtrlTests
     public void ExecuteCommand_Error_CanBeRecovered()
     {
         var ctrl = new TCtrl();
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDiv, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit0, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit3, ref "", ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDiv, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit0, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit3, ref mState, ref clipboard);
         Assert.Equal("3", result);
     }
 
@@ -110,9 +128,11 @@ public class TCtrlTests
     public void ExecuteCommand_Sqr_CalculatesCorrectly()
     {
         var ctrl = new TCtrl();
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref "", ref "");
-        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdSqr, ref "", ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref mState, ref clipboard);
+        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdSqr, ref mState, ref clipboard);
         Assert.Equal("25", result);
     }
 
@@ -120,9 +140,11 @@ public class TCtrlTests
     public void ExecuteCommand_Rev_CalculatesCorrectly()
     {
         var ctrl = new TCtrl();
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit2, ref "", ref "");
-        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdRev, ref "", ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit2, ref mState, ref clipboard);
+        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdRev, ref mState, ref clipboard);
         Assert.Equal("1/2", result);
     }
 
@@ -130,8 +152,10 @@ public class TCtrlTests
     public void ExecuteCommand_Clear_ResetsDisplay()
     {
         var ctrl = new TCtrl();
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref "", ref "");
-        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref mState, ref clipboard);
+        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
         Assert.True(result == "0" || result == "0/1");
     }
 
@@ -139,10 +163,12 @@ public class TCtrlTests
     public void ExecuteCommand_Backspace_RemovesLastDigit()
     {
         var ctrl = new TCtrl();
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit1, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit2, ref "", ref "");
-        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdBackspace, ref "", ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit1, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit2, ref mState, ref clipboard);
+        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdBackspace, ref mState, ref clipboard);
         Assert.Equal("1", result);
     }
 
@@ -150,10 +176,11 @@ public class TCtrlTests
     public void ExecuteCommand_MS_StoresValue()
     {
         var ctrl = new TCtrl();
-        var mState = "OFF";
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdMS, ref mState, ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdMS, ref mState, ref clipboard);
         Assert.Equal("M", mState);
     }
 
@@ -161,11 +188,12 @@ public class TCtrlTests
     public void ExecuteCommand_MC_ClearsMemory()
     {
         var ctrl = new TCtrl();
-        var mState = "OFF";
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdMS, ref mState, ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdMC, ref mState, ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdMS, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdMC, ref mState, ref clipboard);
         Assert.Equal("OFF", mState);
     }
 
@@ -173,10 +201,11 @@ public class TCtrlTests
     public void ExecuteCommand_Copy_CopiesToClipboard()
     {
         var ctrl = new TCtrl();
-        var clipboard = "";
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdCopy, ref clipboard, ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdCopy, ref clipboard, ref mState);
         Assert.Equal("5", clipboard);
     }
 
@@ -185,11 +214,13 @@ public class TCtrlTests
     {
         var ctrl = new TCtrl();
         ctrl.ShowAsFraction = true;
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDiv, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit1, ref "", ref "");
-        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref "", ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDiv, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit1, ref mState, ref clipboard);
+        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref mState, ref clipboard);
         Assert.Equal("5/1", result);
     }
 
@@ -198,11 +229,13 @@ public class TCtrlTests
     {
         var ctrl = new TCtrl();
         ctrl.ShowAsFraction = false;
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDiv, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit1, ref "", ref "");
-        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref "", ref "");
+        string mState = "";
+        string clipboard = "";
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDiv, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit1, ref mState, ref clipboard);
+        var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref mState, ref clipboard);
         Assert.Equal("5", result);
     }
 }
