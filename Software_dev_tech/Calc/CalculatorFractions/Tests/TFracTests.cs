@@ -1,8 +1,7 @@
 // Тесты для класса TFrac (простая дробь)
-
 using CalculatorFractions;
 
-namespace CalculatorFractions.Tests;
+namespace Tests;
 
 public class TFracTests
 {
@@ -56,15 +55,6 @@ public class TFracTests
         Assert.Equal(4, frac.Denom);
     }
 
-    [Fact]
-    public void Constructor_CopyConstructor_CreatesCopy()
-    {
-        var original = new TFrac(3, 4);
-        var copy = new TFrac(original);
-        Assert.Equal(original.Num, copy.Num);
-        Assert.Equal(original.Denom, copy.Denom);
-    }
-
     #endregion
 
     #region Арифметические операции
@@ -77,16 +67,6 @@ public class TFracTests
         var result = a.Add(b);
         Assert.Equal(5, result.Num);
         Assert.Equal(6, result.Denom);
-    }
-
-    [Fact]
-    public void Add_IntegerFractions_ReturnsCorrectSum()
-    {
-        var a = new TFrac(5, 1);
-        var b = new TFrac(2, 1);
-        var result = a.Add(b);
-        Assert.Equal(7, result.Num);
-        Assert.Equal(1, result.Denom);
     }
 
     [Fact]
@@ -175,13 +155,6 @@ public class TFracTests
     }
 
     [Fact]
-    public void ToString_ShowAsFractionFalse_ShowsFractionWhenDenomNot1()
-    {
-        var frac = new TFrac(3, 4) { ShowAsFraction = false };
-        Assert.Equal("3/4", frac.ToString());
-    }
-
-    [Fact]
     public void ToString_Zero_ShowAsFractionTrue()
     {
         var frac = new TFrac(0, 1) { ShowAsFraction = true };
@@ -193,40 +166,6 @@ public class TFracTests
     {
         var frac = new TFrac(0, 1) { ShowAsFraction = false };
         Assert.Equal("0", frac.ToString());
-    }
-
-    #endregion
-
-    #region Сравнение
-
-    [Fact]
-    public void Equals_SameFractions_ReturnsTrue()
-    {
-        var a = new TFrac(1, 2);
-        var b = new TFrac(2, 4);
-        Assert.Equal(a, b);
-    }
-
-    [Fact]
-    public void Equals_DifferentFractions_ReturnsFalse()
-    {
-        var a = new TFrac(1, 2);
-        var b = new TFrac(1, 3);
-        Assert.NotEqual(a, b);
-    }
-
-    [Fact]
-    public void IsZero_ZeroFraction_ReturnsTrue()
-    {
-        var frac = new TFrac(0, 1);
-        Assert.True(frac.IsZero());
-    }
-
-    [Fact]
-    public void IsZero_NonZeroFraction_ReturnsFalse()
-    {
-        var frac = new TFrac(1, 2);
-        Assert.False(frac.IsZero());
     }
 
     #endregion

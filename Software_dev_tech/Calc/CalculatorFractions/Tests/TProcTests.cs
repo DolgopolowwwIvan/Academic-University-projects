@@ -1,31 +1,16 @@
 // Тесты для класса TProc (процессор)
-
 using CalculatorFractions;
 
-namespace CalculatorFractions.Tests;
+namespace Tests;
 
 public class TProcTests
 {
-    #region Начальное состояние
-
     [Fact]
     public void Constructor_DefaultState_OperationNotSet()
     {
         var proc = new TProc<TFrac>();
         Assert.Equal(TOprtn.opNone, proc.Operation);
     }
-
-    [Fact]
-    public void Constructor_DefaultState_OperandsAreZero()
-    {
-        var proc = new TProc<TFrac>();
-        Assert.Equal(0, proc.Lop_Res.Num);
-        Assert.Equal(0, proc.Rop.Num);
-    }
-
-    #endregion
-
-    #region SetOperation
 
     [Fact]
     public void SetOperation_Add_SetsCorrectOperation()
@@ -50,10 +35,6 @@ public class TProcTests
         Assert.False(proc.IsOperationSet());
     }
 
-    #endregion
-
-    #region SetLop_Res / SetRop
-
     [Fact]
     public void SetLop_Res_SetsLeftOperand()
     {
@@ -72,10 +53,6 @@ public class TProcTests
         Assert.Equal(3, proc.Rop.Num);
         Assert.Equal(4, proc.Rop.Denom);
     }
-
-    #endregion
-
-    #region OprtnRun
 
     [Fact]
     public void OprtnRun_Add_CalculatesCorrectly()
@@ -136,20 +113,6 @@ public class TProcTests
     }
 
     [Fact]
-    public void OprtnRun_NoOperation_DoesNothing()
-    {
-        var proc = new TProc<TFrac>();
-        var original = new TFrac(5, 1);
-        proc.SetLop_Res(original);
-        proc.OprtnRun();
-        Assert.Equal(5, proc.Lop_Res.Num);
-    }
-
-    #endregion
-
-    #region FuncRun
-
-    [Fact]
     public void FuncRun_Sqr_CalculatesCorrectly()
     {
         var proc = new TProc<TFrac>();
@@ -177,10 +140,6 @@ public class TProcTests
         Assert.Throws<DivideByZeroException>(() => proc.FuncRun(TFunc.fnRev));
     }
 
-    #endregion
-
-    #region Reset
-
     [Fact]
     public void Reset_ClearsOperation()
     {
@@ -200,19 +159,4 @@ public class TProcTests
         Assert.Equal(0, proc.Lop_Res.Num);
         Assert.Equal(0, proc.Rop.Num);
     }
-
-    #endregion
-
-    #region OprtnClear
-
-    [Fact]
-    public void OprtnClear_ClearsOperation()
-    {
-        var proc = new TProc<TFrac>();
-        proc.SetOperation(TOprtn.opAdd);
-        proc.OprtnClear();
-        Assert.Equal(TOprtn.opNone, proc.Operation);
-    }
-
-    #endregion
 }

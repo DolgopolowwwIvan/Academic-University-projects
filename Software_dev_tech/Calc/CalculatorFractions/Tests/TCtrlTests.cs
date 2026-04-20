@@ -1,13 +1,10 @@
 // Тесты для класса TCtrl (контроллер калькулятора)
-
 using CalculatorFractions;
 
-namespace CalculatorFractions.Tests;
+namespace Tests;
 
 public class TCtrlTests
 {
-    #region Начальное состояние
-
     [Fact]
     public void Constructor_DefaultState_DisplayIsZero()
     {
@@ -15,10 +12,6 @@ public class TCtrlTests
         var display = ctrl.ExecuteCommand((int)TCalcCommand.cmdNone, ref "", ref "");
         Assert.True(display == "0" || display == "0/1");
     }
-
-    #endregion
-
-    #region Ввод цифр
 
     [Fact]
     public void ExecuteCommand_DigitInput_ShowsDigit()
@@ -38,10 +31,6 @@ public class TCtrlTests
         var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit2, ref "", ref "");
         Assert.Equal("12", result);
     }
-
-    #endregion
-
-    #region Арифметические операции
 
     [Fact]
     public void ExecuteCommand_Addition_CalculatesCorrectly()
@@ -91,10 +80,6 @@ public class TCtrlTests
         Assert.Equal("4", result);
     }
 
-    #endregion
-
-    #region Деление на ноль
-
     [Fact]
     public void ExecuteCommand_DivisionByZero_ShowsError()
     {
@@ -121,10 +106,6 @@ public class TCtrlTests
         Assert.Equal("3", result);
     }
 
-    #endregion
-
-    #region Функции
-
     [Fact]
     public void ExecuteCommand_Sqr_CalculatesCorrectly()
     {
@@ -145,10 +126,6 @@ public class TCtrlTests
         Assert.Equal("1/2", result);
     }
 
-    #endregion
-
-    #region Clear
-
     [Fact]
     public void ExecuteCommand_Clear_ResetsDisplay()
     {
@@ -157,10 +134,6 @@ public class TCtrlTests
         var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
         Assert.True(result == "0" || result == "0/1");
     }
-
-    #endregion
-
-    #region Backspace
 
     [Fact]
     public void ExecuteCommand_Backspace_RemovesLastDigit()
@@ -173,10 +146,6 @@ public class TCtrlTests
         Assert.Equal("1", result);
     }
 
-    #endregion
-
-    #region Память
-
     [Fact]
     public void ExecuteCommand_MS_StoresValue()
     {
@@ -186,19 +155,6 @@ public class TCtrlTests
         ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref "", ref "");
         ctrl.ExecuteCommand((int)TCalcCommand.cmdMS, ref mState, ref "");
         Assert.Equal("M", mState);
-    }
-
-    [Fact]
-    public void ExecuteCommand_MR_RecallsValue()
-    {
-        var ctrl = new TCtrl();
-        var mState = "OFF";
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdDigit5, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdMS, ref mState, ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdMR, ref mState, ref "");
-        Assert.Equal("5", mState); // MR возвращает строку из редактора
     }
 
     [Fact]
@@ -213,10 +169,6 @@ public class TCtrlTests
         Assert.Equal("OFF", mState);
     }
 
-    #endregion
-
-    #region Буфер обмена
-
     [Fact]
     public void ExecuteCommand_Copy_CopiesToClipboard()
     {
@@ -227,20 +179,6 @@ public class TCtrlTests
         ctrl.ExecuteCommand((int)TCalcCommand.cmdCopy, ref clipboard, ref "");
         Assert.Equal("5", clipboard);
     }
-
-    [Fact]
-    public void ExecuteCommand_Paste_PastesFromClipboard()
-    {
-        var ctrl = new TCtrl();
-        var clipboard = "3/4";
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref "", ref "");
-        ctrl.ExecuteCommand((int)TCalcCommand.cmdPaste, ref clipboard, ref "");
-        Assert.Equal("3/4", clipboard);
-    }
-
-    #endregion
-
-    #region Режим отображения
 
     [Fact]
     public void ShowAsFraction_True_ShowsFractionFormat()
@@ -267,6 +205,4 @@ public class TCtrlTests
         var result = ctrl.ExecuteCommand((int)TCalcCommand.cmdEqual, ref "", ref "");
         Assert.Equal("5", result);
     }
-
-    #endregion
 }

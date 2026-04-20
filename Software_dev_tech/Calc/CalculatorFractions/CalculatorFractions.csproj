@@ -13,10 +13,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="Core\CalculatorFractions.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <Compile Include="src\TFrac.cs" />
+    <Compile Include="src\TEditor.cs" />
+    <Compile Include="src\TMemory.cs" />
+    <Compile Include="src\TProc.cs" />
+    <Compile Include="src\TCtrl.cs" />
     <Compile Include="src\MainForm.cs" />
     <Compile Include="src\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
