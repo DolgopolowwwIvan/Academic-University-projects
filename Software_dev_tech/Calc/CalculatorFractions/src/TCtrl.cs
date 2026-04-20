@@ -69,6 +69,7 @@ namespace CalculatorFractions
         private string FClipboard;           // Буфер обмена
         private string FDisplayString;       // Строка для отображения
         private TCtrlState FPrevState;       // Предыдущее состояние
+        private bool FShowAsFraction;        // Режим отображения: "дробь" или "число"
 
         /// <summary>
         /// Конструктор
@@ -77,7 +78,23 @@ namespace CalculatorFractions
         {
             FState = TCtrlState.cStart;
             FClipboard = "";
+            FShowAsFraction = false;  // по умолчанию режим "число"
             SetInitialState();
+        }
+
+        /// <summary>
+        /// Режим отображения: "дробь" (true) или "число" (false)
+        /// </summary>
+        public bool ShowAsFraction
+        {
+            get => FShowAsFraction;
+            set
+            {
+                FShowAsFraction = value;
+                // Обновляем режим во всех объектах TFrac
+                FNumber.ShowAsFraction = value;
+                UpdateDisplayString();
+            }
         }
 
         /// <summary>
@@ -91,7 +108,23 @@ namespace CalculatorFractions
             FProcessor = new TProc<TFrac>();
             FMemory = new TMemory<TFrac>();
             FNumber = new TFrac(0, 1);
+            FNumber.ShowAsFraction = FShowAsFraction;
             FDisplayString = "0/1";
+        }
+
+        /// <summary>
+        /// Обновить строку отображения с учётом режима
+        /// </summary>
+        private void UpdateDisplayString()
+        {
+            if (FState == TCtrlState.cStart || FState == TCtrlState.cEditing)
+            {
+                FDisplayString = FEditor.GetString();
+            }
+            else
+            {
+                FDisplayString = FNumber.ToString();
+            }
         }
 
         /// <summary>
@@ -112,7 +145,11 @@ namespace CalculatorFractions
         /// <summary>
         /// Получить текущую строку отображения
         /// </summary>
-        public string GetDisplayString() => FDisplayString;
+        public string GetDisplayString()
+        {
+            UpdateDisplayString();
+            return FDisplayString;
+        }
 
         /// <summary>
         /// Получить текущее состояние
@@ -248,6 +285,7 @@ namespace CalculatorFractions
             if (newOp == TOprtn.opNone) return FEditor.GetString();
 
             TFrac currentFrac = FEditor.ToFraction();
+            currentFrac.ShowAsFraction = FShowAsFraction;
 
             switch (FState)
             {
@@ -315,6 +353,7 @@ namespace CalculatorFractions
         private string ExecuteFunction(int command)
         {
             TFrac currentFrac = FEditor.ToFraction();
+            currentFrac.ShowAsFraction = FShowAsFraction;
             TFunc func = (command == (int)TCalcCommand.cmdSqr) ? TFunc.fnSqr : TFunc.fnRev;
 
             try
@@ -322,6 +361,7 @@ namespace CalculatorFractions
                 FProcessor.SetRop(currentFrac);
                 FProcessor.FuncRun(func);
                 FNumber = FProcessor.Rop;
+                FNumber.ShowAsFraction = FShowAsFraction;
                 FEditor.SetString(FNumber.ToString());
                 FDisplayString = FNumber.ToString();
                 FState = TCtrlState.cFunDone;
@@ -341,6 +381,7 @@ namespace CalculatorFractions
         private string CalculateExpression()
         {
             TFrac currentFrac = FEditor.ToFraction();
+            currentFrac.ShowAsFraction = FShowAsFraction;
 
             switch (FState)
             {
@@ -356,6 +397,7 @@ namespace CalculatorFractions
                     {
                         FNumber = currentFrac;
                     }
+                    FNumber.ShowAsFraction = FShowAsFraction;
                     FEditor.SetString(FNumber.ToString());
                     FDisplayString = FNumber.ToString();
                     FState = TCtrlState.cExpDone;
@@ -379,6 +421,7 @@ namespace CalculatorFractions
                     {
                         FNumber = currentFrac;
                     }
+                    FNumber.ShowAsFraction = FShowAsFraction;
                     FEditor.SetString(FNumber.ToString());
                     FDisplayString = FNumber.ToString();
                     FState = TCtrlState.cExpDone;
@@ -390,6 +433,7 @@ namespace CalculatorFractions
                         FProcessor.SetRop(FNumber);
                         FProcessor.OprtnRun();
                         FNumber = FProcessor.Lop_Res;
+                        FNumber.ShowAsFraction = FShowAsFraction;
                         FEditor.SetString(FNumber.ToString());
                         FDisplayString = FNumber.ToString();
                     }
@@ -402,6 +446,7 @@ namespace CalculatorFractions
                         FProcessor.OprtnRun();
                         FNumber = FProcessor.Lop_Res;
                     }
+                    FNumber.ShowAsFraction = FShowAsFraction;
                     FEditor.SetString(FNumber.ToString());
                     FDisplayString = FNumber.ToString();
                     FState = TCtrlState.cExpDone;
@@ -417,8 +462,8 @@ namespace CalculatorFractions
         private string SetInitialCalculatorState()
         {
             SetInitialState();
-            FDisplayString = "0/1";
-            return "0/1";
+            FDisplayString = FShowAsFraction ? "0/1" : "0";
+            return FDisplayString;
         }
 
         /// <summary>
@@ -427,6 +472,7 @@ namespace CalculatorFractions
         private string ExecuteMemoryCommand(int command, ref string MState)
         {
             TFrac currentFrac = FEditor.ToFraction();
+            currentFrac.ShowAsFraction = FShowAsFraction;
 
             switch (command)
             {
@@ -442,6 +488,7 @@ namespace CalculatorFractions
                     if (FMemory.IsOn())
                     {
                         TFrac memVal = FMemory.Recall();
+                        memVal.ShowAsFraction = FShowAsFraction;
                         FEditor.SetString(memVal.ToString());
                         FDisplayString = memVal.ToString();
                         FState = TCtrlState.cEditing;

@@ -15,6 +15,7 @@ namespace CalculatorFractions
     {
         private int FNum;       // Числитель (numerator)
         private int FDenom;     // Знаменатель (denominator)
+        private bool FShowAsFraction;  // Режим отображения: "дробь" или "число"
 
     /// <summary>
     /// Конструктор по умолчанию: 0/1
@@ -28,6 +29,7 @@ namespace CalculatorFractions
     {
         FNum = num;
         FDenom = denom;
+        FShowAsFraction = false;  // по умолчанию режим "число"
         Reduce();
     }
 
@@ -38,6 +40,7 @@ namespace CalculatorFractions
         {
             FNum = other.FNum;
             FDenom = other.FDenom;
+            FShowAsFraction = other.FShowAsFraction;
         }
 
         /// <summary>
@@ -85,6 +88,17 @@ namespace CalculatorFractions
         public int Denominator => FDenom;
 
         /// <summary>
+        /// Режим отображения: "дробь" (true) или "число" (false)
+        /// В режиме "дробь" всегда показывается как a/b
+        /// В режиме "число" целые дроби показываются без /1
+        /// </summary>
+        public bool ShowAsFraction
+        {
+            get => FShowAsFraction;
+            set => FShowAsFraction = value;
+        }
+
+        /// <summary>
         /// Установка значения дроби
         /// </summary>
         public void Set(int num, int denom)
@@ -110,7 +124,9 @@ namespace CalculatorFractions
         {
             int num = FNum * other.FDenom + other.FNum * FDenom;
             int denom = FDenom * other.FDenom;
-            return new TFrac(num, denom);
+            TFrac result = new TFrac(num, denom);
+            result.FShowAsFraction = FShowAsFraction;
+            return result;
         }
 
         /// <summary>
@@ -120,7 +136,9 @@ namespace CalculatorFractions
         {
             int num = FNum * other.FDenom - other.FNum * FDenom;
             int denom = FDenom * other.FDenom;
-            return new TFrac(num, denom);
+            TFrac result = new TFrac(num, denom);
+            result.FShowAsFraction = FShowAsFraction;
+            return result;
         }
 
         /// <summary>
@@ -130,7 +148,9 @@ namespace CalculatorFractions
         {
             int num = FNum * other.FNum;
             int denom = FDenom * other.FDenom;
-            return new TFrac(num, denom);
+            TFrac result = new TFrac(num, denom);
+            result.FShowAsFraction = FShowAsFraction;
+            return result;
         }
 
         /// <summary>
@@ -144,7 +164,9 @@ namespace CalculatorFractions
             }
             int num = FNum * other.FDenom;
             int denom = FDenom * other.FNum;
-            return new TFrac(num, denom);
+            TFrac result = new TFrac(num, denom);
+            result.FShowAsFraction = FShowAsFraction;
+            return result;
         }
 
         /// <summary>
@@ -152,7 +174,9 @@ namespace CalculatorFractions
         /// </summary>
         public TFrac Sqr()
         {
-            return new TFrac(FNum * FNum, FDenom * FDenom);
+            TFrac result = new TFrac(FNum * FNum, FDenom * FDenom);
+            result.FShowAsFraction = FShowAsFraction;
+            return result;
         }
 
         /// <summary>
@@ -164,14 +188,25 @@ namespace CalculatorFractions
             {
                 throw new ArgumentException("Cannot reverse zero fraction");
             }
-            return new TFrac(FDenom, FNum);
+            TFrac result = new TFrac(FDenom, FNum);
+            result.FShowAsFraction = FShowAsFraction;
+            return result;
         }
 
         /// <summary>
-        /// Преобразование в строку
+        /// Преобразование в строку с учётом режима отображения
         /// </summary>
         public override string ToString()
         {
+            if (FShowAsFraction)
+            {
+                return $"{FNum}/{FDenom}";
+            }
+            
+            if (FDenom == 1)
+            {
+                return FNum.ToString();
+            }
             return $"{FNum}/{FDenom}";
         }
 

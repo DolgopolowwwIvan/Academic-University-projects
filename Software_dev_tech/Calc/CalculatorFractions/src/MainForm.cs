@@ -9,14 +9,16 @@ namespace CalculatorFractions
     public partial class MainForm : Form
     {
         private TCtrl FCtrl;
-        private bool FNumberMode;
         private string FClipboard = "";
 
         public MainForm()
         {
             InitializeComponent();
             FCtrl = new TCtrl();
-            FNumberMode = false;
+            // По умолчанию режим "число" (скрывать /1)
+            FCtrl.ShowAsFraction = false;
+            numberModeItem.Checked = true;
+            fractionModeItem.Checked = false;
             UpdateDisplay();
             SetupToolTips();
         }
@@ -197,7 +199,7 @@ namespace CalculatorFractions
 
         private void FractionModeClick(object sender, EventArgs e)
         {
-            FNumberMode = false;
+            FCtrl.ShowAsFraction = true;
             fractionModeItem.Checked = true;
             numberModeItem.Checked = false;
             UpdateDisplay();
@@ -205,7 +207,7 @@ namespace CalculatorFractions
 
         private void NumberModeClick(object sender, EventArgs e)
         {
-            FNumberMode = true;
+            FCtrl.ShowAsFraction = false;
             fractionModeItem.Checked = false;
             numberModeItem.Checked = true;
             UpdateDisplay();
