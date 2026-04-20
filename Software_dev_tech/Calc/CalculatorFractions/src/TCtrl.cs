@@ -189,6 +189,14 @@ namespace CalculatorFractions
             // Команда CE (очистить текущий ввод)
             if (command == (int)TCalcCommand.cmdClearEntry)
             {
+                // Сброс состояния ошибки
+                if (FState == TCtrlState.cError)
+                {
+                    SetInitialState();
+                    MState = FMemory.ReadState();
+                    return FShowAsFraction ? "0/1" : "0";
+                }
+                
                 result = FEditor.Clear();
                 FDisplayString = result;
                 if (FState == TCtrlState.cValDone || FState == TCtrlState.cExpDone)
@@ -212,6 +220,12 @@ namespace CalculatorFractions
             // Ввод цифр и разделителя
             if (command >= (int)TCalcCommand.cmdDigit0 && command <= (int)TCalcCommand.cmdSeparator)
             {
+                // Сброс состояния ошибки при начале нового ввода
+                if (FState == TCtrlState.cError)
+                {
+                    SetInitialState();
+                }
+                
                 if (FState == TCtrlState.cValDone || FState == TCtrlState.cOpChange)
                 {
                     FPrevState = FState;
@@ -281,70 +295,85 @@ namespace CalculatorFractions
         /// </summary>
         private string ExecuteOperation(int command)
         {
+            // Сброс состояния ошибки при новой операции
+            if (FState == TCtrlState.cError)
+            {
+                SetInitialState();
+            }
+            
             TOprtn newOp = CommandToOperation(command);
             if (newOp == TOprtn.opNone) return FEditor.GetString();
 
             TFrac currentFrac = FEditor.ToFraction();
             currentFrac.ShowAsFraction = FShowAsFraction;
 
-            switch (FState)
+            try
             {
-                case TCtrlState.cStart:
-                case TCtrlState.cEditing:
-                    if (FPrevState == TCtrlState.cValDone || FPrevState == TCtrlState.cOpChange)
-                    {
+                switch (FState)
+                {
+                    case TCtrlState.cStart:
+                    case TCtrlState.cEditing:
+                        if (FPrevState == TCtrlState.cValDone || FPrevState == TCtrlState.cOpChange)
+                        {
+                            if (FProcessor.IsOperationSet())
+                            {
+                                FProcessor.SetRop(currentFrac);
+                                FProcessor.OprtnRun();
+                            }
+                            FProcessor.SetOperation(newOp);
+                            FState = TCtrlState.cValDone;
+                        }
+                        else
+                        {
+                            FProcessor.SetLop_Res(currentFrac);
+                            FProcessor.SetOperation(newOp);
+                            FState = TCtrlState.cValDone;
+                        }
+                        break;
+
+                    case TCtrlState.cValDone:
+                        FProcessor.SetOperation(newOp);
+                        FState = TCtrlState.cOpChange;
+                        break;
+
+                    case TCtrlState.cOpChange:
+                        FProcessor.SetOperation(newOp);
+                        FState = TCtrlState.cOpChange;
+                        break;
+
+                    case TCtrlState.cFunDone:
                         if (FProcessor.IsOperationSet())
                         {
-                            FProcessor.SetRop(currentFrac);
+                            FProcessor.SetRop(FNumber);
                             FProcessor.OprtnRun();
+                        }
+                        else
+                        {
+                            FProcessor.SetLop_Res(FNumber);
                         }
                         FProcessor.SetOperation(newOp);
                         FState = TCtrlState.cValDone;
-                    }
-                    else
-                    {
-                        FProcessor.SetLop_Res(currentFrac);
+                        break;
+
+                    case TCtrlState.cExpDone:
+                        FProcessor.SetLop_Res(FNumber);
                         FProcessor.SetOperation(newOp);
                         FState = TCtrlState.cValDone;
-                    }
-                    break;
+                        break;
+                }
 
-                case TCtrlState.cValDone:
-                    FProcessor.SetOperation(newOp);
-                    FState = TCtrlState.cOpChange;
-                    break;
+                FEditor.Clear();
+                string displayStr = FProcessor.Lop_Res.ToString() + " " + newOp.ToStringValue();
+                FDisplayString = displayStr;
 
-                case TCtrlState.cOpChange:
-                    FProcessor.SetOperation(newOp);
-                    FState = TCtrlState.cOpChange;
-                    break;
-
-                case TCtrlState.cFunDone:
-                    if (FProcessor.IsOperationSet())
-                    {
-                        FProcessor.SetRop(FNumber);
-                        FProcessor.OprtnRun();
-                    }
-                    else
-                    {
-                        FProcessor.SetLop_Res(FNumber);
-                    }
-                    FProcessor.SetOperation(newOp);
-                    FState = TCtrlState.cValDone;
-                    break;
-
-                case TCtrlState.cExpDone:
-                    FProcessor.SetLop_Res(FNumber);
-                    FProcessor.SetOperation(newOp);
-                    FState = TCtrlState.cValDone;
-                    break;
+                return displayStr;
             }
-
-            FEditor.Clear();
-            string displayStr = FProcessor.Lop_Res.ToString() + " " + newOp.ToStringValue();
-            FDisplayString = displayStr;
-
-            return displayStr;
+            catch
+            {
+                FState = TCtrlState.cError;
+                FDisplayString = "Error";
+                return "Error";
+            }
         }
 
         /// <summary>
@@ -352,6 +381,12 @@ namespace CalculatorFractions
         /// </summary>
         private string ExecuteFunction(int command)
         {
+            // Сброс состояния ошибки при новой функции
+            if (FState == TCtrlState.cError)
+            {
+                SetInitialState();
+            }
+            
             TFrac currentFrac = FEditor.ToFraction();
             currentFrac.ShowAsFraction = FShowAsFraction;
             TFunc func = (command == (int)TCalcCommand.cmdSqr) ? TFunc.fnSqr : TFunc.fnRev;
@@ -380,32 +415,21 @@ namespace CalculatorFractions
         /// </summary>
         private string CalculateExpression()
         {
+            // Сброс состояния ошибки при вычислении
+            if (FState == TCtrlState.cError)
+            {
+                SetInitialState();
+            }
+            
             TFrac currentFrac = FEditor.ToFraction();
             currentFrac.ShowAsFraction = FShowAsFraction;
 
-            switch (FState)
+            try
             {
-                case TCtrlState.cValDone:
-                case TCtrlState.cOpChange:
-                    if (FProcessor.IsOperationSet())
-                    {
-                        FProcessor.SetRop(currentFrac);
-                        FProcessor.OprtnRun();
-                        FNumber = FProcessor.Lop_Res;
-                    }
-                    else
-                    {
-                        FNumber = currentFrac;
-                    }
-                    FNumber.ShowAsFraction = FShowAsFraction;
-                    FEditor.SetString(FNumber.ToString());
-                    FDisplayString = FNumber.ToString();
-                    FState = TCtrlState.cExpDone;
-                    break;
-
-                case TCtrlState.cEditing:
-                    if (FPrevState == TCtrlState.cValDone || FPrevState == TCtrlState.cOpChange)
-                    {
+                switch (FState)
+                {
+                    case TCtrlState.cValDone:
+                    case TCtrlState.cOpChange:
                         if (FProcessor.IsOperationSet())
                         {
                             FProcessor.SetRop(currentFrac);
@@ -416,44 +440,70 @@ namespace CalculatorFractions
                         {
                             FNumber = currentFrac;
                         }
-                    }
-                    else
-                    {
-                        FNumber = currentFrac;
-                    }
-                    FNumber.ShowAsFraction = FShowAsFraction;
-                    FEditor.SetString(FNumber.ToString());
-                    FDisplayString = FNumber.ToString();
-                    FState = TCtrlState.cExpDone;
-                    break;
-
-                case TCtrlState.cExpDone:
-                    if (FProcessor.IsOperationSet())
-                    {
-                        FProcessor.SetRop(FNumber);
-                        FProcessor.OprtnRun();
-                        FNumber = FProcessor.Lop_Res;
                         FNumber.ShowAsFraction = FShowAsFraction;
                         FEditor.SetString(FNumber.ToString());
                         FDisplayString = FNumber.ToString();
-                    }
-                    break;
+                        FState = TCtrlState.cExpDone;
+                        break;
 
-                case TCtrlState.cFunDone:
-                    if (FProcessor.IsOperationSet())
-                    {
-                        FProcessor.SetRop(FNumber);
-                        FProcessor.OprtnRun();
-                        FNumber = FProcessor.Lop_Res;
-                    }
-                    FNumber.ShowAsFraction = FShowAsFraction;
-                    FEditor.SetString(FNumber.ToString());
-                    FDisplayString = FNumber.ToString();
-                    FState = TCtrlState.cExpDone;
-                    break;
+                    case TCtrlState.cEditing:
+                        if (FPrevState == TCtrlState.cValDone || FPrevState == TCtrlState.cOpChange)
+                        {
+                            if (FProcessor.IsOperationSet())
+                            {
+                                FProcessor.SetRop(currentFrac);
+                                FProcessor.OprtnRun();
+                                FNumber = FProcessor.Lop_Res;
+                            }
+                            else
+                            {
+                                FNumber = currentFrac;
+                            }
+                        }
+                        else
+                        {
+                            FNumber = currentFrac;
+                        }
+                        FNumber.ShowAsFraction = FShowAsFraction;
+                        FEditor.SetString(FNumber.ToString());
+                        FDisplayString = FNumber.ToString();
+                        FState = TCtrlState.cExpDone;
+                        break;
+
+                    case TCtrlState.cExpDone:
+                        if (FProcessor.IsOperationSet())
+                        {
+                            FProcessor.SetRop(FNumber);
+                            FProcessor.OprtnRun();
+                            FNumber = FProcessor.Lop_Res;
+                            FNumber.ShowAsFraction = FShowAsFraction;
+                            FEditor.SetString(FNumber.ToString());
+                            FDisplayString = FNumber.ToString();
+                        }
+                        break;
+
+                    case TCtrlState.cFunDone:
+                        if (FProcessor.IsOperationSet())
+                        {
+                            FProcessor.SetRop(FNumber);
+                            FProcessor.OprtnRun();
+                            FNumber = FProcessor.Lop_Res;
+                        }
+                        FNumber.ShowAsFraction = FShowAsFraction;
+                        FEditor.SetString(FNumber.ToString());
+                        FDisplayString = FNumber.ToString();
+                        FState = TCtrlState.cExpDone;
+                        break;
+                }
+
+                return FNumber.ToString();
             }
-
-            return FNumber.ToString();
+            catch
+            {
+                FState = TCtrlState.cError;
+                FDisplayString = "Error";
+                return "Error";
+            }
         }
 
         /// <summary>
