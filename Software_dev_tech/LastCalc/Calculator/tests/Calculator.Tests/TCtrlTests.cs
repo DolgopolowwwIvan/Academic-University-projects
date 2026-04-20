@@ -310,10 +310,18 @@ public class TCtrlTests
     {
         // Инициализация
         var ctrl = new TCtrl();
-        string buffer = "42";
+        string buffer = string.Empty;
         string memoryState = string.Empty;
 
-        // Действие
+        // Сначала копируем число 42 в буфер обмена
+        ctrl.ExecuteCalculatorCommand(TCtrl.CMD_DIGIT_4, ref buffer, ref memoryState);
+        ctrl.ExecuteCalculatorCommand(TCtrl.CMD_DIGIT_2, ref buffer, ref memoryState);
+        ctrl.ExecuteCalculatorCommand(TCtrl.CMD_COPY, ref buffer, ref memoryState);
+        
+        // Очищаем ввод
+        ctrl.ExecuteCalculatorCommand(TCtrl.CMD_CLEAR, ref buffer, ref memoryState);
+
+        // Действие - вставляем из буфера
         ctrl.ExecuteCalculatorCommand(TCtrl.CMD_PASTE, ref buffer, ref memoryState);
 
         // Проверка
@@ -334,7 +342,7 @@ public class TCtrlTests
         ctrl.ExecuteCalculatorCommand(TCtrl.CMD_COPY, ref buffer, ref memoryState);
 
         // Проверка
-        Assert.Equal(42, ctrl.Number.Value);
+        Assert.Equal("12", buffer);
     }
 
     [Fact]

@@ -183,7 +183,21 @@ public class TCtrl
             }
 
             _number = _editor.GetNumber();
-            result = _editor.GetNumberString();
+            // Для точки и редактирования возвращаем то, что в буфере редактора
+            if (command == CMD_DECIMAL_POINT || command == CMD_BACKSPACE || command == CMD_CHANGE_SIGN)
+            {
+                result = _editor.InputBuffer;
+                if (_editor.GetType().GetField("_isNegative", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(_editor) is bool isNegative && isNegative && !result.StartsWith("-"))
+                {
+                    result = "-" + result;
+                }
+                if (string.IsNullOrEmpty(result))
+                    result = "0";
+            }
+            else
+            {
+                result = _editor.GetNumberString();
+            }
             _state = TCtrlState.cEditing;
         }
         catch (Exception ex)
@@ -207,7 +221,7 @@ public class TCtrl
             {
                 _processor.Ropd = _number.Copy();
                 _processor.OprtnRun();
-                
+
                 if (!string.IsNullOrEmpty(_processor.Error))
                 {
                     _state = TCtrlState.cError;
@@ -364,6 +378,8 @@ public class TCtrl
             {
                 case CMD_MEMORY_STORE:
                     _memory.Store(_number);
+                    _editor.Clear();
+                    _number = new TANumber(0);
                     break;
                 case CMD_MEMORY_RECALL:
                     _number = _memory.Recall();
@@ -374,9 +390,13 @@ public class TCtrl
                     break;
                 case CMD_MEMORY_ADD:
                     _memory.Add(_number);
+                    _editor.Clear();
+                    _number = new TANumber(0);
                     break;
                 case CMD_MEMORY_SUBTRACT:
                     _memory.Subtract(_number);
+                    _editor.Clear();
+                    _number = new TANumber(0);
                     break;
             }
 
