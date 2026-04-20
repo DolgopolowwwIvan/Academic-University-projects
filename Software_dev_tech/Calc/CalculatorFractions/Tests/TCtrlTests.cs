@@ -11,7 +11,8 @@ public class TCtrlTests
         var ctrl = new TCtrl();
         string mState = "";
         string clipboard = "";
-        var display = ctrl.ExecuteCommand((int)TCalcCommand.cmdNone, ref mState, ref clipboard);
+        ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
+        var display = ctrl.ExecuteCommand((int)TCalcCommand.cmdClear, ref mState, ref clipboard);
         Assert.True(display == "0" || display == "0/1");
     }
 
