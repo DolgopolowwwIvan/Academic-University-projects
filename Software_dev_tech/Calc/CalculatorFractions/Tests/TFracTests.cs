@@ -11,48 +11,48 @@ public class TFracTests
     public void Constructor_Default_CreatesZeroFraction()
     {
         var frac = new TFrac();
-        Assert.Equal(0, frac.Num);
-        Assert.Equal(1, frac.Denom);
+        Assert.Equal(0, frac.Numerator);
+        Assert.Equal(1, frac.Denominator);
     }
 
     [Fact]
     public void Constructor_WithValues_CreatesCorrectFraction()
     {
         var frac = new TFrac(3, 4);
-        Assert.Equal(3, frac.Num);
-        Assert.Equal(4, frac.Denom);
+        Assert.Equal(3, frac.Numerator);
+        Assert.Equal(4, frac.Denominator);
     }
 
     [Fact]
     public void Constructor_ZeroNumerator_CreatesZeroFraction()
     {
         var frac = new TFrac(0, 5);
-        Assert.Equal(0, frac.Num);
-        Assert.Equal(1, frac.Denom);
+        Assert.Equal(0, frac.Numerator);
+        Assert.Equal(1, frac.Denominator);
     }
 
     [Fact]
     public void Constructor_NegativeDenominator_MovesSignToNumerator()
     {
         var frac = new TFrac(3, -4);
-        Assert.Equal(-3, frac.Num);
-        Assert.Equal(4, frac.Denom);
+        Assert.Equal(-3, frac.Numerator);
+        Assert.Equal(4, frac.Denominator);
     }
 
     [Fact]
     public void Constructor_BothNegative_MakesPositive()
     {
         var frac = new TFrac(-3, -4);
-        Assert.Equal(3, frac.Num);
-        Assert.Equal(4, frac.Denom);
+        Assert.Equal(3, frac.Numerator);
+        Assert.Equal(4, frac.Denominator);
     }
 
     [Fact]
     public void Constructor_ReducesFraction()
     {
         var frac = new TFrac(6, 8);
-        Assert.Equal(3, frac.Num);
-        Assert.Equal(4, frac.Denom);
+        Assert.Equal(3, frac.Numerator);
+        Assert.Equal(4, frac.Denominator);
     }
 
     #endregion
@@ -65,8 +65,8 @@ public class TFracTests
         var a = new TFrac(1, 2);
         var b = new TFrac(1, 3);
         var result = a.Add(b);
-        Assert.Equal(5, result.Num);
-        Assert.Equal(6, result.Denom);
+        Assert.Equal(5, result.Numerator);
+        Assert.Equal(6, result.Denominator);
     }
 
     [Fact]
@@ -75,8 +75,8 @@ public class TFracTests
         var a = new TFrac(3, 4);
         var b = new TFrac(1, 4);
         var result = a.Sub(b);
-        Assert.Equal(1, result.Num);
-        Assert.Equal(2, result.Denom);
+        Assert.Equal(1, result.Numerator);
+        Assert.Equal(2, result.Denominator);
     }
 
     [Fact]
@@ -85,8 +85,8 @@ public class TFracTests
         var a = new TFrac(1, 2);
         var b = new TFrac(2, 3);
         var result = a.Mul(b);
-        Assert.Equal(1, result.Num);
-        Assert.Equal(3, result.Denom);
+        Assert.Equal(1, result.Numerator);
+        Assert.Equal(3, result.Denominator);
     }
 
     [Fact]
@@ -95,8 +95,8 @@ public class TFracTests
         var a = new TFrac(3, 4);
         var b = new TFrac(1, 2);
         var result = a.Div(b);
-        Assert.Equal(3, result.Num);
-        Assert.Equal(2, result.Denom);
+        Assert.Equal(3, result.Numerator);
+        Assert.Equal(2, result.Denominator);
     }
 
     [Fact]
@@ -116,8 +116,8 @@ public class TFracTests
     {
         var frac = new TFrac(2, 3);
         var result = frac.Sqr();
-        Assert.Equal(4, result.Num);
-        Assert.Equal(9, result.Denom);
+        Assert.Equal(4, result.Numerator);
+        Assert.Equal(9, result.Denominator);
     }
 
     [Fact]
@@ -125,8 +125,8 @@ public class TFracTests
     {
         var frac = new TFrac(3, 4);
         var result = frac.Rev();
-        Assert.Equal(4, result.Num);
-        Assert.Equal(3, result.Denom);
+        Assert.Equal(4, result.Numerator);
+        Assert.Equal(3, result.Denominator);
     }
 
     [Fact]

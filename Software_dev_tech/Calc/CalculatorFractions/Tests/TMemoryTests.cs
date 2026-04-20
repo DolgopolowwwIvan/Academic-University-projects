@@ -27,8 +27,8 @@ public class TMemoryTests
         var value = new TFrac(3, 4);
         memory.Store(value);
         var recalled = memory.Recall();
-        Assert.Equal(3, recalled.Num);
-        Assert.Equal(4, recalled.Denom);
+        Assert.Equal(3, recalled.Numerator);
+        Assert.Equal(4, recalled.Denominator);
     }
 
     [Fact]
@@ -36,8 +36,8 @@ public class TMemoryTests
     {
         var memory = new TMemory<TFrac>();
         var recalled = memory.Recall();
-        Assert.Equal(0, recalled.Num);
-        Assert.Equal(1, recalled.Denom);
+        Assert.Equal(0, recalled.Numerator);
+        Assert.Equal(1, recalled.Denominator);
     }
 
     [Fact]
@@ -46,8 +46,8 @@ public class TMemoryTests
         var memory = new TMemory<TFrac>();
         memory.Add(new TFrac(5, 1));
         var recalled = memory.Recall();
-        Assert.Equal(5, recalled.Num);
-        Assert.Equal(1, recalled.Denom);
+        Assert.Equal(5, recalled.Numerator);
+        Assert.Equal(1, recalled.Denominator);
     }
 
     [Fact]
@@ -57,8 +57,8 @@ public class TMemoryTests
         memory.Store(new TFrac(3, 4));
         memory.Add(new TFrac(1, 4));
         var recalled = memory.Recall();
-        Assert.Equal(1, recalled.Num);
-        Assert.Equal(1, recalled.Denom);
+        Assert.Equal(1, recalled.Numerator);
+        Assert.Equal(1, recalled.Denominator);
     }
 
     [Fact]

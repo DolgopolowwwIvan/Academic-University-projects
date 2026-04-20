@@ -75,8 +75,8 @@ public class TEditorTests
         var editor = new TEditor();
         editor.SetString("5");
         var frac = editor.ToFraction();
-        Assert.Equal(5, frac.Num);
-        Assert.Equal(1, frac.Denom);
+        Assert.Equal(5, frac.Numerator);
+        Assert.Equal(1, frac.Denominator);
     }
 
     [Fact]
@@ -85,8 +85,8 @@ public class TEditorTests
         var editor = new TEditor();
         editor.SetString("3/4");
         var frac = editor.ToFraction();
-        Assert.Equal(3, frac.Num);
-        Assert.Equal(4, frac.Denom);
+        Assert.Equal(3, frac.Numerator);
+        Assert.Equal(4, frac.Denominator);
     }
 
     [Fact]

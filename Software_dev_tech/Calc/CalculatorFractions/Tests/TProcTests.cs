@@ -41,7 +41,96 @@ public class TProcTests
         var proc = new TProc<TFrac>();
         var value = new TFrac(5, 1);
         proc.SetLop_Res(value);
-        Assert.Equal(5, proc.Lop_Res.Num);
+        Assert.Equal(5, proc.Lop_Res.Numerator);
+    }
+
+    [Fact]
+    public void SetRop_SetsRightOperand()
+    {
+        var proc = new TProc<TFrac>();
+        var value = new TFrac(3, 4);
+        proc.SetRop(value);
+        Assert.Equal(3, proc.Rop.Numerator);
+        Assert.Equal(4, proc.Rop.Denominator);
+    }
+
+    [Fact]
+    public void OprtnRun_Add_CalculatesCorrectly()
+    {
+        var proc = new TProc<TFrac>();
+        proc.SetLop_Res(new TFrac(1, 2));
+        proc.SetRop(new TFrac(1, 3));
+        proc.SetOperation(TOprtn.opAdd);
+        proc.OprtnRun();
+        Assert.Equal(5, proc.Lop_Res.Numerator);
+        Assert.Equal(6, proc.Lop_Res.Denominator);
+    }
+
+    [Fact]
+    public void OprtnRun_Sub_CalculatesCorrectly()
+    {
+        var proc = new TProc<TFrac>();
+        proc.SetLop_Res(new TFrac(3, 4));
+        proc.SetRop(new TFrac(1, 4));
+        proc.SetOperation(TOprtn.opSub);
+        proc.OprtnRun();
+        Assert.Equal(1, proc.Lop_Res.Numerator);
+        Assert.Equal(2, proc.Lop_Res.Denominator);
+    }
+
+    [Fact]
+    public void OprtnRun_Mul_CalculatesCorrectly()
+    {
+        var proc = new TProc<TFrac>();
+        proc.SetLop_Res(new TFrac(1, 2));
+        proc.SetRop(new TFrac(2, 3));
+        proc.SetOperation(TOprtn.opMul);
+        proc.OprtnRun();
+        Assert.Equal(1, proc.Lop_Res.Numerator);
+        Assert.Equal(3, proc.Lop_Res.Denominator);
+    }
+
+    [Fact]
+    public void OprtnRun_Div_CalculatesCorrectly()
+    {
+        var proc = new TProc<TFrac>();
+        proc.SetLop_Res(new TFrac(3, 4));
+        proc.SetRop(new TFrac(1, 2));
+        proc.SetOperation(TOprtn.opDiv);
+        proc.OprtnRun();
+        Assert.Equal(3, proc.Lop_Res.Numerator);
+        Assert.Equal(2, proc.Lop_Res.Denominator);
+    }
+
+    [Fact]
+    public void FuncRun_Sqr_CalculatesCorrectly()
+    {
+        var proc = new TProc<TFrac>();
+        proc.SetRop(new TFrac(2, 3));
+        proc.FuncRun(TFunc.fnSqr);
+        Assert.Equal(4, proc.Rop.Numerator);
+        Assert.Equal(9, proc.Rop.Denominator);
+    }
+
+    [Fact]
+    public void FuncRun_Rev_CalculatesCorrectly()
+    {
+        var proc = new TProc<TFrac>();
+        proc.SetRop(new TFrac(3, 4));
+        proc.FuncRun(TFunc.fnRev);
+        Assert.Equal(4, proc.Rop.Numerator);
+        Assert.Equal(3, proc.Rop.Denominator);
+    }
+
+    [Fact]
+    public void Reset_ClearsOperands()
+    {
+        var proc = new TProc<TFrac>();
+        proc.SetLop_Res(new TFrac(5, 1));
+        proc.SetRop(new TFrac(3, 4));
+        proc.Reset();
+        Assert.Equal(0, proc.Lop_Res.Numerator);
+        Assert.Equal(0, proc.Rop.Numerator);
     }
 
     [Fact]
