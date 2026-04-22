@@ -11,6 +11,8 @@ namespace CalculatorFractions
         public MainForm()
         {
             InitializeComponent();
+            // Включаем перехват клавиш формы до того, как они будут обработаны элементами управления
+            this.KeyPreview = true;
             FCtrl = new TCtrl();
             // По умолчанию режим "число" (скрывать /1)
             FCtrl.ShowAsFraction = false;
@@ -55,7 +57,11 @@ namespace CalculatorFractions
         private void UpdateDisplay()
         {
             DisplayLabel.Text = FCtrl.GetDisplayString();
-            MemoryStatusLabel.Text = "   ";
+            // Получаем состояние памяти
+            string mState = "";
+            string clipboard = "";
+            FCtrl.ExecuteCommand(-1, ref clipboard, ref mState);
+            MemoryStatusLabel.Text = mState != "" && mState != " " ? " M" : "   ";
         }
 
         private int GetCommandFromButton(Button button)
@@ -145,19 +151,19 @@ namespace CalculatorFractions
             {
                 command = (int)TCalcCommand.cmdDiv;
             }
-            else if (key == '=' || key == 13)
+            else if (key == '=' || key == 13)  // Enter
             {
                 command = (int)TCalcCommand.cmdEqual;
             }
-            else if (key == '|' || key == '\\')
+            else if (key == '|' || key == '\\' || key == ':')  // Добавлена поддержка ':'
             {
                 command = (int)TCalcCommand.cmdSeparator;
             }
-            else if (key == 8)
+            else if (key == 8)  // Backspace
             {
                 command = (int)TCalcCommand.cmdBackspace;
             }
-            else if (key == 27)
+            else if (key == 27)  // Escape
             {
                 command = (int)TCalcCommand.cmdClear;
             }
@@ -169,12 +175,17 @@ namespace CalculatorFractions
             {
                 command = (int)TCalcCommand.cmdRev;
             }
+            else if (key == 'c' || key == 'C')
+            {
+                command = (int)TCalcCommand.cmdClear;
+            }
 
             if (command >= 0)
             {
                 string mstate = "";
                 FCtrl.ExecuteCommand(command, ref FClipboard, ref mstate);
                 UpdateDisplay();
+                e.Handled = true;  // Подавляем дальнейшую обработку клавиши
             }
         }
 
@@ -200,6 +211,7 @@ namespace CalculatorFractions
             fractionModeItem.Checked = true;
             numberModeItem.Checked = false;
             UpdateDisplay();
+            DisplayLabel.Refresh();  // Принудительное обновление отображения
         }
 
         private void NumberModeClick(object sender, EventArgs e)
@@ -208,6 +220,7 @@ namespace CalculatorFractions
             fractionModeItem.Checked = false;
             numberModeItem.Checked = true;
             UpdateDisplay();
+            DisplayLabel.Refresh();  // Принудительное обновление отображения
         }
 
         private void AboutClick(object sender, EventArgs e)
