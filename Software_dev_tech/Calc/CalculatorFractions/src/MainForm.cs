@@ -57,11 +57,7 @@ namespace CalculatorFractions
         private void UpdateDisplay()
         {
             DisplayLabel.Text = FCtrl.GetDisplayString();
-            // Получаем состояние памяти
-            string mState = "";
-            string clipboard = "";
-            FCtrl.ExecuteCommand(-1, ref clipboard, ref mState);
-            MemoryStatusLabel.Text = mState != "" && mState != " " ? " M" : "   ";
+            // Состояние памяти обновляется в ButtonClick после выполнения команды
         }
 
         private int GetCommandFromButton(Button button)
@@ -117,12 +113,17 @@ namespace CalculatorFractions
                     {
                         FCtrl.ExecuteCommand((int)TCalcCommand.cmdPaste, ref text, ref mstate);
                         UpdateDisplay();
+                        MemoryStatusLabel.Text = mstate != "" && mstate != " " ? " M" : "   ";
                     }
                     return;
                 }
 
+                // Выполняем команду и получаем состояние памяти
                 FCtrl.ExecuteCommand(command, ref FClipboard, ref mstate);
                 UpdateDisplay();
+                
+                // Обновляем индикатор памяти
+                MemoryStatusLabel.Text = mstate != "" && mstate != " " ? " M" : "   ";
             }
         }
 
