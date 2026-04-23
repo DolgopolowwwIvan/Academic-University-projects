@@ -1,0 +1,11 @@
+services:
+  lab2:
+    build: .
+    container_name: lab2
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./comments_data:/app/data
+    environment:
+      - PORT=3000
+    restart: unless-stopped
