@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Регистрация - Прайс-лист</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
@@ -61,6 +63,15 @@
     </div>
 
     <script th:inline="none">
+        // CSRF токен
+        const csrfToken = document.querySelector('meta[name="_csrf"]') ? document.querySelector('meta[name="_csrf"]').content : '';
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]') ? document.querySelector('meta[name="_csrf_header"]').content : 'X-XSRF-TOKEN';
+
+        const csrfHeaders = {};
+        if (csrfToken) {
+            csrfHeaders[csrfHeader] = csrfToken;
+        }
+
         const loginInput = document.getElementById('login');
         const emailInput = document.getElementById('email');
         const loginError = document.getElementById('loginError');
@@ -158,42 +169,91 @@
                 });
         });
 
-        // Проверка при отправке формы
+        // AJAX отправка формы регистрации
         document.getElementById('registerForm').addEventListener('submit', function(e) {
-            // Если идёт проверка, ждём
+            e.preventDefault();
+
             if (loginPending || emailPending) {
-                e.preventDefault();
                 showToast('Подождите завершения проверки', 'error');
                 return;
             }
 
-            // Если поля пустые, запускаем проверку
-            if (loginInput.value.trim().length < 3) {
-                e.preventDefault();
+            const login = loginInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (login.length < 3) {
                 showToast('Логин должен содержать минимум 3 символа', 'error');
                 loginInput.focus();
                 return;
             }
             if (!loginValid) {
-                e.preventDefault();
                 showToast('Логин занят', 'error');
                 loginInput.focus();
                 return;
             }
 
-            if (emailInput.value.trim().length === 0 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim())) {
-                e.preventDefault();
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 showToast('Введите корректный email', 'error');
                 emailInput.focus();
                 return;
             }
             if (!emailValid) {
-                e.preventDefault();
                 showToast('Email уже зарегистрирован', 'error');
                 emailInput.focus();
                 return;
             }
+
+            if (password.length < 4) {
+                showToast('Пароль должен содержать минимум 4 символа', 'error');
+                document.getElementById('password').focus();
+                return;
+            }
+            if (password !== confirmPassword) {
+                showToast('Пароли не совпадают', 'error');
+                document.getElementById('confirmPassword').focus();
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('login', login);
+            formData.append('email', email);
+            formData.append('password', password);
+            formData.append('confirmPassword', confirmPassword);
+
+            fetch('/api/register', {
+                method: 'POST',
+                body: formData,
+                headers: csrfHeaders
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = '/login?registered';
+                    }, 1500);
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Произошла ошибка: ' + error, 'error');
+            });
         });
+
+        function showToast(message, type) {
+            // Удаляем старые toast
+            const oldToast = document.querySelector('.inline-status');
+            if (oldToast) oldToast.remove();
+
+            const authCard = document.querySelector('.auth-card');
+            const toast = document.createElement('div');
+            toast.className = 'inline-status ' + (type === 'success' ? 'success' : 'error');
+            toast.textContent = message;
+            authCard.insertBefore(toast, document.getElementById('registerForm'));
+        }
     </script>
 </body>
 </html>

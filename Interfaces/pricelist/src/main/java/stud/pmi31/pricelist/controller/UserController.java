@@ -171,4 +171,53 @@ public class UserController {
             return "register";
         }
     }
+
+    @PostMapping("/api/register")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> registerAjax(@RequestParam String login,
+                                                             @RequestParam String email,
+                                                             @RequestParam String password,
+                                                             @RequestParam String confirmPassword) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (login == null || login.trim().length() < 3) {
+            response.put("success", false);
+            response.put("message", "Логин должен содержать минимум 3 символа");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        if (password == null || password.length() < 4) {
+            response.put("success", false);
+            response.put("message", "Пароль должен содержать минимум 4 символа");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        if (!password.equals(confirmPassword)) {
+            response.put("success", false);
+            response.put("message", "Пароли не совпадают");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        if (email == null || !email.contains("@")) {
+            response.put("success", false);
+            response.put("message", "Введите корректный email");
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        try {
+            UserDto user = new UserDto();
+            user.setLogin(login.trim());
+            user.setEmail(email.trim());
+            user.setPassword(password);
+            user.setRole(0);
+            userService.register(user);
+            response.put("success", true);
+            response.put("message", "Регистрация успешна! Теперь вы можете войти.");
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 }

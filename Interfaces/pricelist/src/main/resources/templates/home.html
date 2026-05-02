@@ -42,7 +42,22 @@
             </div>
         </div>
 
-        <div class="grid grid-2">
+        <div class="grid grid-2" id="statsContainer">
+            <div class="card" id="productsStat">
+                <h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 600;">Товаров</h2>
+                <p class="muted" style="margin: 0; font-size: 24px; font-weight: 700;">—</p>
+            </div>
+            <div class="card" id="categoriesStat">
+                <h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 600;">Категорий</h2>
+                <p class="muted" style="margin: 0; font-size: 24px; font-weight: 700;">—</p>
+            </div>
+            <div class="card" id="usersStat">
+                <h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 600;">Пользователей</h2>
+                <p class="muted" style="margin: 0; font-size: 24px; font-weight: 700;">—</p>
+            </div>
+        </div>
+
+        <div class="grid grid-2" style="margin-top: 16px;">
             <a href="/products/search" class="card" style="text-decoration: none;">
                 <h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 600;">Поиск товаров</h2>
                 <p class="muted" style="margin: 0; font-size: 13px;">Фильтрация по названию, категории, цене и наличию.</p>
@@ -78,5 +93,27 @@
             &copy; 2026 Прайс-лист
         </div>
     </footer>
+
+    <script th:inline="none">
+        // AJAX загрузка статистики
+        function loadStats() {
+            fetch('/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector('#productsStat p').textContent = data.products || 0;
+                    document.querySelector('#categoriesStat p').textContent = data.categories || 0;
+                    document.querySelector('#usersStat p').textContent = data.users || 0;
+                })
+                .catch(error => {
+                    console.error('Ошибка загрузки статистики:', error);
+                    document.querySelector('#productsStat p').textContent = '?';
+                    document.querySelector('#categoriesStat p').textContent = '?';
+                    document.querySelector('#usersStat p').textContent = '?';
+                });
+        }
+
+        // Загружаем статистику при старте
+        loadStats();
+    </script>
 </body>
 </html>
