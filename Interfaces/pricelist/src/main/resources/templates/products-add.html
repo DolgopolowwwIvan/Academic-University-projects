@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Добавить товар - Прайс-лист</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
@@ -246,8 +248,9 @@
         });
 
         document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
             if (skuPending || namePending) {
-                e.preventDefault();
                 showToast('Подождите завершения проверки', 'error');
                 return;
             }
@@ -261,13 +264,11 @@
 
             if (!categoryId) return showToast('Выберите категорию', 'error');
             if (!skuValid) {
-                e.preventDefault();
                 showToast('Артикул занят или некорректен', 'error');
                 skuInput.focus();
                 return;
             }
             if (!nameValid) {
-                e.preventDefault();
                 showToast('Название товара занято или некорректно', 'error');
                 nameInput.focus();
                 return;

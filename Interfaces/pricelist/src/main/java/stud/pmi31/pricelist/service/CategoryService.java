@@ -24,6 +24,7 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<CategoryDto> findAllWithProductCount() {
         return categoryRepository.findAll().stream()
                 .map(category -> {
@@ -34,6 +35,7 @@ public class CategoryService {
                 .collect(Collectors.toList());
     }
     
+    @Transactional(readOnly = true)
     public CategoryDto findById(Long id) {
         return categoryRepository.findById(id)
                 .map(this::toDto)

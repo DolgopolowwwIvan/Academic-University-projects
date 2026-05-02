@@ -152,7 +152,7 @@
                 .then(data => {
                     loginPending = false;
                     if (data.exists) {
-                        loginError.textContent = 'Этот логин уже занят';
+                        loginError.textContent = 'Этот логин уже занят другим пользователем';
                         loginError.classList.add('visible');
                         loginSuccess.classList.remove('visible');
                         loginInput.classList.add('error');
@@ -221,13 +221,32 @@
         // Валидация при потере фокуса
         loginInput.addEventListener('blur', function() {
             if (this.value.trim().length >= 3) {
-                validateLogin(this.value.trim());
+                // Если логин не изменился (тот же что был при загрузке), пропускаем валидацию
+                const originalLogin = document.querySelector('#userLogin[value]').value;
+                if (currentUserId && this.value.trim() === originalLogin) {
+                    loginValid = true;
+                    loginInput.classList.remove('error');
+                    loginInput.classList.add('success');
+                    loginError.classList.remove('visible');
+                    loginSuccess.classList.add('visible');
+                } else {
+                    validateLogin(this.value.trim());
+                }
             }
         });
 
         emailInput.addEventListener('blur', function() {
             if (this.value.trim().length > 0) {
-                validateEmail(this.value.trim());
+                const originalEmail = document.querySelector('#userEmail[value]').value;
+                if (currentUserId && this.value.trim() === originalEmail) {
+                    emailValid = true;
+                    emailInput.classList.remove('error');
+                    emailInput.classList.add('success');
+                    emailError.classList.remove('visible');
+                    emailSuccess.classList.add('visible');
+                } else {
+                    validateEmail(this.value.trim());
+                }
             }
         });
 
@@ -252,21 +271,20 @@
         });
 
         document.getElementById('userForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
             // Если идёт проверка, ждём
             if (loginPending || emailPending) {
-                e.preventDefault();
                 showToast('Подождите завершения проверки', 'error');
                 return;
             }
 
             if (!loginValid) {
-                e.preventDefault();
                 showToast('Логин занят или некорректен', 'error');
                 loginInput.focus();
                 return;
             }
             if (!emailValid) {
-                e.preventDefault();
                 showToast('Email занят или некорректен', 'error');
                 emailInput.focus();
                 return;
@@ -345,14 +363,20 @@
         function editUser(id) {
             currentUserId = id;
             fetch('/users/edit/' + id)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Пользователь не найден');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     document.getElementById('userId').value = data.id;
                     document.getElementById('userLogin').value = data.login;
                     document.getElementById('userEmail').value = data.email;
                     document.getElementById('userRole').value = data.role;
                     document.getElementById('formTitle').textContent = 'Редактировать пользователя';
-                    document.getElementById('userLogin').disabled = true;
+                    // НЕ блокируем логин при редактировании
+                    document.getElementById('userLogin').disabled = false;
                     // Сброс валидации для существующего пользователя
                     loginInput.classList.remove('error', 'success');
                     emailInput.classList.remove('error', 'success');
@@ -364,6 +388,10 @@
                     emailValid = true;
                     loginPending = false;
                     emailPending = false;
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке пользователя:', error);
+                    showToast('Ошибка загрузки данных пользователя: ' + error.message, 'error');
                 });
         }
         

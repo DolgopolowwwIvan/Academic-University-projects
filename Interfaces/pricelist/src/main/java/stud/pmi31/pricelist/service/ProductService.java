@@ -19,24 +19,28 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     
+    @Transactional(readOnly = true)
     public List<ProductDto> findAll() {
-        return productRepository.findAll().stream()
+        return productRepository.findAllWithCategory().stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
     
+    @Transactional(readOnly = true)
     public List<ProductDto> findByCategoryId(Long categoryId) {
         return productRepository.findByCategoryId(categoryId).stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
     
+    @Transactional(readOnly = true)
     public ProductDto findById(Long id) {
-        return productRepository.findById(id)
+        return productRepository.findByIdWithCategory(id)
                 .map(this::toDto)
                 .orElse(null);
     }
     
+    @Transactional(readOnly = true)
     public List<ProductDto> search(String productName, Long categoryId, 
                                     BigDecimal priceFrom, BigDecimal priceTo, 
                                     Boolean inStockOnly) {

@@ -184,14 +184,14 @@
         });
 
         document.getElementById('categoryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
             if (namePending) {
-                e.preventDefault();
                 showToast('Подождите завершения проверки', 'error');
                 return;
             }
 
             if (!nameValid) {
-                e.preventDefault();
                 showToast('Название категории занято или некорректно', 'error');
                 nameInput.focus();
                 return;

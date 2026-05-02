@@ -37,15 +37,19 @@ public class UserController {
     public Map<String, Boolean> checkLogin(@RequestParam String login,
                                            @RequestParam(required = false) Long excludeId) {
         Map<String, Boolean> result = new HashMap<>();
-        boolean exists = userService.existsByLogin(login);
-        if (excludeId != null) {
-            UserDto user = userService.findByLogin(login);
-            exists = user != null && !user.getId().equals(excludeId);
+        UserDto user = userService.findByLogin(login);
+        // Если excludeId не указан или пользователь не найден — не существует
+        if (user == null) {
+            result.put("exists", false);
+        } else if (excludeId != null) {
+            // Если указан excludeId, проверяем, что это не тот же пользователь
+            result.put("exists", !user.getId().equals(excludeId));
+        } else {
+            result.put("exists", true);
         }
-        result.put("exists", exists);
         return result;
     }
-
+    
     @GetMapping("/api/check-email")
     @ResponseBody
     public Map<String, Boolean> checkEmail(@RequestParam String email,

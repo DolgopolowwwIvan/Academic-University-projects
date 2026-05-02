@@ -348,15 +348,20 @@
             editNamePending = false;
 
             fetch('/products/edit/' + productId)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Товар не найден или ошибка доступа');
+                    }
+                    return response.json();
+                })
                 .then(product => {
-                    document.getElementById('editProductId').value = product.id;
+                    document.getElementById('editProductId').value = product.id || productId;
                     document.getElementById('editProductSku').value = product.sku || '—';
-                    document.getElementById('editProductCategory').value = product.categoryId;
-                    document.getElementById('editProductName').value = product.name;
+                    document.getElementById('editProductCategory').value = product.categoryId || '';
+                    document.getElementById('editProductName').value = product.name || '';
                     document.getElementById('editProductDescription').value = product.description || '';
-                    document.getElementById('editProductPrice').value = product.price;
-                    document.getElementById('editProductStock').value = product.stockQuantity;
+                    document.getElementById('editProductPrice').value = product.price || '0';
+                    document.getElementById('editProductStock').value = product.stockQuantity || '0';
 
                     // Сброс валидации
                     editNameInput.classList.remove('error', 'success');
@@ -365,7 +370,10 @@
 
                     document.getElementById('editProductModal').style.display = 'flex';
                 })
-                .catch(error => showToast('Ошибка загрузки данных: ' + error, 'error'));
+                .catch(error => {
+                    console.error('Ошибка при загрузке товара:', error);
+                    showToast('Ошибка загрузки данных товара: ' + error.message, 'error');
+                });
         }
 
         function closeEditModal() {

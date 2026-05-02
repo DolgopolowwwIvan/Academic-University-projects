@@ -10,6 +10,12 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
     
+    @Query("SELECT p FROM Product p JOIN FETCH p.category WHERE p.id = :id")
+    Optional<Product> findByIdWithCategory(@Param("id") Long id);
+    
+    @Query("SELECT p FROM Product p JOIN FETCH p.category")
+    List<Product> findAllWithCategory();
+    
     // Поиск по названию товара в пределах категории (для уникальности)
     Optional<Product> findByNameAndCategoryId(String name, Long categoryId);
     
@@ -35,7 +41,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("inStockOnly") Boolean inStockOnly
     );
     
-    List<Product> findByCategoryId(Long categoryId);
+    @Query("SELECT p FROM Product p JOIN FETCH p.category WHERE p.category.id = :categoryId")
+    List<Product> findByCategoryId(@Param("categoryId") Long categoryId);
 
     long countByCategoryId(Long categoryId);
 }
