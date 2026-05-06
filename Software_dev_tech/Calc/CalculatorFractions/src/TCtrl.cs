@@ -283,13 +283,12 @@ namespace CalculatorFractions
                 {
                     case TCtrlState.cStart:
                     case TCtrlState.cEditing:
-                        if (FPrevState == TCtrlState.cValDone || FPrevState == TCtrlState.cOpChange)
+                        // Непрерывный ввод: если операция уже установлена,
+                        // автоматически выполняем её с текущим вводом перед установкой новой
+                        if (FProcessor.IsOperationSet())
                         {
-                            if (FProcessor.IsOperationSet())
-                            {
-                                FProcessor.SetRop(currentFrac);
-                                FProcessor.OprtnRun();
-                            }
+                            FProcessor.SetRop(currentFrac);
+                            FProcessor.OprtnRun();
                             FProcessor.SetOperation(newOp);
                             FState = TCtrlState.cValDone;
                         }
