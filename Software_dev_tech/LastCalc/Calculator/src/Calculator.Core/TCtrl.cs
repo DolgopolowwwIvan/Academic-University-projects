@@ -67,7 +67,12 @@ public class TCtrl
         set => _state = value;
     }
 
-    public TEditor Editor => _editor;
+    public TEditor Editor
+    {
+        get => _editor;
+        set => _editor = value;
+    }
+    
     public TProc Processor => _processor;
     public TMemory Memory => _memory;
     
