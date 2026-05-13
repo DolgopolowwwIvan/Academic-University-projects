@@ -51,24 +51,61 @@ internal class FEditor : AEditor
     protected virtual void AddDigitLS(int a)
     {
         if (_inFractionPart || _number.Length >= MAX_LENGTH) return;
+
+        // Блокировка ведущих незначащих нулей в числителе
+        if (a == 0)
+        {
+            if (string.IsNullOrEmpty(_number) || _number == "0")
+                return;
+        }
+        else
+        {
+            if (_number == "0")
+            {
+                _number = ((char)('0' + a)).ToString();
+                return;
+            }
+        }
+
         _number += (char)('0' + a);
     }
 
     protected virtual void AddDigitRS(int a)
     {
         if (!_fractionSeparatorExists || !_inFractionPart || _number.Length >= MAX_LENGTH) return;
+
+        // Получаем текущую дробную часть (знаменатель)
+        string[] parts = _number.Split(_separator[0]);
+        string fracPart = parts.Length > 1 ? parts[1] : string.Empty;
+
+        // Блокировка ведущих незначащих нулей в знаменателе
+        if (a == 0)
+        {
+            if (string.IsNullOrEmpty(fracPart) || fracPart == "0")
+                return;
+        }
+        else
+        {
+            if (fracPart == "0")
+            {
+                _number = parts[0] + _separator + ((char)('0' + a)).ToString();
+                return;
+            }
+        }
+
         _number += (char)('0' + a);
     }
 
     public override string AddSeparator(uint a = 0)
     {
         if (_fractionSeparatorExists) return GetResultString();
-        if (!string.IsNullOrEmpty(_number) || _isNegative)
+        if (string.IsNullOrEmpty(_number) && !_isNegative)
         {
-            _number += _separator;
-            _fractionSeparatorExists = true;
-            _inFractionPart = true;
+            _number = "0";
         }
+        _number += _separator;
+        _fractionSeparatorExists = true;
+        _inFractionPart = true;
         return GetResultString();
     }
 

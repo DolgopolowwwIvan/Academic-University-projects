@@ -49,8 +49,26 @@ internal class REEditor : AEditor
     {
         if (_stringValue.Length >= MAX_LENGTH) return;
         char digit = GetDigitChar(a);
-        if (IsValidDigit(digit))
-            _stringValue += digit;
+        if (!IsValidDigit(digit)) return;
+
+        // Блокировка ведущих незначащих нулей
+        if (a == 0)
+        {
+            // Не добавлять ноль, если строка пустая или уже "0"
+            if (string.IsNullOrEmpty(_stringValue) || _stringValue == "0")
+                return;
+        }
+        else
+        {
+            // Если текущее значение "0", заменить его на новую цифру
+            if (_stringValue == "0")
+            {
+                _stringValue = digit.ToString();
+                return;
+            }
+        }
+
+        _stringValue += digit;
     }
 
     protected virtual void AddDigitRS(int a)
@@ -91,11 +109,12 @@ internal class REEditor : AEditor
     public override string AddSeparator(uint a = 0)
     {
         if (_separatorExists) return GetResultString();
-        if (!string.IsNullOrEmpty(_stringValue) || _isNegative)
+        if (string.IsNullOrEmpty(_stringValue) && !_isNegative)
         {
-            _stringValue += _separator;
-            _separatorExists = true;
+            _stringValue = "0";
         }
+        _stringValue += _separator;
+        _separatorExists = true;
         return GetResultString();
     }
 
