@@ -1,6 +1,8 @@
 namespace Calculator.Core;
 
-// Память калькулятора
+using Calculator.Core.Numbers;
+
+// Память калькулятора - универсальная память для хранения любого типа TANumber
 #nullable disable
 public class TMemory
 {
@@ -10,7 +12,7 @@ public class TMemory
 
     public TMemory()
     {
-        _storedValue = new TANumber(0);
+        _storedValue = new TPNumber(0);
         _hasValue = false;
         _error = string.Empty;
     }
@@ -60,7 +62,7 @@ public class TMemory
         }
         else
         {
-            _storedValue.Value += value.Value;
+            _storedValue = _storedValue.Add(value);
         }
 
         _hasValue = true;
@@ -78,11 +80,11 @@ public class TMemory
 
         if (!_hasValue)
         {
-            _storedValue = new TANumber(-value.Value);
+            _storedValue = value.Reverse();
         }
         else
         {
-            _storedValue.Value -= value.Value;
+            _storedValue = _storedValue.Subtract(value);
         }
 
         _hasValue = true;
@@ -95,7 +97,7 @@ public class TMemory
         if (!_hasValue || _storedValue == null)
         {
             _error = "Память пуста";
-            return new TANumber(0);
+            return new TPNumber(0);
         }
 
         _error = string.Empty;
@@ -105,7 +107,7 @@ public class TMemory
     // Очистить память (MC)
     public void Clear()
     {
-        _storedValue?.Clear();
+        _storedValue = new TPNumber(0);
         _hasValue = false;
         _error = string.Empty;
     }
@@ -124,7 +126,7 @@ public class TMemory
             return "0";
         }
 
-        return _storedValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        return _storedValue.ReadNumberAsString();
     }
 
     // Получить число из памяти
@@ -132,7 +134,7 @@ public class TMemory
     {
         if (!_hasValue || _storedValue == null)
         {
-            return new TANumber(0);
+            return new TPNumber(0);
         }
 
         return _storedValue.Copy();

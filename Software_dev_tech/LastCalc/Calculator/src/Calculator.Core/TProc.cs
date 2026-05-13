@@ -1,6 +1,8 @@
 namespace Calculator.Core;
 
-// Процессор - выполняет арифметические операции и функции
+using Calculator.Core.Numbers;
+
+// Процессор - выполняет арифметические операции и функции для универсальных чисел TANumber
 #nullable disable
 public class TProc
 {
@@ -11,8 +13,16 @@ public class TProc
 
     public TProc()
     {
-        _lopd_Res = new TANumber();
-        _ropd = new TANumber();
+        _lopd_Res = new TPNumber(0);
+        _ropd = new TPNumber(0);
+        _operation = TOperation.None;
+        _error = string.Empty;
+    }
+
+    public TProc(TANumber left, TANumber right)
+    {
+        _lopd_Res = left ?? new TPNumber(0);
+        _ropd = right ?? new TPNumber(0);
         _operation = TOperation.None;
         _error = string.Empty;
     }
@@ -20,14 +30,14 @@ public class TProc
     // Левый операнд и результат
     public TANumber Lopd_Res
     {
-        get => _lopd_Res ?? new TANumber();
+        get => _lopd_Res ?? new TPNumber(0);
         set => _lopd_Res = value;
     }
 
     // Правый операнд
     public TANumber Ropd
     {
-        get => _ropd ?? new TANumber();
+        get => _ropd ?? new TPNumber(0);
         set => _ropd = value;
     }
 
@@ -62,47 +72,36 @@ public class TProc
 
         try
         {
-            double left = _lopd_Res.Value;
-            double right = _ropd.Value;
-            double result = 0;
+            _error = string.Empty;
 
             switch (_operation)
             {
                 case TOperation.Add:
-                    result = left + right;
+                    _lopd_Res = _lopd_Res.Add(_ropd);
                     break;
                 case TOperation.Subtract:
-                    result = left - right;
+                    _lopd_Res = _lopd_Res.Subtract(_ropd);
                     break;
                 case TOperation.Multiply:
-                    result = left * right;
+                    _lopd_Res = _lopd_Res.Multiply(_ropd);
                     break;
                 case TOperation.Divide:
-                    if (Math.Abs(right) < 1e-10)
-                    {
-                        _error = "Деление на ноль";
-                        return;
-                    }
-                    result = left / right;
+                    _lopd_Res = _lopd_Res.Divide(_ropd);
                     break;
                 case TOperation.Power:
-                    result = Math.Pow(left, right);
-                    break;
-                case TOperation.Modulo:
-                    if (Math.Abs(right) < 1e-10)
-                    {
-                        _error = "Деление на ноль";
-                        return;
-                    }
-                    result = left % right;
+                    _lopd_Res = Power(_lopd_Res, _ropd);
                     break;
                 case TOperation.None:
-                    result = left;
+                    // Операция не установлена, ничего не делаем
+                    break;
+                default:
+                    _error = "Неподдерживаемая операция";
                     break;
             }
-
-            _lopd_Res.Value = result;
-            _error = string.Empty;
+        }
+        catch (DivideByZeroException ex)
+        {
+            _error = "Деление на ноль";
         }
         catch (Exception ex)
         {
@@ -121,57 +120,47 @@ public class TProc
 
         try
         {
-            double value = _lopd_Res.Value;
-            double result = 0;
+            _error = string.Empty;
 
             switch (func)
             {
                 case TFunction.Sin:
-                    result = Math.Sin(value);
+                    _lopd_Res = Sin(_lopd_Res);
                     break;
                 case TFunction.Cos:
-                    result = Math.Cos(value);
+                    _lopd_Res = Cos(_lopd_Res);
                     break;
                 case TFunction.Tan:
-                    result = Math.Tan(value);
+                    _lopd_Res = Tan(_lopd_Res);
                     break;
                 case TFunction.Sqrt:
-                    if (value < 0)
-                    {
-                        _error = "Квадратный корень из отрицательного числа";
-                        return;
-                    }
-                    result = Math.Sqrt(value);
+                    _lopd_Res = Sqrt(_lopd_Res);
                     break;
                 case TFunction.Log:
-                    if (value <= 0)
-                    {
-                        _error = "Логарифм из неположительного числа";
-                        return;
-                    }
-                    result = Math.Log10(value);
+                    _lopd_Res = Log(_lopd_Res);
                     break;
                 case TFunction.Ln:
-                    if (value <= 0)
-                    {
-                        _error = "Натуральный логарифм из неположительного числа";
-                        return;
-                    }
-                    result = Math.Log(value);
+                    _lopd_Res = Ln(_lopd_Res);
                     break;
                 case TFunction.Abs:
-                    result = Math.Abs(value);
+                    _lopd_Res = Abs(_lopd_Res);
                     break;
                 case TFunction.Exp:
-                    result = Math.Exp(value);
+                    _lopd_Res = Exp(_lopd_Res);
+                    break;
+                case TFunction.Sqr:
+                    _lopd_Res = _lopd_Res.Sqr();
+                    break;
+                case TFunction.Reverse:
+                    _lopd_Res = _lopd_Res.Reverse();
                     break;
                 case TFunction.None:
-                    result = value;
+                    // Функция не установлена, ничего не делаем
+                    break;
+                default:
+                    _error = "Неподдерживаемая функция";
                     break;
             }
-
-            _lopd_Res.Value = result;
-            _error = string.Empty;
         }
         catch (Exception ex)
         {
@@ -179,11 +168,102 @@ public class TProc
         }
     }
 
+    // Возведение в степень
+    private TANumber Power(TANumber baseNum, TANumber exponent)
+    {
+        double baseVal = baseNum.ToDouble();
+        double expVal = exponent.ToDouble();
+        
+        if (baseVal < 0 && Math.Abs(expVal - Math.Floor(expVal)) > 1e-10)
+        {
+            throw new ArgumentException("Возведение отрицательного числа в дробную степень");
+        }
+        
+        double result = Math.Pow(baseVal, expVal);
+        return new TPNumber(result);
+    }
+
+    // Синус
+    private TANumber Sin(TANumber num)
+    {
+        double value = num.ToDouble();
+        double result = Math.Sin(value);
+        return new TPNumber(result);
+    }
+
+    // Косинус
+    private TANumber Cos(TANumber num)
+    {
+        double value = num.ToDouble();
+        double result = Math.Cos(value);
+        return new TPNumber(result);
+    }
+
+    // Тангенс
+    private TANumber Tan(TANumber num)
+    {
+        double value = num.ToDouble();
+        double result = Math.Tan(value);
+        return new TPNumber(result);
+    }
+
+    // Квадратный корень
+    private TANumber Sqrt(TANumber num)
+    {
+        double value = num.ToDouble();
+        if (value < 0)
+        {
+            throw new ArgumentException("Квадратный корень из отрицательного числа");
+        }
+        double result = Math.Sqrt(value);
+        return new TPNumber(result);
+    }
+
+    // Логарифм по основанию 10
+    private TANumber Log(TANumber num)
+    {
+        double value = num.ToDouble();
+        if (value <= 0)
+        {
+            throw new ArgumentException("Логарифм из неположительного числа");
+        }
+        double result = Math.Log10(value);
+        return new TPNumber(result);
+    }
+
+    // Натуральный логарифм
+    private TANumber Ln(TANumber num)
+    {
+        double value = num.ToDouble();
+        if (value <= 0)
+        {
+            throw new ArgumentException("Натуральный логарифм из неположительного числа");
+        }
+        double result = Math.Log(value);
+        return new TPNumber(result);
+    }
+
+    // Модуль
+    private TANumber Abs(TANumber num)
+    {
+        double value = num.ToDouble();
+        double result = Math.Abs(value);
+        return new TPNumber(result);
+    }
+
+    // Экспонента
+    private TANumber Exp(TANumber num)
+    {
+        double value = num.ToDouble();
+        double result = Math.Exp(value);
+        return new TPNumber(result);
+    }
+
     // Установить начальное состояние
     public void ReSet()
     {
-        _lopd_Res?.Clear();
-        _ropd?.Clear();
+        _lopd_Res = new TPNumber(0);
+        _ropd = new TPNumber(0);
         _operation = TOperation.None;
         _error = string.Empty;
     }

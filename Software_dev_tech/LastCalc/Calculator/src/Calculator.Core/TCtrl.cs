@@ -1,7 +1,8 @@
 namespace Calculator.Core;
 
+using Calculator.Core.Numbers;
+
 // Управление калькулятором - распределяет команды между объектами
-#nullable disable
 public class TCtrl
 {
     private TEditor _editor;
@@ -10,6 +11,7 @@ public class TCtrl
     private TClipBoard _clipBoard;
     private TANumber _number;
     private TCtrlState _state;
+    private THelp _help;
 
     // Коды команд
     public const int CMD_DIGIT_0 = 0;
@@ -50,12 +52,13 @@ public class TCtrl
 
     public TCtrl()
     {
-        _editor = new TEditor();
+        _editor = new TEditor(NumberType.Real);
         _processor = new TProc();
         _memory = new TMemory();
         _clipBoard = new TClipBoard();
-        _number = new TANumber();
+        _number = new TPNumber(0);
         _state = TCtrlState.cStart;
+        _help = new THelp();
     }
 
     public TCtrlState State
@@ -68,6 +71,7 @@ public class TCtrl
     public TProc Processor => _processor;
     public TMemory Memory => _memory;
     public TANumber Number => _number;
+    public THelp Help => _help;
 
     // Выполнить команду калькулятора
     public string ExecuteCalculatorCommand(int command, ref string buffer, ref string memoryState)
@@ -76,70 +80,58 @@ public class TCtrl
 
         try
         {
-            // Команды цифр
             if (command >= CMD_DIGIT_0 && command <= CMD_DIGIT_9)
             {
                 result = ExecuteEditorCommand(command);
                 _state = TCtrlState.cEditing;
             }
-            // Десятичная точка
             else if (command == CMD_DECIMAL_POINT)
             {
                 result = ExecuteEditorCommand(command);
                 _state = TCtrlState.cEditing;
             }
-            // Смена знака
             else if (command == CMD_CHANGE_SIGN)
             {
                 result = ExecuteEditorCommand(command);
             }
-            // Backspace
             else if (command == CMD_BACKSPACE)
             {
                 result = ExecuteEditorCommand(command);
             }
-            // Clear
             else if (command == CMD_CLEAR)
             {
                 _editor.Clear();
-                _number.Clear();
+                _number = new TPNumber(0);
                 result = "0";
                 _state = TCtrlState.cStart;
             }
-            // Clear All
             else if (command == CMD_CLEAR_ALL)
             {
-                SetInitialCalculatorState(0);
+                SetInitialCalculatorState();
                 result = "0";
             }
-            // Арифметические операции
             else if (command >= CMD_ADD && command <= CMD_DIVIDE)
             {
                 result = ExecuteOperation(command);
             }
-            // Равно
             else if (command == CMD_EQUALS)
             {
-                result = CalculateExpression(command);
+                result = CalculateExpression();
             }
-            // Функции
             else if (command >= CMD_FUNC_SIN && command <= CMD_FUNC_EXP)
             {
                 result = ExecuteFunction(command);
             }
-            // Команды памяти
             else if (command >= CMD_MEMORY_STORE && command <= CMD_MEMORY_SUBTRACT)
             {
                 result = ExecuteMemoryCommand(command, ref memoryState);
             }
-            // Буфер обмена
-            else if (command == CMD_COPY || command == CMD_PASTE)
+            else if (command == CMD_COPY || command == CMD_COPY)
             {
                 result = ExecuteClipboardCommand(command, ref buffer);
             }
 
-            // Обновляем буфер и состояние памяти
-            buffer = _number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            buffer = _number.ReadNumberAsString();
             memoryState = _memory.GetStateString();
 
             if (!string.IsNullOrEmpty(_processor.Error))
@@ -166,8 +158,7 @@ public class TCtrl
         {
             if (command >= CMD_DIGIT_0 && command <= CMD_DIGIT_9)
             {
-                char digit = (char)('0' + command);
-                _editor.InputDigit(digit);
+                _editor.InputDigit((uint)command);
             }
             else if (command == CMD_DECIMAL_POINT)
             {
@@ -183,21 +174,11 @@ public class TCtrl
             }
 
             _number = _editor.GetNumber();
-            // Для точки и редактирования возвращаем то, что в буфере редактора
-            if (command == CMD_DECIMAL_POINT || command == CMD_BACKSPACE || command == CMD_CHANGE_SIGN)
-            {
-                result = _editor.InputBuffer;
-                if (_editor.GetType().GetField("_isNegative", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(_editor) is bool isNegative && isNegative && !result.StartsWith("-"))
-                {
-                    result = "-" + result;
-                }
-                if (string.IsNullOrEmpty(result))
-                    result = "0";
-            }
-            else
-            {
-                result = _editor.GetNumberString();
-            }
+            result = _editor.GetDisplayString();
+            
+            if (string.IsNullOrEmpty(result))
+                result = "0";
+                
             _state = TCtrlState.cEditing;
         }
         catch (Exception ex)
@@ -216,7 +197,6 @@ public class TCtrl
 
         try
         {
-            // Если есть предыдущая операция и состояние не cOpChange, выполняем её
             if (_processor.Operation != TOperation.None && _state != TCtrlState.cOpChange)
             {
                 _processor.Ropd = _number.Copy();
@@ -230,11 +210,9 @@ public class TCtrl
             }
             else
             {
-                // Сохраняем первый операнд
                 _processor.Lopd_Res = _number.Copy();
             }
 
-            // Устанавливаем новую операцию
             switch (command)
             {
                 case CMD_ADD:
@@ -251,7 +229,7 @@ public class TCtrl
                     break;
             }
 
-            result = _processor.Lopd_Res.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            result = _processor.Lopd_Res.ReadNumberAsString();
             _state = TCtrlState.cOpChange;
             _editor.Clear();
         }
@@ -294,7 +272,7 @@ public class TCtrl
             }
 
             _number = _processor.Lopd_Res.Copy();
-            result = _number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            result = _number.ReadNumberAsString();
             _state = TCtrlState.FunDone;
             _editor.SetNumber(_number);
         }
@@ -308,7 +286,7 @@ public class TCtrl
     }
 
     // Вычислить выражение (нажатие =)
-    public string CalculateExpression(int command)
+    public string CalculateExpression()
     {
         string result = string.Empty;
 
@@ -326,14 +304,14 @@ public class TCtrl
                 }
 
                 _number = _processor.Lopd_Res.Copy();
-                result = _number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                result = _number.ReadNumberAsString();
                 _state = TCtrlState.cExpDone;
                 _processor.Operation = TOperation.None;
                 _editor.SetNumber(_number);
             }
             else
             {
-                result = _number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                result = _number.ReadNumberAsString();
                 _state = TCtrlState.cValDone;
             }
         }
@@ -347,7 +325,7 @@ public class TCtrl
     }
 
     // Установить начальное состояние калькулятора
-    public string SetInitialCalculatorState(int command)
+    public string SetInitialCalculatorState()
     {
         try
         {
@@ -355,7 +333,7 @@ public class TCtrl
             _processor.ReSet();
             _memory.ReSet();
             _clipBoard.ReSet();
-            _number.Clear();
+            _number = new TPNumber(0);
             _state = TCtrlState.cStart;
 
             return "0";
@@ -379,7 +357,7 @@ public class TCtrl
                 case CMD_MEMORY_STORE:
                     _memory.Store(_number);
                     _editor.Clear();
-                    _number = new TANumber(0);
+                    _number = new TPNumber(0);
                     break;
                 case CMD_MEMORY_RECALL:
                     _number = _memory.Recall();
@@ -391,17 +369,17 @@ public class TCtrl
                 case CMD_MEMORY_ADD:
                     _memory.Add(_number);
                     _editor.Clear();
-                    _number = new TANumber(0);
+                    _number = new TPNumber(0);
                     break;
                 case CMD_MEMORY_SUBTRACT:
                     _memory.Subtract(_number);
                     _editor.Clear();
-                    _number = new TANumber(0);
+                    _number = new TPNumber(0);
                     break;
             }
 
             memoryState = _memory.GetStateString();
-            result = _number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            result = _number.ReadNumberAsString();
 
             if (!string.IsNullOrEmpty(_memory.Error))
             {
@@ -426,14 +404,14 @@ public class TCtrl
             switch (command)
             {
                 case CMD_COPY:
-                    _clipBoard.Copy(_number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    _clipBoard.Copy(_number.ReadNumberAsString());
                     buffer = _clipBoard.Content;
                     break;
                 case CMD_PASTE:
                     double pastedValue = _clipBoard.PasteValue();
-                    _number = new TANumber(pastedValue);
+                    _number = new TPNumber(pastedValue);
                     _editor.SetNumber(_number);
-                    result = _number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    result = _number.ReadNumberAsString();
                     buffer = _clipBoard.Content;
                     break;
             }
@@ -445,14 +423,5 @@ public class TCtrl
 
         return result;
     }
-
-    ~TCtrl()
-    {
-        _editor = null;
-        _processor = null;
-        _memory = null;
-        _clipBoard = null;
-        _number = null;
-    }
 }
-#nullable enable
+

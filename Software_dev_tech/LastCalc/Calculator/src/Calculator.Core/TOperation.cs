@@ -23,5 +23,7 @@ public enum TFunction
     Log = 5,
     Ln = 6,
     Abs = 7,
-    Exp = 8
+    Exp = 8,
+    Sqr = 9,       // Возведение в квадрат
+    Reverse = 10   // Изменение знака
 }

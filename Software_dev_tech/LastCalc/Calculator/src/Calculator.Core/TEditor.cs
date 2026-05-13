@@ -1,27 +1,96 @@
 namespace Calculator.Core;
 
-// Редактор - отвечает за ввод и редактирование чисел
-#nullable disable
+using Calculator.Core.Numbers;
+using Calculator.Core.Editors;
+
+// Редактор - отвечает за ввод и редактирование чисел (обёртка для универсальности)
 public class TEditor
 {
-    private string _inputBuffer;
-    private bool _isNegative;
-    private bool _hasDecimalPoint;
+    private AEditor _editor;
+    private TANumber _currentNumber;
+    private NumberType _numberType;
+    private int _baseSystem;
     private string _error;
 
     public TEditor()
     {
-        _inputBuffer = string.Empty;
-        _isNegative = false;
-        _hasDecimalPoint = false;
+        _editor = new FEditor();
+        _currentNumber = new TPNumber(0);
+        _numberType = NumberType.Real;
+        _baseSystem = 10;
         _error = string.Empty;
     }
 
-    // Буфер ввода
-    public string InputBuffer
+    public TEditor(NumberType numberType)
     {
-        get => _inputBuffer;
-        set => _inputBuffer = value;
+        _numberType = numberType;
+        _baseSystem = 10;
+        CreateEditor();
+        _currentNumber = CreateDefaultNumber();
+        _error = string.Empty;
+    }
+
+    public TEditor(NumberType numberType, int baseSystem)
+    {
+        _numberType = numberType;
+        _baseSystem = Math.Max(2, Math.Min(16, baseSystem));
+        CreateEditor();
+        _currentNumber = CreateDefaultNumber();
+        _error = string.Empty;
+    }
+
+    private void CreateEditor()
+    {
+        switch (_numberType)
+        {
+            case NumberType.Real:
+                _editor = new REEditor(_baseSystem);
+                break;
+            case NumberType.Fraction:
+                _editor = new FEditor();
+                break;
+            case NumberType.Complex:
+                _editor = new CEditor(_baseSystem);
+                break;
+        }
+    }
+
+    private TANumber CreateDefaultNumber()
+    {
+        return _numberType switch
+        {
+            NumberType.Real => new TPNumber(0),
+            NumberType.Fraction => new Frac(0, 1),
+            NumberType.Complex => new TComplex(0, 0),
+            _ => new TPNumber(0)
+        };
+    }
+
+    // Текущий редактор
+    public AEditor Editor => _editor;
+
+    // Тип числа
+    public NumberType NumberType
+    {
+        get => _numberType;
+        set
+        {
+            _numberType = value;
+            CreateEditor();
+            _currentNumber = CreateDefaultNumber();
+        }
+    }
+
+    // Основание системы счисления
+    public int BaseSystem
+    {
+        get => _baseSystem;
+        set
+        {
+            _baseSystem = Math.Max(2, Math.Min(16, value));
+            if (_numberType == NumberType.Real || _numberType == NumberType.Complex)
+                CreateEditor();
+        }
     }
 
     // Ошибка
@@ -46,119 +115,107 @@ public class TEditor
             return;
         }
 
-        if (_inputBuffer.Length >= 20)
+        int digitValue = digit - '0';
+        _editor.AddDigit((uint)digitValue);
+        _currentNumber = GetNumber();
+        _error = string.Empty;
+    }
+
+    // Ввести цифру (по коду)
+    public void InputDigit(uint digit)
+    {
+        if (digit > 9)
         {
-            _error = "Превышена максимальная длина числа";
+            _error = "Некорректная цифра";
             return;
         }
 
-        _inputBuffer += digit;
+        _editor.AddDigit(digit);
+        _currentNumber = GetNumber();
         _error = string.Empty;
     }
 
     // Ввести десятичную точку
     public void InputDecimalPoint()
     {
-        if (_hasDecimalPoint)
-        {
-            _error = "Десятичная точка уже введена";
-            return;
-        }
-
-        if (string.IsNullOrEmpty(_inputBuffer))
-        {
-            _inputBuffer = "0.";
-        }
-        else
-        {
-            _inputBuffer += ".";
-        }
-
-        _hasDecimalPoint = true;
+        _editor.AddSeparator(AEditor.cSeparatorFR);
+        _currentNumber = GetNumber();
         _error = string.Empty;
     }
 
     // Изменить знак числа
     public void ChangeSign()
     {
-        _isNegative = !_isNegative;
+        _editor.AddSigne();
+        _currentNumber = GetNumber();
         _error = string.Empty;
     }
 
     // Удалить последний символ
     public void Backspace()
     {
-        if (string.IsNullOrEmpty(_inputBuffer))
-        {
-            return;
-        }
-
-        if (_inputBuffer.EndsWith("."))
-        {
-            _hasDecimalPoint = false;
-        }
-
-        _inputBuffer = _inputBuffer[..^1];
+        _editor.BackSpace();
+        _currentNumber = GetNumber();
         _error = string.Empty;
     }
 
     // Очистить ввод
     public void Clear()
     {
-        _inputBuffer = string.Empty;
-        _isNegative = false;
-        _hasDecimalPoint = false;
+        _editor.Clear();
+        _currentNumber = CreateDefaultNumber();
         _error = string.Empty;
     }
 
     // Получить число из буфера ввода
     public TANumber GetNumber()
     {
-        if (string.IsNullOrEmpty(_inputBuffer))
+        string str = _editor.ReadStringAsString();
+        
+        switch (_numberType)
         {
-            return new TANumber(0);
+            case NumberType.Real:
+                double realValue = TPNumber.ParseBaseStringInternal(str, _baseSystem);
+                return new TPNumber(realValue, _baseSystem);
+            
+            case NumberType.Fraction:
+                return new Frac(str);
+            
+            case NumberType.Complex:
+                return new TComplex(str);
+            
+            default:
+                return new TPNumber(0);
         }
-
-        string numberStr = _inputBuffer;
-        if (_isNegative && !numberStr.StartsWith("-"))
-        {
-            numberStr = "-" + numberStr;
-        }
-
-        if (double.TryParse(numberStr, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double value))
-        {
-            return new TANumber(value);
-        }
-
-        _error = "Ошибка преобразования числа";
-        return new TANumber(0);
     }
 
     // Установить число в буфер ввода
     public void SetNumber(TANumber number)
     {
-        _inputBuffer = number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        _isNegative = number.Value < 0;
-        _hasDecimalPoint = _inputBuffer.Contains(".");
+        if (number == null)
+        {
+            Clear();
+            return;
+        }
+
+        _numberType = number.GetType();
+        CreateEditor();
+        
+        _editor.WriteStringAsString(number.ReadNumberAsString());
+        _currentNumber = number.Copy();
         _error = string.Empty;
     }
 
     // Получить отображаемую строку
     public string GetDisplayString()
     {
-        string result = _inputBuffer;
-        if (_isNegative && !string.IsNullOrEmpty(result) && !result.StartsWith("-"))
-        {
-            result = "-" + result;
-        }
-        return string.IsNullOrEmpty(result) ? "0" : result;
+        return _editor.ReadStringAsString();
     }
 
     // Получить число как строку для отображения
     public string GetNumberString()
     {
-        var number = GetNumber();
-        return number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        return _currentNumber.ReadNumberAsString();
     }
 
     // Сбросить состояние
@@ -169,7 +226,8 @@ public class TEditor
 
     ~TEditor()
     {
-        _inputBuffer = null;
+        _editor = null;
+        _currentNumber = null;
     }
 }
 #nullable enable

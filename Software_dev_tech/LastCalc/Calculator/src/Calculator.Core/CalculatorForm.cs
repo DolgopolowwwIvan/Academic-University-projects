@@ -1,7 +1,8 @@
 namespace Calculator.Core;
 
+using Calculator.Core.Numbers;
+
 // Форма калькулятора
-#nullable disable
 public class CalculatorForm : Form
 {
     private TCtrl _controller;
@@ -77,6 +78,7 @@ public class CalculatorForm : Form
         viewMenuItem.DropDownItems.Add(new ToolStripMenuItem("Инженерный", null, MenuEngineering_Click));
 
         var helpMenuItem = new ToolStripMenuItem("Справка");
+        helpMenuItem.DropDownItems.Add(new ToolStripMenuItem("Справка", null, MenuHelp_Click, Keys.F1));
         helpMenuItem.DropDownItems.Add(new ToolStripMenuItem("О программе", null, MenuAbout_Click));
 
         _menuStrip.Items.Add(editMenuItem);
@@ -258,11 +260,17 @@ public class CalculatorForm : Form
                 Keys.Enter or Keys.Oemplus => TCtrl.CMD_EQUALS,
                 Keys.Escape => TCtrl.CMD_CLEAR_ALL,
                 Keys.Back => TCtrl.CMD_BACKSPACE,
+                Keys.F1 => -2, // Справка
                 _ => -1
             };
         }
 
-        if (command >= 0)
+        if (command == -2)
+        {
+            MenuHelp_Click(sender, e);
+            e.SuppressKeyPress = true;
+        }
+        else if (command >= 0)
         {
             string result = _controller.ExecuteCalculatorCommand(command, ref _buffer, ref _memoryState);
             _display.Text = result;
@@ -287,15 +295,22 @@ public class CalculatorForm : Form
             string clipboardText = Clipboard.GetText();
             if (double.TryParse(clipboardText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double value))
             {
-                _controller.Number.Value = value;
+                _controller.Number = new TPNumber(value);
                 _controller.Editor.SetNumber(_controller.Number);
-                _display.Text = _controller.Number.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                _display.Text = _controller.Number.ReadNumberAsString();
             }
         }
         catch
         {
             // Игнорируем ошибки буфера обмена
         }
+    }
+
+    // Справка
+    private void MenuHelp_Click(object sender, EventArgs e)
+    {
+        string helpText = _controller.Help.ShowHelpMenu();
+        MessageBox.Show(helpText, "Справка", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
     // Обычный режим
@@ -313,8 +328,7 @@ public class CalculatorForm : Form
     // О программе
     private void MenuAbout_Click(object sender, EventArgs e)
     {
-        MessageBox.Show("Калькулятор v1.0\nРазработано на C#\n\nФункции:\n• Арифметические операции (+, −, ×, ÷)\n• Тригонометрические (sin, cos, tan)\n• Логарифмы (log₁₀, ln)\n• Степени и корни (√x, eˣ)\n• Память (M+, M-, MR, MC)", 
-            "О программе", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        MessageBox.Show(_controller.Help.GetTopic("about"), "О программе", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
     // Скрыть инженерные кнопки
@@ -403,4 +417,3 @@ public class CalculatorForm : Form
         base.Dispose(disposing);
     }
 }
-#nullable enable
