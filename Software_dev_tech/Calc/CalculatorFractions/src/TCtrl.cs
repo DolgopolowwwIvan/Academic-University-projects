@@ -173,10 +173,8 @@ namespace CalculatorFractions
                 
                 result = FEditor.Clear();
                 FDisplayString = result;
-                if (FState == TCtrlState.cValDone || FState == TCtrlState.cExpDone)
-                {
-                    FProcessor.SetRop(new TFrac(0, 1));
-                }
+                // Сбрасываем операцию процессора
+                FProcessor.OprtnClear();
                 FState = TCtrlState.cEditing;
                 MState = FMemory.ReadState();
                 return result;
