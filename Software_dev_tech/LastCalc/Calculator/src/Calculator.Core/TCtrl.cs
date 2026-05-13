@@ -49,6 +49,16 @@ public class TCtrl
     public const int CMD_MEMORY_SUBTRACT = 32;
     public const int CMD_COPY = 33;
     public const int CMD_PASTE = 34;
+    public const int CMD_DIGIT_A = 35;
+    public const int CMD_DIGIT_B = 36;
+    public const int CMD_DIGIT_C = 37;
+    public const int CMD_DIGIT_D = 38;
+    public const int CMD_DIGIT_E = 39;
+    public const int CMD_DIGIT_F = 40;
+    public const int CMD_SEPARATOR_FRAC = 41;
+    public const int CMD_SEPARATOR_COMPLEX = 42;
+    public const int CMD_FUNC_SQR = 43;
+    public const int CMD_FUNC_REV = 44;
 
     public TCtrl()
     {
@@ -91,12 +101,13 @@ public class TCtrl
 
         try
         {
-            if (command >= CMD_DIGIT_0 && command <= CMD_DIGIT_9)
+            if ((command >= CMD_DIGIT_0 && command <= CMD_DIGIT_9) ||
+                (command >= CMD_DIGIT_A && command <= CMD_DIGIT_F))
             {
                 result = ExecuteEditorCommand(command);
                 _state = TCtrlState.cEditing;
             }
-            else if (command == CMD_DECIMAL_POINT)
+            else if (command == CMD_DECIMAL_POINT || command == CMD_SEPARATOR_FRAC || command == CMD_SEPARATOR_COMPLEX)
             {
                 result = ExecuteEditorCommand(command);
                 _state = TCtrlState.cEditing;
@@ -171,9 +182,21 @@ public class TCtrl
             {
                 _editor.InputDigit((uint)command);
             }
+            else if (command >= CMD_DIGIT_A && command <= CMD_DIGIT_F)
+            {
+                _editor.InputDigit((uint)(command - CMD_DIGIT_A + 10));
+            }
             else if (command == CMD_DECIMAL_POINT)
             {
                 _editor.InputDecimalPoint();
+            }
+            else if (command == CMD_SEPARATOR_FRAC)
+            {
+                _editor.InputSeparator();
+            }
+            else if (command == CMD_SEPARATOR_COMPLEX)
+            {
+                _editor.InputSeparator();
             }
             else if (command == CMD_CHANGE_SIGN)
             {
@@ -270,6 +293,8 @@ public class TCtrl
                 CMD_FUNC_LN => TFunction.Ln,
                 CMD_FUNC_ABS => TFunction.Abs,
                 CMD_FUNC_EXP => TFunction.Exp,
+                CMD_FUNC_SQR => TFunction.Sqr,
+                CMD_FUNC_REV => TFunction.Rev,
                 _ => TFunction.None
             };
 

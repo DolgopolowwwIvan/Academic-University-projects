@@ -121,12 +121,12 @@ public class TEditor
         _error = string.Empty;
     }
 
-    // Ввести цифру (по коду)
+    // Ввести цифру (по коду, 0-15 для систем 2-16)
     public void InputDigit(uint digit)
     {
-        if (digit > 9)
+        if (digit >= (uint)_baseSystem)
         {
-            _error = "Некорректная цифра";
+            _error = "Некорректная цифра для данной системы счисления";
             return;
         }
 
@@ -139,6 +139,19 @@ public class TEditor
     public void InputDecimalPoint()
     {
         _editor.AddSeparator(AEditor.cSeparatorFR);
+        _currentNumber = GetNumber();
+        _error = string.Empty;
+    }
+
+    // Ввести разделитель (дроби или комплексной части)
+    public void InputSeparator()
+    {
+        if (_numberType == NumberType.Fraction)
+            _editor.AddSeparator(AEditor.cSeparatorFrac);
+        else if (_numberType == NumberType.Complex)
+            _editor.AddSeparator(AEditor.cSeparatorComplex);
+        else
+            _editor.AddSeparator(AEditor.cSeparatorFR);
         _currentNumber = GetNumber();
         _error = string.Empty;
     }

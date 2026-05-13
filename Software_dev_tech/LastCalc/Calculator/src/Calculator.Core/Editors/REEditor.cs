@@ -48,7 +48,7 @@ internal class REEditor : AEditor
     protected virtual void AddDigitLS(int a)
     {
         if (_stringValue.Length >= MAX_LENGTH) return;
-        char digit = (char)('0' + a);
+        char digit = GetDigitChar(a);
         if (IsValidDigit(digit))
             _stringValue += digit;
     }
@@ -61,7 +61,7 @@ internal class REEditor : AEditor
             _separatorExists = true;
         }
         if (_stringValue.Length >= MAX_LENGTH) return;
-        char digit = (char)('0' + a);
+        char digit = GetDigitChar(a);
         if (IsValidDigit(digit))
             _stringValue += digit;
     }
@@ -74,12 +74,18 @@ internal class REEditor : AEditor
 
     public override string AddDigit(uint a)
     {
-        if (a > 9 || a >= _baseSystem) return GetResultString();
+        if (a >= _baseSystem) return GetResultString();
         if (!_separatorExists)
             AddDigitLS((int)a);
         else
             AddDigitRS((int)a);
         return GetResultString();
+    }
+
+    private static char GetDigitChar(int value)
+    {
+        const string digits = "0123456789ABCDEF";
+        return digits[value];
     }
 
     public override string AddSeparator(uint a = 0)

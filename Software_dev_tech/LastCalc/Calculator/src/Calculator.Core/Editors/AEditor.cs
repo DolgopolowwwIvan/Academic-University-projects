@@ -26,8 +26,10 @@ public abstract class AEditor
     public const uint cSign = 10;
     public const uint cSeparatorFR = 11;
     public const uint cSeparatorC = 12;
-    public const uint cBS = 13;
-    public const uint CE = 14;
+    public const uint cSeparatorFrac = 13;
+    public const uint cSeparatorComplex = 14;
+    public const uint cBS = 15;
+    public const uint CE = 16;
 
     protected AEditor()
     {
@@ -119,7 +121,7 @@ public abstract class AEditor
         {
             >= AEditor.cZero and <= AEditor.cNine => AddDigit(command),
             cSign => AddSigne(),
-            cSeparatorFR or cSeparatorC => AddSeparator(command),
+            cSeparatorFR or cSeparatorC or cSeparatorFrac or cSeparatorComplex => AddSeparator(command),
             cBS => BackSpace(),
             CE => Clear(),
             _ => _stringValue
