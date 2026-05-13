@@ -294,7 +294,7 @@ public class TCtrl
                 CMD_FUNC_ABS => TFunction.Abs,
                 CMD_FUNC_EXP => TFunction.Exp,
                 CMD_FUNC_SQR => TFunction.Sqr,
-                CMD_FUNC_REV => TFunction.Rev,
+                CMD_FUNC_REV => TFunction.Reverse,
                 _ => TFunction.None
             };
 
