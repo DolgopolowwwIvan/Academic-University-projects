@@ -12,6 +12,7 @@ public class TCtrl
     private TANumber _number;
     private TCtrlState _state;
     private THelp _help;
+    private const string _zeroString = "0";
 
     // Коды команд
     public const int CMD_DIGIT_0 = 0;
@@ -209,10 +210,9 @@ public class TCtrl
 
             _number = _editor.GetNumber();
             result = _editor.GetDisplayString();
+            if (string.IsNullOrEmpty(result) || result == _zeroString)
+                result = _number.ReadNumberAsString();
             
-            if (string.IsNullOrEmpty(result))
-                result = "0";
-                
             _state = TCtrlState.cEditing;
         }
         catch (Exception ex)
@@ -241,6 +241,9 @@ public class TCtrl
                     _state = TCtrlState.cError;
                     return _processor.Error;
                 }
+
+                _number = _processor.Lopd_Res.Copy();
+                _editor.SetNumber(_number);
             }
             else
             {
@@ -263,7 +266,7 @@ public class TCtrl
                     break;
             }
 
-            result = _processor.Lopd_Res.ReadNumberAsString();
+            result = _number.ReadNumberAsString();
             _state = TCtrlState.cOpChange;
             _editor.Clear();
         }
@@ -298,6 +301,11 @@ public class TCtrl
                 _ => TFunction.None
             };
 
+            // Сохраняем текущее значение как десятичное
+            double currentValue = _editor.GetNumberAsDouble();
+            _number = _editor.GetNumber();
+            
+            // Применяем функцию к числу
             _processor.Lopd_Res = _number.Copy();
             _processor.FuncRun(func);
 
@@ -307,10 +315,13 @@ public class TCtrl
                 return _processor.Error;
             }
 
+            // Сохраняем результат и обновляем редактор
             _number = _processor.Lopd_Res.Copy();
-            result = _number.ReadNumberAsString();
+            _editor.SetNumberWithoutReset(_number);
+            result = _editor.GetDisplayString();
+            if (string.IsNullOrEmpty(result))
+                result = _number.ReadNumberAsString();
             _state = TCtrlState.FunDone;
-            _editor.SetNumber(_number);
         }
         catch (Exception ex)
         {
@@ -340,10 +351,12 @@ public class TCtrl
                 }
 
                 _number = _processor.Lopd_Res.Copy();
-                result = _number.ReadNumberAsString();
+                _editor.SetNumberWithoutReset(_number);
+                result = _editor.GetDisplayString();
+                if (string.IsNullOrEmpty(result))
+                    result = _number.ReadNumberAsString();
                 _state = TCtrlState.cExpDone;
                 _processor.Operation = TOperation.None;
-                _editor.SetNumber(_number);
             }
             else
             {
@@ -369,7 +382,7 @@ public class TCtrl
             _processor.ReSet();
             _memory.ReSet();
             _clipBoard.ReSet();
-            _number = new TPNumber(0);
+            _number = new TPNumber(0, _editor.BaseSystem);
             _state = TCtrlState.cStart;
 
             return "0";
@@ -392,30 +405,36 @@ public class TCtrl
             {
                 case CMD_MEMORY_STORE:
                     _memory.Store(_number);
+                    result = _number.ReadNumberAsString();
                     _editor.Clear();
-                    _number = new TPNumber(0);
+                    _number = new TPNumber(0, _editor.BaseSystem);
                     break;
                 case CMD_MEMORY_RECALL:
                     _number = _memory.Recall();
-                    _editor.SetNumber(_number);
+                    _editor.SetNumberWithoutReset(_number);
+                    result = _editor.GetDisplayString();
+                    if (string.IsNullOrEmpty(result))
+                        result = _number.ReadNumberAsString();
                     break;
                 case CMD_MEMORY_CLEAR:
                     _memory.Clear();
+                    result = _number.ReadNumberAsString();
                     break;
                 case CMD_MEMORY_ADD:
                     _memory.Add(_number);
+                    result = _memory.Recall().ReadNumberAsString();
                     _editor.Clear();
-                    _number = new TPNumber(0);
+                    _number = new TPNumber(0, _editor.BaseSystem);
                     break;
                 case CMD_MEMORY_SUBTRACT:
                     _memory.Subtract(_number);
+                    result = _memory.Recall().ReadNumberAsString();
                     _editor.Clear();
-                    _number = new TPNumber(0);
+                    _number = new TPNumber(0, _editor.BaseSystem);
                     break;
             }
 
             memoryState = _memory.GetStateString();
-            result = _number.ReadNumberAsString();
 
             if (!string.IsNullOrEmpty(_memory.Error))
             {
@@ -445,9 +464,11 @@ public class TCtrl
                     break;
                 case CMD_PASTE:
                     double pastedValue = _clipBoard.PasteValue();
-                    _number = new TPNumber(pastedValue);
-                    _editor.SetNumber(_number);
-                    result = _number.ReadNumberAsString();
+                    _number = new TPNumber(pastedValue, _editor.BaseSystem);
+                    _editor.SetNumberWithoutReset(_number);
+                    result = _editor.GetDisplayString();
+                    if (string.IsNullOrEmpty(result))
+                        result = _number.ReadNumberAsString();
                     buffer = _clipBoard.Content;
                     break;
             }

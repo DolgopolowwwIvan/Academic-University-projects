@@ -259,12 +259,13 @@ public class CalculatorForm : Form
         bool isHex = _currentBaseSystem == 16;
         bool isHighBase = _currentBaseSystem > 10;
 
-        _btnA.Visible = isHighBase;
-        _btnB.Visible = isHighBase;
-        _btnC.Visible = isHighBase;
-        _btnD.Visible = isHighBase;
-        _btnE.Visible = isHighBase;
-        _btnF.Visible = isHex;
+        // Показываем кнопки A-F только для base > 10
+        _btnA.Visible = _currentBaseSystem >= 11;
+        _btnB.Visible = _currentBaseSystem >= 12;
+        _btnC.Visible = _currentBaseSystem >= 13;
+        _btnD.Visible = _currentBaseSystem >= 14;
+        _btnE.Visible = _currentBaseSystem >= 15;
+        _btnF.Visible = _currentBaseSystem >= 16;
 
         _btnFracSep.Visible = _currentNumberType == NumberType.Fraction;
         _btnComplexSep.Visible = _currentNumberType == NumberType.Complex;

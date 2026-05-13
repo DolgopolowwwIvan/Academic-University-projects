@@ -89,7 +89,19 @@ public class TEditor
         {
             _baseSystem = Math.Max(2, Math.Min(16, value));
             if (_numberType == NumberType.Real || _numberType == NumberType.Complex)
+            {
                 CreateEditor();
+                // Обновить текущее число с новым основанием
+                if (_currentNumber != null)
+                {
+                    string str = _editor.ReadStringAsString();
+                    if (!string.IsNullOrEmpty(str))
+                    {
+                        double val = TPNumber.ParseBaseStringInternal(str, _baseSystem);
+                        _currentNumber = new TPNumber(val, _baseSystem);
+                    }
+                }
+            }
         }
     }
 
@@ -198,8 +210,43 @@ public class TEditor
                 return new TComplex(str);
             
             default:
-                return new TPNumber(0);
+                return new TPNumber(0, _baseSystem);
         }
+    }
+
+    // Получить число как десятичное значение (для вычислений)
+    public double GetNumberAsDouble()
+    {
+        string str = _editor.ReadStringAsString();
+        if (_numberType == NumberType.Real)
+            return TPNumber.ParseBaseStringInternal(str, _baseSystem);
+        else if (_numberType == NumberType.Fraction)
+            return new Frac(str).ToDouble();
+        else if (_numberType == NumberType.Complex)
+            return new TComplex(str).ToDouble();
+        return 0;
+    }
+
+    // Установить число из десятичного значения (для функций)
+    public void SetNumberFromDouble(double value)
+    {
+        if (_numberType == NumberType.Real)
+        {
+            _number = new TPNumber(value, _baseSystem);
+            _editor.WriteStringAsString(_number.ReadNumberAsString());
+        }
+        else if (_numberType == NumberType.Fraction)
+        {
+            long num = (long)(value * 1000000);
+            _number = new Frac(num, 1000000);
+            _editor.WriteStringAsString(_number.ReadNumberAsString());
+        }
+        else if (_numberType == NumberType.Complex)
+        {
+            _number = new TComplex(value, 0);
+            _editor.WriteStringAsString(_number.ReadNumberAsString());
+        }
+        _currentNumber = _number;
     }
 
     // Установить число в буфер ввода
@@ -212,10 +259,30 @@ public class TEditor
         }
 
         _numberType = number.GetType();
+        _baseSystem = number is TPNumber tp ? tp.BaseSystem : _baseSystem;
         CreateEditor();
         
         _editor.WriteStringAsString(number.ReadNumberAsString());
         _currentNumber = number.Copy();
+        _error = string.Empty;
+    }
+
+    // Установить число без изменения типа
+    public void SetNumberWithoutReset(TANumber number)
+    {
+        if (number == null)
+        {
+            Clear();
+            return;
+        }
+
+        _numberType = number.GetType();
+        if (number is TPNumber tp)
+            _baseSystem = tp.BaseSystem;
+        
+        CreateEditor();
+        _currentNumber = number.Copy();
+        _editor.WriteStringAsString(number.ReadNumberAsString());
         _error = string.Empty;
     }
 
