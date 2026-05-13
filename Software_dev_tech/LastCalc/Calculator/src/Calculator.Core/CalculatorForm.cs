@@ -256,10 +256,7 @@ public class CalculatorForm : Form
 
     private void UpdateButtonVisibility()
     {
-        bool isHex = _currentBaseSystem == 16;
-        bool isHighBase = _currentBaseSystem > 10;
-
-        // Показываем кнопки A-F только для base > 10
+        // Показываем кнопки A-F только для соответствующих оснований
         _btnA.Visible = _currentBaseSystem >= 11;
         _btnB.Visible = _currentBaseSystem >= 12;
         _btnC.Visible = _currentBaseSystem >= 13;
@@ -270,8 +267,6 @@ public class CalculatorForm : Form
         _btnFracSep.Visible = _currentNumberType == NumberType.Fraction;
         _btnComplexSep.Visible = _currentNumberType == NumberType.Complex;
         _btnDot.Visible = _currentNumberType != NumberType.Fraction;
-
-        _baseComboBox.SelectedIndex = _currentBaseSystem - 2;
     }
 
     private void UpdateModeDisplay()
@@ -410,6 +405,7 @@ public class CalculatorForm : Form
         };
         _controller.Processor.ReSet();
         _display.Text = _controller.Number.ReadNumberAsString();
+        _baseComboBox.SelectedIndex = baseSystem - 2;
         UpdateButtonVisibility();
         UpdateModeDisplay();
     }
