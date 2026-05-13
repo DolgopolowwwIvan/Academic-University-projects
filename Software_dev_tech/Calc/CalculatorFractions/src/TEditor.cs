@@ -99,21 +99,33 @@ namespace CalculatorFractions
 
             if (!CanAddDigit()) return FString;
 
-            if (FString == "0" || FString == "-0")
+            // Проверка на незначащие нули: нельзя добавлять цифру после ведущего нуля
+            int sepPos = FString.IndexOf(FSeparator);
+            if (sepPos == -1)
             {
-                if (FString.Length > 0 && FString[0] == '-')
+                // Ещё нет разделителя - проверяем числитель
+                if (FString == "0" || FString == "-0")
                 {
-                    FString = "-" + digitChar;
-                }
-                else
-                {
-                    FString = digitChar.ToString();
+                    if (FString[0] == '-')
+                        FString = "-" + digitChar;
+                    else
+                        FString = digitChar.ToString();
+                    return FString;
                 }
             }
             else
             {
-                FString += digitChar;
+                // Есть разделитель - проверяем знаменатель
+                string denomPart = FString.Substring(sepPos + 1);
+                if (denomPart == "0" || denomPart == "-0")
+                {
+                    string numPart = FString.Substring(0, sepPos);
+                    FString = numPart + FSeparator + digitChar;
+                    return FString;
+                }
             }
+
+            FString += digitChar;
 
             return FString;
         }

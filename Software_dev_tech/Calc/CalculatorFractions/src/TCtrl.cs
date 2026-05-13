@@ -202,6 +202,33 @@ namespace CalculatorFractions
                 
                 if (FState == TCtrlState.cValDone || FState == TCtrlState.cOpChange)
                 {
+                    // При вводе цифры после установки операции — сразу выполняем операцию
+                    if (FProcessor.IsOperationSet() && command >= (int)TCalcCommand.cmdDigit0 && command <= (int)TCalcCommand.cmdDigit9)
+                    {
+                        try
+                        {
+                            int digit = command - (int)TCalcCommand.cmdDigit0;
+                            TFrac digitFrac = new TFrac(digit, 1);
+                            digitFrac.ShowAsFraction = FShowAsFraction;
+                            FProcessor.SetRop(digitFrac);
+                            FProcessor.OprtnRun();
+                            FNumber = FProcessor.Lop_Res;
+                            FNumber.ShowAsFraction = FShowAsFraction;
+                            FEditor.SetString(FNumber.ToString());
+                            FDisplayString = FNumber.ToString();
+                            FState = TCtrlState.cExpDone;
+                            MState = FMemory.ReadState();
+                            return FDisplayString;
+                        }
+                        catch
+                        {
+                            FState = TCtrlState.cError;
+                            FDisplayString = "Error";
+                            MState = FMemory.ReadState();
+                            return "Error";
+                        }
+                    }
+
                     FPrevState = FState;
                     FState = TCtrlState.cEditing;
                     FEditor.Clear();
