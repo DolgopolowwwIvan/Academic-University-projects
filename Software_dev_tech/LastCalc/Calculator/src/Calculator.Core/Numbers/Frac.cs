@@ -160,9 +160,9 @@ public class Frac : TANumber
             return;
         }
         string[] parts = str.Split(SEPARATOR);
-        if (parts.Length == 2 && long.TryParse(parts[0], out long num) && long.TryParse(parts[1], out long den) && den != 0)
+        if (parts.Length == 2 && long.TryParse(parts[0], out long num1) && long.TryParse(parts[1], out long den) && den != 0)
         {
-            _numerator = num;
+            _numerator = num1;
             _denominator = den;
             Normalize();
         }

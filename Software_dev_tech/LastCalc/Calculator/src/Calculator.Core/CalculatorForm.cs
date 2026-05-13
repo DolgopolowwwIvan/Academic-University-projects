@@ -8,6 +8,8 @@ public class CalculatorForm : Form
     private TCtrl _controller;
     private string _buffer = string.Empty;
     private string _memoryState = string.Empty;
+    private NumberType _currentNumberType = NumberType.Real;
+    private int _currentBaseSystem = 10;
 
     private Label _display;
     private Label _memoryStatus;
@@ -48,7 +50,15 @@ public class CalculatorForm : Form
     public CalculatorForm()
     {
         _controller = new TCtrl();
+        _currentNumberType = NumberType.Real;
+        _currentBaseSystem = 10;
         InitializeComponent();
+        UpdateDisplayWithMode();
+    }
+
+    private void UpdateDisplayWithMode()
+    {
+        _display.Text = $"{_controller.Number.ReadNumberAsString()} [{_currentNumberType}, base={_currentBaseSystem}]";
     }
 
     // Инициализация компонентов
@@ -77,12 +87,21 @@ public class CalculatorForm : Form
         viewMenuItem.DropDownItems.Add(new ToolStripMenuItem("Обычный", null, MenuNormal_Click));
         viewMenuItem.DropDownItems.Add(new ToolStripMenuItem("Инженерный", null, MenuEngineering_Click));
 
+        var numberTypeMenuItem = new ToolStripMenuItem("Тип числа");
+        numberTypeMenuItem.DropDownItems.Add(new ToolStripMenuItem("P-ичные числа (10)", null, MenuRealDec_Click));
+        numberTypeMenuItem.DropDownItems.Add(new ToolStripMenuItem("P-ичные числа (2)", null, MenuBin_Click));
+        numberTypeMenuItem.DropDownItems.Add(new ToolStripMenuItem("P-ичные числа (8)", null, MenuOct_Click));
+        numberTypeMenuItem.DropDownItems.Add(new ToolStripMenuItem("P-ичные числа (16)", null, MenuHex_Click));
+        numberTypeMenuItem.DropDownItems.Add(new ToolStripMenuItem("Рациональные дроби", null, MenuFrac_Click));
+        numberTypeMenuItem.DropDownItems.Add(new ToolStripMenuItem("Комплексные числа", null, MenuComplex_Click));
+
         var helpMenuItem = new ToolStripMenuItem("Справка");
         helpMenuItem.DropDownItems.Add(new ToolStripMenuItem("Справка", null, MenuHelp_Click, Keys.F1));
         helpMenuItem.DropDownItems.Add(new ToolStripMenuItem("О программе", null, MenuAbout_Click));
 
         _menuStrip.Items.Add(editMenuItem);
         _menuStrip.Items.Add(viewMenuItem);
+        _menuStrip.Items.Add(numberTypeMenuItem);
         _menuStrip.Items.Add(helpMenuItem);
 
         this.MainMenuStrip = _menuStrip;
@@ -273,7 +292,7 @@ public class CalculatorForm : Form
         else if (command >= 0)
         {
             string result = _controller.ExecuteCalculatorCommand(command, ref _buffer, ref _memoryState);
-            _display.Text = result;
+            _display.Text = result + $" [{_currentNumberType}, base={_currentBaseSystem}]";
             _memoryStatus.Text = _memoryState;
             e.SuppressKeyPress = true;
         }
@@ -293,11 +312,24 @@ public class CalculatorForm : Form
         try
         {
             string clipboardText = Clipboard.GetText();
-            if (double.TryParse(clipboardText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double value))
+            if (_currentNumberType == NumberType.Real)
             {
-                _controller.Number = new TPNumber(value);
-                _controller.Editor.SetNumber(_controller.Number);
-                _display.Text = _controller.Number.ReadNumberAsString();
+                if (double.TryParse(clipboardText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double value))
+                {
+                    _controller.Number = new TPNumber(value, _currentBaseSystem);
+                    _controller.Editor.SetNumber(_controller.Number);
+                    _display.Text = _controller.Number.ReadNumberAsString() + $" [{_currentNumberType}, base={_currentBaseSystem}]";
+                }
+            }
+            else if (_currentNumberType == NumberType.Fraction)
+            {
+                if (double.TryParse(clipboardText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double value))
+                {
+                    long num = (long)(value * 1000000);
+                    _controller.Number = new Frac(num, 1000000);
+                    _controller.Editor.SetNumber(_controller.Number);
+                    _display.Text = _controller.Number.ReadNumberAsString() + $" [{_currentNumberType}, base={_currentBaseSystem}]";
+                }
             }
         }
         catch
@@ -311,6 +343,30 @@ public class CalculatorForm : Form
     {
         string helpText = _controller.Help.ShowHelpMenu();
         MessageBox.Show(helpText, "Справка", MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
+
+    // Меню - Тип числа
+    private void MenuRealDec_Click(object sender, EventArgs e) => SetNumberType(NumberType.Real, 10);
+    private void MenuBin_Click(object sender, EventArgs e) => SetNumberType(NumberType.Real, 2);
+    private void MenuOct_Click(object sender, EventArgs e) => SetNumberType(NumberType.Real, 8);
+    private void MenuHex_Click(object sender, EventArgs e) => SetNumberType(NumberType.Real, 16);
+    private void MenuFrac_Click(object sender, EventArgs e) => SetNumberType(NumberType.Fraction, 10);
+    private void MenuComplex_Click(object sender, EventArgs e) => SetNumberType(NumberType.Complex, 10);
+
+    private void SetNumberType(NumberType type, int baseSystem)
+    {
+        _currentNumberType = type;
+        _currentBaseSystem = baseSystem;
+        _controller.Editor = new TEditor(type, baseSystem);
+        _controller.Number = type switch
+        {
+            NumberType.Real => new TPNumber(0, baseSystem),
+            NumberType.Fraction => new Frac(0, 1),
+            NumberType.Complex => new TComplex(0, 0),
+            _ => new TPNumber(0)
+        };
+        _display.Text = _controller.Number.ReadNumberAsString();
+        _memoryState = _memoryState;
     }
 
     // Обычный режим
