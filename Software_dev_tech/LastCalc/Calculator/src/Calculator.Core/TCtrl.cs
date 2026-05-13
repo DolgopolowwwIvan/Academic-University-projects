@@ -70,7 +70,13 @@ public class TCtrl
     public TEditor Editor => _editor;
     public TProc Processor => _processor;
     public TMemory Memory => _memory;
-    public TANumber Number => _number;
+    
+    public TANumber Number
+    {
+        get => _number;
+        set => _number = value;
+    }
+    
     public THelp Help => _help;
 
     // Выполнить команду калькулятора

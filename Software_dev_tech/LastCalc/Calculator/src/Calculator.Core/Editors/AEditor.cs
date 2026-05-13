@@ -149,4 +149,14 @@ public abstract class AEditor
     {
         Clear();
     }
+
+    /// <summary>
+    /// Установить число (абстрактный метод)
+    /// </summary>
+    protected abstract void SetNum(string n);
+
+    /// <summary>
+    /// Получить число (абстрактный метод)
+    /// </summary>
+    protected abstract string GetNum();
 }

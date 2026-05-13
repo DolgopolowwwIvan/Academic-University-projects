@@ -26,20 +26,25 @@ internal class FEditor : AEditor
         _inFractionPart = false;
     }
 
-    protected override void SetNum(string n) => _number = n ?? string.Empty;
-    protected override string GetNum() => _number;
+    protected override void SetNum(string n)
+    {
+        _number = n ?? string.Empty;
+    }
+
+    protected override string GetNum()
+    {
+        return _number;
+    }
 
     public override bool IsZero()
     {
         if (_isNegative) return false;
         if (string.IsNullOrEmpty(_number)) return true;
-        
         if (_fractionSeparatorExists)
         {
             string[] parts = _number.Split(_separator[0]);
             return parts.Length > 0 && parts[0].All(c => c == '0');
         }
-        
         return _number.All(c => c == '0');
     }
 
