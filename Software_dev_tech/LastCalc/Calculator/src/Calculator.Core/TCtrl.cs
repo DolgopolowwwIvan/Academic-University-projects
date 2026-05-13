@@ -63,11 +63,11 @@ public class TCtrl
 
     public TCtrl()
     {
-        _editor = new TEditor(NumberType.Real);
+        _editor = new TEditor(NumberType.Real, 10);
         _processor = new TProc();
         _memory = new TMemory();
         _clipBoard = new TClipBoard();
-        _number = new TPNumber(0);
+        _number = new TPNumber(0, 10);
         _state = TCtrlState.cStart;
         _help = new THelp();
     }
@@ -141,7 +141,8 @@ public class TCtrl
             {
                 result = CalculateExpression();
             }
-            else if (command >= CMD_FUNC_SIN && command <= CMD_FUNC_EXP)
+            else if ((command >= CMD_FUNC_SIN && command <= CMD_FUNC_EXP) ||
+                     command == CMD_FUNC_SQR || command == CMD_FUNC_REV)
             {
                 result = ExecuteFunction(command);
             }
@@ -149,7 +150,7 @@ public class TCtrl
             {
                 result = ExecuteMemoryCommand(command, ref memoryState);
             }
-            else if (command == CMD_COPY || command == CMD_COPY)
+            else if (command == CMD_COPY || command == CMD_PASTE)
             {
                 result = ExecuteClipboardCommand(command, ref buffer);
             }
@@ -243,11 +244,15 @@ public class TCtrl
                 }
 
                 _number = _processor.Lopd_Res.Copy();
-                _editor.SetNumber(_number);
+                _editor.SetNumberWithoutReset(_number);
+                result = _editor.GetDisplayString();
+                if (string.IsNullOrEmpty(result))
+                    result = _number.ReadNumberAsString();
             }
             else
             {
                 _processor.Lopd_Res = _number.Copy();
+                _number = _editor.GetNumber();
             }
 
             switch (command)
@@ -432,4 +437,53 @@ public class TCtrl
                     _editor.Clear();
                     _number = new TPNumber(0, _editor.BaseSystem);
                     break;
+            }
+
+            memoryState = _memory.GetStateString();
+
+            if (!string.IsNullOrEmpty(_memory.Error))
+            {
+                result = _memory.Error;
+            }
+        }
+        catch (Exception ex)
+        {
+            result = ex.Message;
+        }
+
+        return result;
+    }
+
+    // Выполнить команду буфера обмена
+    public string ExecuteClipboardCommand(int command, ref string buffer)
+    {
+        string result = string.Empty;
+
+        try
+        {
+            switch (command)
+            {
+                case CMD_COPY:
+                    _clipBoard.Copy(_number.ReadNumberAsString());
+                    buffer = _clipBoard.Content;
+                    break;
+                case CMD_PASTE:
+                    double pastedValue = _clipBoard.PasteValue();
+                    _number = new TPNumber(pastedValue, _editor.BaseSystem);
+                    _editor.SetNumberWithoutReset(_number);
+                    result = _editor.GetDisplayString();
+                    if (string.IsNullOrEmpty(result))
+                        result = _number.ReadNumberAsString();
+                    buffer = _clipBoard.Content;
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            result = ex.Message;
+        }
+
+        return result;
+    }
+}
 

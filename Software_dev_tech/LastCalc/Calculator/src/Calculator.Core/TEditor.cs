@@ -232,21 +232,20 @@ public class TEditor
     {
         if (_numberType == NumberType.Real)
         {
-            _number = new TPNumber(value, _baseSystem);
-            _editor.WriteStringAsString(_number.ReadNumberAsString());
+            _currentNumber = new TPNumber(value, _baseSystem);
+            _editor.WriteStringAsString(_currentNumber.ReadNumberAsString());
         }
         else if (_numberType == NumberType.Fraction)
         {
             long num = (long)(value * 1000000);
-            _number = new Frac(num, 1000000);
-            _editor.WriteStringAsString(_number.ReadNumberAsString());
+            _currentNumber = new Frac(num, 1000000);
+            _editor.WriteStringAsString(_currentNumber.ReadNumberAsString());
         }
         else if (_numberType == NumberType.Complex)
         {
-            _number = new TComplex(value, 0);
-            _editor.WriteStringAsString(_number.ReadNumberAsString());
+            _currentNumber = new TComplex(value, 0);
+            _editor.WriteStringAsString(_currentNumber.ReadNumberAsString());
         }
-        _currentNumber = _number;
     }
 
     // Установить число в буфер ввода
