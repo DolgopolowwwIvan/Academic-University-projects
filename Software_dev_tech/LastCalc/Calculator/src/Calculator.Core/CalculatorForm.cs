@@ -256,13 +256,23 @@ public class CalculatorForm : Form
 
     private void UpdateButtonVisibility()
     {
-        // Показываем кнопки A-F только для соответствующих оснований
-        _btnA.Visible = _currentBaseSystem >= 11;
-        _btnB.Visible = _currentBaseSystem >= 12;
-        _btnC.Visible = _currentBaseSystem >= 13;
-        _btnD.Visible = _currentBaseSystem >= 14;
-        _btnE.Visible = _currentBaseSystem >= 15;
-        _btnF.Visible = _currentBaseSystem >= 16;
+        // Показываем кнопки цифр только для текущего основания
+        _btn0.Visible = _currentBaseSystem > 0;
+        _btn1.Visible = _currentBaseSystem > 1;
+        _btn2.Visible = _currentBaseSystem > 2;
+        _btn3.Visible = _currentBaseSystem > 3;
+        _btn4.Visible = _currentBaseSystem > 4;
+        _btn5.Visible = _currentBaseSystem > 5;
+        _btn6.Visible = _currentBaseSystem > 6;
+        _btn7.Visible = _currentBaseSystem > 7;
+        _btn8.Visible = _currentBaseSystem > 8;
+        _btn9.Visible = _currentBaseSystem > 9;
+        _btnA.Visible = _currentBaseSystem > 10;
+        _btnB.Visible = _currentBaseSystem > 11;
+        _btnC.Visible = _currentBaseSystem > 12;
+        _btnD.Visible = _currentBaseSystem > 13;
+        _btnE.Visible = _currentBaseSystem > 14;
+        _btnF.Visible = _currentBaseSystem > 15;
 
         _btnFracSep.Visible = _currentNumberType == NumberType.Fraction;
         _btnComplexSep.Visible = _currentNumberType == NumberType.Complex;
