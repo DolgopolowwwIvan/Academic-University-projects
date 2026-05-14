@@ -171,7 +171,16 @@ public class TEditor
     // Изменить знак числа
     public void ChangeSign()
     {
-        _editor.AddSigne();
+        if (_numberType == NumberType.Complex && _editor is CEditor cEditor)
+        {
+            // Для комплексных чисел меняем знак мнимой части, если она есть
+            // иначе меняем знак действительной части
+            cEditor.AddSigne(0);
+        }
+        else
+        {
+            _editor.AddSigne();
+        }
         _currentNumber = GetNumber();
         _error = string.Empty;
     }

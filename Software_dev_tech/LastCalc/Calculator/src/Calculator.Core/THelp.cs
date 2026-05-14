@@ -203,20 +203,7 @@ Backspace: Backspace
     public string ShowHelpMenu()
     {
         StringBuilder sb = new StringBuilder();
-        sb.AppendLine("ДОСТУПНЫЕ ТЕМЫ СПРАВКИ:");
-        sb.AppendLine("========================");
-        sb.AppendLine("main        - Главная информация");
-        sb.AppendLine("numbers     - Типы чисел");
-        sb.AppendLine("base_systems - Системы счисления");
-        sb.AppendLine("fractions   - Рациональные дроби");
-        sb.AppendLine("complex     - Комплексные числа");
-        sb.AppendLine("memory      - Работа с памятью");
-        sb.AppendLine("clipboard   - Буфер обмена");
-        sb.AppendLine("functions   - Математические функции");
-        sb.AppendLine("keyboard    - Управление с клавиатуры");
-        sb.AppendLine("about       - О программе");
-        sb.AppendLine("========================");
-        sb.AppendLine("Введите название темы для получения информации.");
+     
         return sb.ToString();
     }
 

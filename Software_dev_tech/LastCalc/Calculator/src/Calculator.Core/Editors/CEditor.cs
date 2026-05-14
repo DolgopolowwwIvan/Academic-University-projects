@@ -11,6 +11,7 @@ internal class CEditor : AEditor
     private REEditor _imagEditor;
     private bool _hasImaginaryPart;
     private bool _isNegative;
+    private bool _isImagNegative;
 
     public const string IMAGINARY_SEPARATOR = "i*";
 
@@ -20,6 +21,7 @@ internal class CEditor : AEditor
         _imagEditor = new REEditor();
         _hasImaginaryPart = false;
         _isNegative = false;
+        _isImagNegative = false;
     }
 
     public CEditor(int baseSystem) : base("0", ".")
@@ -28,6 +30,7 @@ internal class CEditor : AEditor
         _imagEditor = new REEditor(baseSystem);
         _hasImaginaryPart = false;
         _isNegative = false;
+        _isImagNegative = false;
     }
 
     public int BaseSystem
@@ -67,7 +70,16 @@ internal class CEditor : AEditor
 
     public override string AddSigne(uint a = 0)
     {
-        _isNegative = !_isNegative;
+        if (_hasImaginaryPart)
+        {
+            // Если есть мнимая часть, переключаем её знак
+            _isImagNegative = !_isImagNegative;
+        }
+        else
+        {
+            // Иначе переключаем знак действительной части
+            _isNegative = !_isNegative;
+        }
         return GetResultString();
     }
 
@@ -94,6 +106,7 @@ internal class CEditor : AEditor
         _imagEditor.Clear();
         _hasImaginaryPart = false;
         _isNegative = false;
+        _isImagNegative = false;
         return GetResultString();
     }
 
@@ -109,10 +122,17 @@ internal class CEditor : AEditor
         }
 
         string imagStr = _imagEditor.ReadStringAsString();
-        string sign = imagStr.StartsWith("-") ? " - " : " + ";
+        
+        // Определяем знак мнимой части
+        string sign = (_isImagNegative || imagStr.StartsWith("-")) ? " - " : " + ";
+        
+        // Убираем знак из строки мнимой части для отображения
         if (imagStr.StartsWith("-"))
             imagStr = imagStr.Substring(1);
+        if (_isImagNegative && imagStr != "0")
+            imagStr = imagStr; // знак уже учтён в sign
         
+        // Знак действительной части
         if (_isNegative && !realStr.StartsWith("-"))
             realStr = "-" + realStr;
 
@@ -132,6 +152,7 @@ internal class CEditor : AEditor
         {
             _realEditor.WriteStringAsString(str);
             _hasImaginaryPart = false;
+            _isImagNegative = false;
         }
         else
         {
@@ -140,8 +161,9 @@ internal class CEditor : AEditor
             
             _realEditor.WriteStringAsString(realPartStr);
             
-            bool imagNegative = imagPartStr.StartsWith("-");
-            if (imagNegative) imagPartStr = imagPartStr.Substring(1);
+            // Проверяем знак мнимой части
+            _isImagNegative = imagPartStr.StartsWith("-");
+            if (_isImagNegative) imagPartStr = imagPartStr.Substring(1);
             imagPartStr = imagPartStr.TrimStart('+', ' ');
 
             if (!string.IsNullOrEmpty(imagPartStr))
@@ -152,6 +174,7 @@ internal class CEditor : AEditor
             else
             {
                 _hasImaginaryPart = false;
+                _isImagNegative = false;
             }
         }
     }
