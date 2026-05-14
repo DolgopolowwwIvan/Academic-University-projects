@@ -1,4 +1,4 @@
-Паnamespace Calculator.Core;
+namespace Calculator.Core;
 
 using Calculator.Core.Numbers;
 
