@@ -10,8 +10,6 @@ internal class CEditor : AEditor
     private REEditor _realEditor;
     private REEditor _imagEditor;
     private bool _hasImaginaryPart;
-    private bool _isNegative;
-    private bool _isImagNegative;
 
     public const string IMAGINARY_SEPARATOR = "i*";
 
@@ -20,8 +18,6 @@ internal class CEditor : AEditor
         _realEditor = new REEditor();
         _imagEditor = new REEditor();
         _hasImaginaryPart = false;
-        _isNegative = false;
-        _isImagNegative = false;
     }
 
     public CEditor(int baseSystem) : base("0", ".")
@@ -29,8 +25,6 @@ internal class CEditor : AEditor
         _realEditor = new REEditor(baseSystem);
         _imagEditor = new REEditor(baseSystem);
         _hasImaginaryPart = false;
-        _isNegative = false;
-        _isImagNegative = false;
     }
 
     public int BaseSystem
@@ -51,13 +45,9 @@ internal class CEditor : AEditor
     public override string AddDigit(uint a)
     {
         if (!_hasImaginaryPart)
-        {
             _realEditor.AddDigit(a);
-        }
         else
-        {
             _imagEditor.AddDigit(a);
-        }
         return GetResultString();
     }
 
@@ -68,18 +58,15 @@ internal class CEditor : AEditor
         return GetResultString();
     }
 
+    /// <summary>
+    /// Смена знака делегируется текущему редактору (действительной или мнимой части)
+    /// </summary>
     public override string AddSigne(uint a = 0)
     {
-        if (_hasImaginaryPart)
-        {
-            // Если есть мнимая часть, переключаем её знак
-            _isImagNegative = !_isImagNegative;
-        }
+        if (!_hasImaginaryPart)
+            _realEditor.AddSigne(a);
         else
-        {
-            // Иначе переключаем знак действительной части
-            _isNegative = !_isNegative;
-        }
+            _imagEditor.AddSigne(a);
         return GetResultString();
     }
 
@@ -88,7 +75,7 @@ internal class CEditor : AEditor
         if (_hasImaginaryPart)
         {
             string imagStr = _imagEditor.ReadStringAsString();
-            if (!string.IsNullOrEmpty(imagStr))
+            if (!string.IsNullOrEmpty(imagStr) && imagStr != "0")
                 _imagEditor.BackSpace();
             else
                 _hasImaginaryPart = false;
@@ -105,78 +92,102 @@ internal class CEditor : AEditor
         _realEditor.Clear();
         _imagEditor.Clear();
         _hasImaginaryPart = false;
-        _isNegative = false;
-        _isImagNegative = false;
         return GetResultString();
     }
 
+    /// <summary>
+    /// Формирует строку вида "a + bi*" или "a - bi*"
+    /// Знак мнимой части берётся из _imagEditor
+    /// </summary>
     private string GetResultString()
     {
         string realStr = _realEditor.ReadStringAsString();
-        
+        if (string.IsNullOrEmpty(realStr)) realStr = "0";
+
         if (!_hasImaginaryPart)
-        {
-            if (_isNegative && !realStr.StartsWith("-"))
-                realStr = "-" + realStr;
             return realStr;
-        }
 
         string imagStr = _imagEditor.ReadStringAsString();
-        
-        // Определяем знак мнимой части
-        string sign = (_isImagNegative || imagStr.StartsWith("-")) ? " - " : " + ";
-        
-        // Убираем знак из строки мнимой части для отображения
-        if (imagStr.StartsWith("-"))
-            imagStr = imagStr.Substring(1);
-        if (_isImagNegative && imagStr != "0")
-            imagStr = imagStr; // знак уже учтён в sign
-        
-        // Знак действительной части
-        if (_isNegative && !realStr.StartsWith("-"))
-            realStr = "-" + realStr;
+        if (string.IsNullOrEmpty(imagStr)) imagStr = "0";
 
+        // Определяем знак мнимой части
+        bool imagNegative = imagStr.StartsWith("-");
+        if (imagNegative)
+            imagStr = imagStr.Substring(1);
+
+        // Если мнимая часть 0 — показываем только действительную
+        if (imagStr == "0" || string.IsNullOrEmpty(imagStr))
+            return realStr;
+
+        string sign = imagNegative ? " - " : " + ";
         return $"{realStr}{sign}{imagStr}{IMAGINARY_SEPARATOR}";
     }
 
+    /// <summary>
+    /// Парсит строки вида:
+    ///   "5", "-5", "5 + 3i*", "5 - 3i*", "-5 + 3i*", "-5 - 3i*"
+    ///   "5+3i*", "5-3i*" (без пробелов — fallback)
+    /// </summary>
     private void ParseFromString(string value)
     {
         if (string.IsNullOrEmpty(value)) { Clear(); return; }
 
-        _isNegative = value.StartsWith("-");
-        string str = _isNegative ? value.Substring(1) : value;
+        int imagSepIndex = value.IndexOf(IMAGINARY_SEPARATOR);
 
-        int imagSepIndex = str.IndexOf(IMAGINARY_SEPARATOR);
-        
         if (imagSepIndex < 0)
         {
-            _realEditor.WriteStringAsString(str);
+            // Только действительная часть
+            _realEditor.WriteStringAsString(value);
             _hasImaginaryPart = false;
-            _isImagNegative = false;
+            return;
         }
-        else
-        {
-            string realPartStr = str.Substring(0, imagSepIndex).Trim();
-            string imagPartStr = str.Substring(imagSepIndex + IMAGINARY_SEPARATOR.Length).Trim();
-            
-            _realEditor.WriteStringAsString(realPartStr);
-            
-            // Проверяем знак мнимой части
-            _isImagNegative = imagPartStr.StartsWith("-");
-            if (_isImagNegative) imagPartStr = imagPartStr.Substring(1);
-            imagPartStr = imagPartStr.TrimStart('+', ' ');
 
-            if (!string.IsNullOrEmpty(imagPartStr))
-            {
-                _imagEditor.WriteStringAsString(imagPartStr);
-                _hasImaginaryPart = true;
-            }
-            else
-            {
-                _hasImaginaryPart = false;
-                _isImagNegative = false;
-            }
+        string beforeImag = value.Substring(0, imagSepIndex).TrimEnd();
+
+        // Ищем последний " + " или " - " — разделитель действительной и мнимой части
+        int lastPlus = beforeImag.LastIndexOf(" + ");
+        int lastMinus = beforeImag.LastIndexOf(" - ");
+
+        int signPos = Math.Max(lastPlus, lastMinus);
+
+        if (signPos > 0)
+        {
+            // Формат с пробелами: "a + bi*" / "a - bi*"
+            string realStr = beforeImag.Substring(0, signPos).Trim();
+            string imagStr = beforeImag.Substring(signPos + 3).Trim();
+
+            if (lastMinus > lastPlus)
+                imagStr = "-" + imagStr;
+
+            _realEditor.WriteStringAsString(realStr);
+            _imagEditor.WriteStringAsString(imagStr);
+            _hasImaginaryPart = true;
+            return;
         }
+
+        // Fallback: формат без пробелов "a-bi*" или "a+bi*"
+        int lastMinusCompact = beforeImag.LastIndexOf('-');
+        int lastPlusCompact = beforeImag.LastIndexOf('+');
+
+        int compactSignPos = Math.Max(lastMinusCompact, lastPlusCompact);
+
+        if (compactSignPos > 0)
+        {
+            string realStr = beforeImag.Substring(0, compactSignPos).Trim();
+            string imagStr = beforeImag.Substring(compactSignPos + 1).Trim();
+
+            if (lastMinusCompact > lastPlusCompact)
+                imagStr = "-" + imagStr;
+
+            _realEditor.WriteStringAsString(realStr);
+            _imagEditor.WriteStringAsString(imagStr);
+            _hasImaginaryPart = true;
+            return;
+        }
+
+        // Нет разделителя — всё в действительной части
+        _realEditor.WriteStringAsString(beforeImag);
+        _hasImaginaryPart = false;
     }
 
     public override string ReadStringAsString() => GetResultString();
