@@ -55,11 +55,12 @@ public class Frac : TANumber
 
     private void Normalize()
     {
-        if (_numerator == 0) { _denominator = 1; return; }
+        if (_numerator == 0) { _denominator = 1; _stringValue = ZERO_STRING; return; }
         if (_denominator < 0) { _numerator = -_numerator; _denominator = -_denominator; }
         long gcd = Gcd(Math.Abs(_numerator), _denominator);
         _numerator /= gcd;
         _denominator /= gcd;
+        _stringValue = ToString();
     }
 
     private long Gcd(long a, long b)
