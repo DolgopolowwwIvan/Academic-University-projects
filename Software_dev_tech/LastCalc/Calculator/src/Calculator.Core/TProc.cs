@@ -262,12 +262,13 @@ public class TProc
     // Установить начальное состояние с сохранением типа числа
     public void ReSet()
     {
-        _lopd_Res = _lopd_Res?.GetType() switch
-        {
-            NumberType.Fraction => new Frac(0, 1),
-            NumberType.Complex => new TComplex(0, 0),
-            _ => new TPNumber(0, 10)
-        } ?? new TPNumber(0, 10);
+        var type = _lopd_Res?.GetType();
+        if (type == NumberType.Fraction)
+            _lopd_Res = new Frac(0, 1);
+        else if (type == NumberType.Complex)
+            _lopd_Res = new TComplex(0, 0);
+        else
+            _lopd_Res = new TPNumber(0, 10);
         
         _ropd = _lopd_Res.Copy();
         _operation = TOperation.None;
@@ -277,12 +278,12 @@ public class TProc
     // Установить начальное состояние с явным указанием типа числа
     public void ReSet(NumberType numberType)
     {
-        _lopd_Res = numberType switch
-        {
-            NumberType.Fraction => new Frac(0, 1),
-            NumberType.Complex => new TComplex(0, 0),
-            _ => new TPNumber(0, 10)
-        };
+        if (numberType == NumberType.Fraction)
+            _lopd_Res = new Frac(0, 1);
+        else if (numberType == NumberType.Complex)
+            _lopd_Res = new TComplex(0, 0);
+        else
+            _lopd_Res = new TPNumber(0, 10);
         
         _ropd = _lopd_Res.Copy();
         _operation = TOperation.None;
