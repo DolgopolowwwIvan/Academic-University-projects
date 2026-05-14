@@ -286,26 +286,29 @@ public class TComplex : TANumber
     public override NumberType GetType() => NumberType.Complex;
 
     /// <summary>
-    /// Форматирование комплексного числа в строку
+    /// Форматирование комплексного числа в строку вида "a + bi*" или "a - bi*"
     /// </summary>
     private static string FormatString(TANumber real, TANumber imag)
     {
         string realStr = real.ReadNumberAsString();
         string imagStr = imag.ReadNumberAsString();
         
-        // Форматирование мнимой части
+        // Если мнимая часть ноль — возвращаем только действительную
         if (imag.EqZero())
             return realStr;
         
-        string sign = imagStr.StartsWith("-") ? " - " : " + ";
-        if (imagStr.StartsWith("-"))
+        // Определяем знак мнимой части
+        bool imagNegative = imagStr.StartsWith("-");
+        if (imagNegative)
             imagStr = imagStr.Substring(1);
         
+        string sign = imagNegative ? " - " : " + ";
         return $"{realStr}{sign}{imagStr}{IMAGINARY_SEPARATOR}";
     }
 
     /// <summary>
     /// Парсинг строки в комплексное число
+    /// Поддерживает форматы: "a", "-a", "a + bi*", "a - bi*", "a+bi*", "a-bi*"
     /// </summary>
     private void ParseFromString(string value)
     {
@@ -327,30 +330,62 @@ public class TComplex : TANumber
             // Только действительная часть
             _realPart = new TPNumber(str);
             _imaginaryPart = new TPNumber(0);
+            _stringValue = value;
+            return;
+        }
+
+        // Отрезаем всё после i* (если есть что-то ещё)
+        string beforeImag = str.Substring(0, imagSepIndex).TrimEnd();
+
+        // Ищем последний " + " или " - " — разделитель действительной и мнимой части
+        int lastPlus = beforeImag.LastIndexOf(" + ");
+        int lastMinus = beforeImag.LastIndexOf(" - ");
+        int signPos = Math.Max(lastPlus, lastMinus);
+
+        if (signPos > 0)
+        {
+            // Формат с пробелами: "a + bi*" / "a - bi*"
+            string realPartStr = beforeImag.Substring(0, signPos).Trim();
+            string imagPartStr = beforeImag.Substring(signPos + 3).Trim();
+
+            if (lastMinus > lastPlus)
+                imagPartStr = "-" + imagPartStr;
+
+            _realPart = new TPNumber(realPartStr);
+            _imaginaryPart = new TPNumber(imagPartStr);
+            _stringValue = value;
+            return;
+        }
+            
+        // Fallback: формат без пробелов "a-bi*" или "a+bi*"
+        int lastMinusCompact = beforeImag.LastIndexOf('-');
+        int lastPlusCompact = beforeImag.LastIndexOf('+');
+        int compactSignPos = Math.Max(lastMinusCompact, lastPlusCompact);
+
+        if (compactSignPos > 0)
+        {
+            string realPartStr = beforeImag.Substring(0, compactSignPos).Trim();
+            string imagPartStr = beforeImag.Substring(compactSignPos + 1).Trim();
+
+            if (lastMinusCompact > lastPlusCompact)
+                imagPartStr = "-" + imagPartStr;
+
+            _realPart = new TPNumber(realPartStr);
+            _imaginaryPart = new TPNumber(imagPartStr);
+            _stringValue = value;
+            return;
+        }
+
+        // Нет разделителя — всё в действительной части (например, "9i*" — мнимая часть без действительной)
+        if (beforeImag.Length > 0)
+        {
+            _realPart = new TPNumber(0);
+            _imaginaryPart = new TPNumber(beforeImag);
         }
         else
         {
-            // Есть мнимая часть
-            string realPartStr = str.Substring(0, imagSepIndex).Trim();
-            string imagPartStr = str.Substring(imagSepIndex + IMAGINARY_SEPARATOR.Length).Trim();
-            
-            // Убираем знак из мнимой части для парсинга
-            bool imagNegative = imagPartStr.StartsWith("-");
-            if (imagNegative) imagPartStr = imagPartStr.Substring(1);
-            imagPartStr = imagPartStr.TrimStart('+', ' ');
-
-            _realPart = new TPNumber(realPartStr);
-            
-            if (imagPartStr.Length > 0)
-            {
-                _imaginaryPart = new TPNumber(imagPartStr);
-                if (imagNegative)
-                    _imaginaryPart = _imaginaryPart.Reverse();
-            }
-            else
-            {
-                _imaginaryPart = new TPNumber(0);
-            }
+            _realPart = new TPNumber(0);
+            _imaginaryPart = new TPNumber(0);
         }
 
         _stringValue = value;

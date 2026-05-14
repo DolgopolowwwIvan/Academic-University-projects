@@ -387,7 +387,14 @@ public class TCtrl
             _processor.ReSet();
             _memory.ReSet();
             _clipBoard.ReSet();
-            _number = new TPNumber(0, _editor.BaseSystem);
+            
+            _number = _editor.NumberType switch
+            {
+                NumberType.Fraction => new Frac(0, 1),
+                NumberType.Complex => new TComplex(0, 0),
+                _ => new TPNumber(0, _editor.BaseSystem)
+            };
+            
             _state = TCtrlState.cStart;
 
             return "0";

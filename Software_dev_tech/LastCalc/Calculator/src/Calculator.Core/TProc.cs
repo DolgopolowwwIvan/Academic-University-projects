@@ -1,4 +1,4 @@
-namespace Calculator.Core;
+Паnamespace Calculator.Core;
 
 using Calculator.Core.Numbers;
 
@@ -259,11 +259,32 @@ public class TProc
         return new TPNumber(result);
     }
 
-    // Установить начальное состояние
+    // Установить начальное состояние с сохранением типа числа
     public void ReSet()
     {
-        _lopd_Res = new TPNumber(0);
-        _ropd = new TPNumber(0);
+        _lopd_Res = _lopd_Res?.GetType() switch
+        {
+            NumberType.Fraction => new Frac(0, 1),
+            NumberType.Complex => new TComplex(0, 0),
+            _ => new TPNumber(0, 10)
+        } ?? new TPNumber(0, 10);
+        
+        _ropd = _lopd_Res.Copy();
+        _operation = TOperation.None;
+        _error = string.Empty;
+    }
+
+    // Установить начальное состояние с явным указанием типа числа
+    public void ReSet(NumberType numberType)
+    {
+        _lopd_Res = numberType switch
+        {
+            NumberType.Fraction => new Frac(0, 1),
+            NumberType.Complex => new TComplex(0, 0),
+            _ => new TPNumber(0, 10)
+        };
+        
+        _ropd = _lopd_Res.Copy();
         _operation = TOperation.None;
         _error = string.Empty;
     }

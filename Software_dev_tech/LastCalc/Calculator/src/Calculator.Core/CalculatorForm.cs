@@ -413,7 +413,7 @@ public class CalculatorForm : Form
             NumberType.Complex => new TComplex(0, 0),
             _ => new TPNumber(0, baseSystem)
         };
-        _controller.Processor.ReSet();
+        _controller.Processor.ReSet(type);
         _display.Text = _controller.Number.ReadNumberAsString();
         _baseComboBox.SelectedIndex = baseSystem - 2;
         UpdateButtonVisibility();
